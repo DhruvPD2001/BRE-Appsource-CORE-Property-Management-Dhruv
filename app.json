@@ -1,0 +1,37 @@
+{
+  "id": "0d315d7e-99d5-4269-b1dd-4e1ba08706f2",
+  "name": "ee",
+  "publisher": "Default Publisher",
+  "version": "1.0.0.0",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [{
+    "id": "6ec69b13-fab8-474a-afde-cb88f1bca51f",
+    "name": "Core-RealEstate-AppSource",
+    "publisher": "Default Publisher",
+    "version": "1.0.0.0"
+  }],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "26.0.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 59999
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  },
+  "runtime": "15.0",
+  "features": [
+    "NoImplicitWith"
+  ]
+}
