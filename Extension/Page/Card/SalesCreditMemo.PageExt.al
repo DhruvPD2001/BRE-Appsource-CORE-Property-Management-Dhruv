@@ -13,7 +13,7 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
                     trigger OnValidate()
                     var
                         tenancyContract: Record "Tenancy Contract";
-                        customercard: Record Customer;
+
                     begin
                         tenancyContract.SetRange("Contract ID", Rec."Contract ID");
                         if tenancyContract.FindFirst() then begin
@@ -87,16 +87,15 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
                     trigger OnValidate()
                     var
                         emailcreditmemo: Codeunit "Send Credit Memo to Tenant";
-                        Rejectionmail: Codeunit "Reject Credit Memo";
                         ShowDialogBox: Codeunit DialogboxRejectionCreditMemo;
                     begin
-                        if Rec."Approval Status for CreditNote" = Rec."Approval Status for CreditNote"::Approved then begin
-                            emailcreditmemo.SendMailToTenantForCreditMemo(Rec); // Pass the current record if needed
-                        end else
-                            if Rec."Approval Status for CreditNote" = Rec."Approval Status for CreditNote"::Rejected then begin
+
+                        if Rec."Approval Status for CreditNote" = Rec."Approval Status for CreditNote"::Approved then
+                            emailcreditmemo.SendMailToTenantForCreditMemo(Rec) // Pass the current record if needed
+                        else
+                            if Rec."Approval Status for CreditNote" = Rec."Approval Status for CreditNote"::Rejected then
                                 ShowDialogBox.Dialogboxcreditmemo(Rec);
-                                // Rejectionmail.SendInvoiceToLeaseManager(Rec);
-                            end;
+
                     end;
                 }
                 field("Rejection Reason CreditNote"; Rec."Rejection Reason CreditNote")
@@ -104,7 +103,6 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
                     ApplicationArea = All;
                     ToolTip = 'Reason for rejection of the credit note.';
                     Editable = false;
-                    // Editable = approvaleditable;
                 }
                 field("Terminated Credit Note"; Rec."Terminated Credit Note")
                 {
@@ -114,11 +112,7 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
                     Visible = false;
                 }
 
-
-
             }
-
-
 
         }
         addlast(General)
@@ -127,6 +121,7 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
             {
                 ApplicationArea = All;
                 Caption = 'Credit Memo Document URL';
+                ToolTip = 'URL of the credit memo document stored in Azure Blob Storage.';
             }
             field("Credit Memo Document"; Rec."Credit Memo Document")
             {
@@ -134,6 +129,7 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
                 Caption = 'View Invoice';
                 Editable = false;
                 DrillDown = true;
+                ToolTip = 'Click to view the credit memo document.';
                 trigger OnDrillDown()
                 var
                     FileURL: Text;
@@ -141,18 +137,14 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
 
                     FileURL := Rec."Credit Memo URL";
 
-
                     if FileURL = '' then
                         Error('No document is available to view.');
-
 
                     OpenFileInBrowser(FileURL);
                 end;
 
             }
         }
-
-
     }
     actions
     {
@@ -162,6 +154,7 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
             {
                 ApplicationArea = All;
                 Caption = 'Send Approval to Finance Manager';
+                ToolTip = 'Send the credit memo for approval to the finance manager.';
                 trigger OnAction()
                 var
                     sendMailToFMCreditNote: Codeunit "Send Mail to FM Credit Note";
@@ -174,26 +167,19 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
         {
             trigger OnBeforeAction()
             var
-                // AzureBlobUploader: Codeunit "Azure Blob Management";
-                InStream: InStream;
-                FileName: Text;
-                SASUrlBase: Text;
-                SASUrlWithFileName: Text;
-                UploadResult: Text;
+                SalesHeader1: Record "Sales Header";
+                ConfigRecord: Record AzureConfiguration;
+                azureBlobUploader: Codeunit "Azure AD Blob Storage";
                 TempBlob: Codeunit "Temp Blob";
+                RecRef: RecordRef;
+                InStream: InStream;
+                FileName: Text[100];
+                SASUrlBase: Text;
+                UploadResult: Text[1000];
                 ValidFormats: List of [Text];
                 FileExtension: Text[10];
-                FileSize: Decimal;
-                ConfigRecord: Record AzureConfiguration;
                 ReportID: Integer; // Your report ID
-                RecRef: RecordRef;
-                FieldRef1: FieldRef;
-                FieldRef2: FieldRef;
                 OutStream: OutStream;
-                documentattachment: Codeunit UploadAttachment;
-                SalesHeader1: Record "Sales Header";
-                customercard: Record Customer;
-                azureBlobUploader: Codeunit "Azure AD Blob Storage";
                 folderName: Text;
             begin
                 if Rec."Approval Status for CreditNote" <> Rec."Approval Status for CreditNote"::Approved then
@@ -208,8 +194,6 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
                 SASUrlBase := ConfigRecord."SAS URL";
                 FileExtension := '.pdf';
                 ReportID := 50116;
-                //  RecRef.Open(DATABASE::"Sales Header"); // Open the table reference
-                // RecRef.GetTable(Rec);
                 SalesHeader1.Reset();
                 SalesHeader1.SetRange("No.", Rec."No.");
                 SalesHeader1.SetRange("Document Type", Rec."Document Type"::"Credit Memo");
@@ -218,12 +202,9 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
 
                 // Open the correct record in RecRef
                 RecRef.GetTable(SalesHeader1);
-                // RecRef.GetTable(Rec);
+
                 TempBlob.CreateOutStream(OutStream);
                 Report.SaveAs(ReportID, '', ReportFormat::Pdf, OutStream, RecRef);
-
-
-
                 TempBlob.CreateInStream(InStream);
                 FileName := 'CreditNote' + Rec."No." + FileExtension;
                 folderName := 'SalesCreditMemoDocuments';
@@ -249,16 +230,13 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
             Rec."Unit Name" := tenancyContract."Unit Name";
             Rec."Contract Tenure" := tenancyContract."Contract Tenor";
             Rec."Tenant Name" := tenancyContract."Customer Name";
-            // Rec."Property Classification" := tenancyContract."Property Classification";
             Rec."Contract Period" := Format(tenancyContract."Contract Start Date", 0, '<Day,2>/<Month,2>/<Year4>') + '  To  ' + Format(tenancyContract."Contract End Date", 0, '<Day,2>/<Month,2>/<Year4>');
             Rec."Contract Amount" := tenancyContract."Annual Rent Amount";
         end else begin
-
             rec."Property Name" := '';
             Rec."Unit Name" := '';
             Rec."Contract Tenure" := '';
             Rec."Contract Period" := '';
-
         end;
     end;
 
@@ -267,8 +245,7 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
         UserPersonalization: Record "User Personalization";
     begin
 
-        if UserPersonalization.Get(UserSecurityId()) then begin
-
+        if UserPersonalization.Get(UserSecurityId()) then
             case UserPersonalization."Profile ID" of
                 'PROPERTY MANAGER':
                     exit(false);
@@ -277,9 +254,8 @@ pageextension 50508 SalesCreditMemo extends "Sales Credit Memo"
                 'finance manager':
                     exit(true);
             end;
-        end;
-
         exit(false);
+
     end;
 
     procedure OpenFileInBrowser(URL: Text)

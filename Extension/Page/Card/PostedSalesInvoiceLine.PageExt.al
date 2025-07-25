@@ -9,6 +9,7 @@ pageextension 50507 "PostedSalesInvoiceLine" extends "Posted Sales Invoice Subfo
                 ApplicationArea = All;
                 Caption = 'Contract ID';
                 Editable = false;
+                ToolTip = 'Specifies the contract associated with this posted sales invoice.';
             }
         }
     }

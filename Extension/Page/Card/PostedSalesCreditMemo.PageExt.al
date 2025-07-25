@@ -69,9 +69,11 @@ pageextension 50509 PostedSalesCreditMemo extends "Posted Sales Credit Memo"
             {
                 ApplicationArea = All;
                 Caption = 'View Document URL';
+                ToolTip = 'Specifies the URL to view the document associated with this posted sales credit memo.';
             }
             field("Credit Memo Document"; Rec."Credit Memo Document")
             {
+                ToolTip = 'Specifies the document associated with this posted sales credit memo.';
                 ApplicationArea = All;
                 Caption = 'View Invoice';
                 Editable = false;

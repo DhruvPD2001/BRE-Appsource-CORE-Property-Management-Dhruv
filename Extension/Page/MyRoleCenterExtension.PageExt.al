@@ -2,15 +2,6 @@ pageextension 50104 "MyRoleCenterExtension" extends "Business Manager Role Cente
 {
     actions
     {
-        // addfirst(embedding)
-        // {
-        //     action("Project Management")
-        //     {
-        //         ApplicationArea = Basic, Suite;
-        //         Caption = 'Project Management';
-        //         RunObject = Page "Property Registration List";
-        //     }
-        // }
         addfirst(sections)
         {
             group(Action42)
@@ -36,7 +27,6 @@ pageextension 50104 "MyRoleCenterExtension" extends "Business Manager Role Cente
                     RunObject = Page "Community List";
                 }
 
-
                 action(PropertyClassification)
                 {
                     Caption = 'Property Classifications';
@@ -55,7 +45,6 @@ pageextension 50104 "MyRoleCenterExtension" extends "Business Manager Role Cente
                     ApplicationArea = Basic, Suite;
                     RunObject = Page "Secondary Classification List";
                 }
-
 
                 action(OwnerProfile)
                 {
@@ -125,8 +114,6 @@ pageextension 50104 "MyRoleCenterExtension" extends "Business Manager Role Cente
                     RunObject = Page "Property Registration List";
                 }
 
-
-
                 action(UnitList)
                 {
                     Caption = 'Unit Registrations';
@@ -146,8 +133,6 @@ pageextension 50104 "MyRoleCenterExtension" extends "Business Manager Role Cente
                     ApplicationArea = Basic, Suite;
                     RunObject = Page "Tenancy Contract List";
                 }
-
-
 
                 action(MergeUnits)
                 {
@@ -175,10 +160,6 @@ pageextension 50104 "MyRoleCenterExtension" extends "Business Manager Role Cente
                     RunObject = Page "Payment Mode List";
                 }
 
-
-
-
-
                 action(PDCTransactions)
                 {
                     Caption = 'PDC Transactions';
@@ -197,14 +178,6 @@ pageextension 50104 "MyRoleCenterExtension" extends "Business Manager Role Cente
                     ApplicationArea = Basic, Suite;
                     RunObject = Page "Category List";
                 }
-                // action(RevenueAllocation)
-                // {
-                //     Caption = 'Revenue Allocation';
-                //     ApplicationArea = Basic, Suite;
-                //     RunObject = Page "Revenue Allocation List";
-                // }
-
-
 
                 action(AvailabilityStatus)
                 {
@@ -224,9 +197,6 @@ pageextension 50104 "MyRoleCenterExtension" extends "Business Manager Role Cente
                     ApplicationArea = Basic, Suite;
                     RunObject = Page "Contract Renewal List";
                 }
-
-
-
 
                 action(SecurityDeposit)
                 {
@@ -256,6 +226,5 @@ pageextension 50104 "MyRoleCenterExtension" extends "Business Manager Role Cente
 
             }
         }
-
     }
 }

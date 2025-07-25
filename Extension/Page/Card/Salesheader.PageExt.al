@@ -6,6 +6,7 @@ pageextension 50107 "Sales Header" extends "Sales Credit Memo"
         {
             action("Create Credit Note")
             {
+                ToolTip = 'Create a credit note for the selected sales header.';
                 Caption = 'Create Credit Note';
                 ApplicationArea = All;
                 Image = NewDocument; // Use an appropriate icon for the action

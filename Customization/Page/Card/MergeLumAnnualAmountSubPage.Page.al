@@ -14,26 +14,31 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                 field("Proposal ID"; rec."Proposal ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Enter the Proposal ID for the merged unit.';
                 }
                 field("ML_Merged Unit ID"; rec."ML_Merged Unit ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Merged Unit ID';
+                    ToolTip = 'Enter the Merged Unit ID for the merged unit.';
                 }
                 field("ML_Unit ID"; rec."ML_Unit ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Unit ID';
+                    ToolTip = 'Enter the Unit ID for the merged unit.';
                 }
                 field("ML_Year"; rec.ML_Year)
                 {
                     ApplicationArea = All;
                     Caption = 'Year';
+                    ToolTip = 'Enter the year for the merged unit.';
                 }
                 field("ML_Start Date"; rec."ML_Start Date")
                 {
                     ApplicationArea = All;
                     Caption = 'Start Date';
+                    ToolTip = 'Enter the start date for the merged unit.';
                     trigger OnValidate()
                     begin
                         // Recalculate Number of Days
@@ -45,6 +50,7 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                 {
                     ApplicationArea = All;
                     Caption = 'End Date';
+                    ToolTip = 'Enter the end date for the merged unit.';
                     trigger OnValidate()
                     begin
                         // Recalculate Number of Days
@@ -55,12 +61,14 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                 {
                     ApplicationArea = All;
                     Caption = 'Number of Days';
+                    ToolTip = 'Displays the number of days between the start and end date.';
                 }
                 field("ML_Unit Sq Ft"; rec."ML_Unit Sq Ft")
                 {
                     ApplicationArea = All;
                     Caption = 'Unit Sq Ft';
                     Editable = false;
+                    ToolTip = 'Displays the size of the unit in square feet.';
                     trigger OnValidate()
                     begin
                         // RecalculateAnnualAmount();
@@ -71,6 +79,7 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                     ApplicationArea = All;
                     Caption = 'Rate per Sq.Ft';
                     Editable = false;
+                    ToolTip = 'Displays the rate per square foot for the merged unit.';
                     trigger OnValidate()
                     begin
                         // RecalculateAnnualAmount();
@@ -80,15 +89,15 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                 {
                     ApplicationArea = All;
                     Caption = 'Rent Increase %';
+                    ToolTip = 'Enter the rent increase percentage for the merged unit.';
                     trigger OnValidate()
                     begin
                         if Rec."ML_Rent Increase %" < 0 then
                             Error('Rent Increase % cannot be negative.');
 
                         // Calculate the annual amount and final annual amount based on rent increase
-                        if Rec.ML_Year > 1 then begin
+                        if Rec.ML_Year > 1 then
                             RecalculateRentIncrease();
-                        end;
 
                         Rec.Modify();
                         // Recalculate totals
@@ -184,8 +193,6 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                         RecalculateTotals();
                     end;
                 }
-
-
             }
 
             group("Total Rent Caculation")
@@ -196,7 +203,7 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                     Caption = 'Total Contract Amount';
                     ApplicationArea = All;
                     Editable = false; // Make it read-only
-
+                    ToolTip = 'Displays the total contract amount for all merged units.';
                 }
 
                 field("TotalRoundOff"; rec.TotalRoundOff)
@@ -204,7 +211,7 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                     Caption = 'Round Off';
                     ApplicationArea = All;
                     Editable = false; // Make it read-only
-
+                    ToolTip = 'Displays the total round off amount for all merged units.';
                 }
 
                 field("TotalFinalAmount"; rec.TotalFinalAmount)
@@ -212,6 +219,7 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                     Caption = 'Total Final Contract Amount';
                     ApplicationArea = All;
                     Editable = false; // Make it read-only
+                    ToolTip = 'Displays the total final contract amount for all merged units.';
                 }
 
                 field("TotalFirstAnnualAmount"; rec.TotalFirstAnnualAmount)
@@ -219,9 +227,8 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                     Caption = 'Total Annual Amount';
                     ApplicationArea = All;
                     Editable = false; // Make it read-only
+                    ToolTip = 'Displays the total annual amount for the first year of all merged units.';
                 }
-
-
             }
         }
     }
@@ -232,11 +239,10 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
         {
             action(InsertData)
             {
+                ToolTip = 'Insert Data';
                 ApplicationArea = All;
                 Caption = 'Insert Data';
                 Image = NewDocument; // Optionally, define an icon
-
-
 
                 trigger OnAction()
                 var
@@ -255,10 +261,10 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                     SubLeaseMergeRec.SetRange("Proposal ID", Rec."Proposal ID");
 
                     // Fetch the first record from the Merge Lum_AnnualAmount SubPage table
-                    if MergeLumSquareRec.FindSet() then begin
+                    if MergeLumSquareRec.FindSet() then
                         repeat
                             // Loop through Sub Lease Merged Units and fetch relevant data
-                            if SubLeaseMergeRec.FindSet() then begin
+                            if SubLeaseMergeRec.FindSet() then
                                 repeat
                                     PerDayRevnue.Init();
                                     // Initialize the record in the current grid with data from both tables
@@ -285,9 +291,9 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
                                     end;
 
                                 until SubLeaseMergeRec.Next() = 0;
-                            end;
-                        until MergeLumSquareRec.Next() = 0;
-                    end
+
+                        until MergeLumSquareRec.Next() = 0
+
                     else
                         Error('No matching records found in Merge Lum_AnnualAmount SubPage for the given Proposal ID.');
 
@@ -324,16 +330,14 @@ page 50120 "Merge Lum_AnnualAmount SubPage"
         IsLeapYearInRange := false;
 
         // Check each year in the range for leap year
-        for CurrentYear := StartYear to EndYear do begin
-            if IsLeapYear(CurrentYear) then begin
+        for CurrentYear := StartYear to EndYear do
+            if IsLeapYear(CurrentYear) then
                 // Ensure the leap day (Feb 29) falls within the Start and End Date
                 if (DMY2Date(29, 2, CurrentYear) >= Rec."ML_Start Date") and
                    (DMY2Date(29, 2, CurrentYear) <= Rec."ML_End Date") then begin
                     IsLeapYearInRange := true;
                     break; // Stop checking further once a leap year is found
                 end;
-            end;
-        end;
 
         // If a leap year is in range, ensure at least one year has 366 days
         if IsLeapYearInRange then

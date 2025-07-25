@@ -16,6 +16,7 @@ page 50122 "Revenue Allocation Card"
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the unique identifier for the revenue allocation record.';
                     trigger OnValidate()
                     begin
                         if xRec."No." <> Rec."No." then
@@ -25,15 +26,18 @@ page 50122 "Revenue Allocation Card"
                 field(Month; Rec.Month)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the month for which the revenue allocation is being processed.';
                 }
                 field("Financial Year"; Rec."Financial Year")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the financial year for the revenue allocation.';
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the current status of the revenue allocation record.';
                 }
             }
             group("Revenue Allocation Report Details")
@@ -52,24 +56,28 @@ page 50122 "Revenue Allocation Card"
                     Caption = 'Total Contract Amount';
                     Editable = false;
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total contract amount for the revenue allocation.';
                 }
                 field(TotalAnnualAmount; TotalAnnualAmount)
                 {
                     Caption = 'Total Annual Amount';
                     Editable = false;
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total annual amount for the revenue allocation.';
                 }
                 field(TotalFinalAnnualAmount; TotalFinalAnnualAmount)
                 {
                     Caption = 'Total Final Annual Amount';
                     Editable = false;
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total final annual amount for the revenue allocation.';
                 }
                 field(TotalValue; TotalValue)
                 {
                     Caption = 'Total Value';
                     Editable = false;
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total value for the revenue allocation.';
                 }
             }
 
@@ -98,6 +106,7 @@ page 50122 "Revenue Allocation Card"
                     ApplicationArea = All;
                     Caption = 'Total Amount';
                     Editable = false;
+                    ToolTip = 'Specifies the total amount for other charges in the revenue allocation.';
                 }
 
                 field("Total Annual Amount"; TotalAnnualAmounts)
@@ -105,18 +114,21 @@ page 50122 "Revenue Allocation Card"
                     Caption = 'Total Annual Amount';
                     Editable = false;
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total annual amount for other charges in the revenue allocation.';
                 }
                 field("Total Final Annual Amount"; TotalFinalAnnualAmounts)
                 {
                     Caption = 'Total Final Annual Amount';
                     Editable = false;
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total final annual amount for other charges in the revenue allocation.';
                 }
                 field("Total Contract Amount"; totalcontractAmounts)
                 {
                     ApplicationArea = All;
                     Caption = 'Total Contract Amount';
                     Editable = false;
+                    ToolTip = 'Specifies the total contract amount for other charges in the revenue allocation.';
                 }
             }
             group("Final Amount")
@@ -128,24 +140,28 @@ page 50122 "Revenue Allocation Card"
                     Caption = 'Total Annual Amount';
                     Editable = false;
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total annual amount for the final calculations in the revenue allocation.';
                 }
                 field(TotalFinalAnnualAmounts; totalcombinefinalannualamount)
                 {
                     Caption = 'Total Final Annual Amount';
                     Editable = false;
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total final annual amount for the final calculations in the revenue allocation.';
                 }
                 field("Total Amounts"; totalcombineamounts)
                 {
                     ApplicationArea = All;
                     Caption = 'Total Amount';
                     Editable = false;
+                    ToolTip = 'Specifies the total amount for the final calculations in the revenue allocation.';
                 }
                 field("Total Contract Amounts"; totalcombinecontractAmounts)
                 {
                     ApplicationArea = All;
                     Caption = 'Total Contract Amount';
                     Editable = false;
+                    ToolTip = 'Specifies the total contract amount for the final calculations in the revenue allocation.';
                 }
             }
         }
@@ -162,7 +178,7 @@ page 50122 "Revenue Allocation Card"
                 var
                     companydata: Record "testData";
                 begin
-                    if companydata.FindSet() then begin
+                    if companydata.FindFirst() then
                         if companydata."Revenue Methods" = companydata."Revenue Methods"::"Per Day Rent" then begin
                             FetchContracts();
                             CalculateTotals();
@@ -171,32 +187,10 @@ page 50122 "Revenue Allocation Card"
                             CalculateTotals();
                         end else
                             Message('First Select Revenue Method in Company Data Card');
-                    end;
+
                 end;
 
             }
-
-            // action(PostRevenueAllocationEntries)
-            // {
-            //     ApplicationArea = All;
-            //     Caption = 'Post Revenue Allocation Entries';
-            //     Image = PostDocument;
-            //     Enabled = Rec.Status = Rec.Status::Pending;
-            //     trigger OnAction()
-            //     var
-            //         codeunit: Codeunit "Revenue Allocation Posting";
-            //         genJournal: Record "Gen. Journal Line";
-            //         GenJnlPost: Codeunit "Gen. Jnl.-Post";
-            //     begin
-            //         if Rec.Status = Rec.Status::Pending then begin
-            //             // codeunit.PostRevenueAllocation(Rec);
-            //             // Commit();
-            //             // if genJournal.FindSet() then
-            //             //     GenJnlPost.Preview(genJournal);
-            //         end;
-            //     end;
-
-            // }
 
             action(RevenueAllocation)
             {
@@ -204,11 +198,11 @@ page 50122 "Revenue Allocation Card"
                 Caption = 'Revenue Allocation Approval';
                 Image = PostDocument;
                 Enabled = Rec.Status = Rec.Status::Pending;
+                ToolTip = 'Send Revenue Allocation Approval Request';
 
                 trigger OnAction()
                 var
                     Approvalrevenueallocation: Record "Revenue Allocation Approval";
-                    revenueallocation: Record "Revenue Allocation Details";
                 begin
                     // Validate required fields
                     if Rec."No." = 0 then
@@ -282,7 +276,7 @@ page 50122 "Revenue Allocation Card"
         FilteredContractRec.SetRange("Header No.", Rec."No.");
 
         // Calculate totals
-        if FilteredContractRec.FindSet() then begin
+        if FilteredContractRec.FindSet() then
             repeat
                 // Check if the contract is suspended during the selected month
                 SuspensionRec.Reset();
@@ -298,7 +292,7 @@ page 50122 "Revenue Allocation Card"
                     TotalValue += FilteredContractRec."Total Value";
                 end;
             until FilteredContractRec.Next() = 0;
-        end;
+
         CurrPage.Update(false);
     end;
 
@@ -384,7 +378,6 @@ page 50122 "Revenue Allocation Card"
     //---------------Should Keep Entry--------------//
     procedure ShouldKeepEntry(StartDate: Date; EndDate: Date): Boolean
     var
-        CheckDate: Date;
         LastDayOfMonth: Date;
         FirstDayOfMonth: Date;
     begin

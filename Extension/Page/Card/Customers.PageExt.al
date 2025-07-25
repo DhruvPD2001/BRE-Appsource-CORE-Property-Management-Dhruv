@@ -22,16 +22,10 @@ pageextension 50105 Customers extends "Customer Card"
         {
             Visible = false;
         }
-        // modify("Profit (LCY)")
-        // {
-        //     Visible = false;
-        // }
         modify("Disable Search by Name")
         {
             Visible = false;
         }
-
-
         modify("Balance Due (LCY)")
         {
             Visible = false;
@@ -60,8 +54,6 @@ pageextension 50105 Customers extends "Customer Card"
         {
             Visible = false;
         }
-
-
         modify(Statistics)
         {
             Visible = false;
@@ -147,13 +139,6 @@ pageextension 50105 Customers extends "Customer Card"
         {
             Caption = 'Customer Address';
         }
-        // addafter("No.")
-        // {
-        //     field("Tenant ID"; Rec."Tenant ID")
-        //     {
-        //         ApplicationArea = All;
-        //     }
-        // }
         addafter(AddressDetails)
         {
             group(CustContactDetails)
@@ -167,45 +152,55 @@ pageextension 50105 Customers extends "Customer Card"
             field(Username; Rec.Username)
             {
                 ApplicationArea = All;
+                ToolTip = 'The username for the tenant. This is used for login purposes.';
             }
             field("Password"; rec."Password")
             {
                 ApplicationArea = All;
+                ToolTip = 'The password for the tenant. This is used for login purposes.';
             }
             field("Date Of Birth"; rec."Date Of Birth")
             {
                 ApplicationArea = All;
+                ToolTip = 'The date of birth of the tenant. This is used for identification purposes.';
             }
             field("Nationality"; rec."Nationality")
             {
                 ApplicationArea = All;
+                ToolTip = 'The nationality of the tenant. This is used for identification purposes.';
             }
             field("Emirates ID"; rec."Emirates ID")
             {
                 ApplicationArea = All;
+                ToolTip = 'The Emirates ID of the tenant. This is used for identification purposes.';
             }
             field("Emirates ID Expiry Date"; rec."Emirates ID Expiry Date")
             {
                 ApplicationArea = All;
+                ToolTip = 'The expiry date of the Emirates ID of the tenant. This is used for identification purposes.';
             }
             field("License No."; Rec."License No.")
             {
                 ApplicationArea = All;
+                ToolTip = 'The license number of the tenant. This is used for identification purposes.';
             }
             field("Licensing Authority"; Rec."Licensing Authority")
             {
                 ApplicationArea = All;
+                ToolTip = 'The authority that issued the license for the tenant. This is used for identification purposes.';
             }
             field("Code Area"; Rec."Code Area")
             {
                 ApplicationArea = All;
                 Caption = 'Code Area';
                 Visible = false;
+                ToolTip = 'The code area for the tenant. This is used for identification purposes.';
             }
             field(Occupation; Rec.Occupation)
             {
                 ApplicationArea = All;
                 Caption = 'Occupation';
+                ToolTip = 'The occupation of the tenant. This is used for identification purposes.';
             }
         }
         addlast(General)
@@ -214,6 +209,7 @@ pageextension 50105 Customers extends "Customer Card"
             {
                 ApplicationArea = All;
                 Caption = 'Customer Type';
+                ToolTip = 'The type of customer, such as individual or company. This is used for classification purposes.';
             }
 
             field("Business Unit"; Rec."Business Unit")
@@ -221,6 +217,7 @@ pageextension 50105 Customers extends "Customer Card"
                 ApplicationArea = All;
                 Caption = 'Business unit';
                 Visible = false;
+                ToolTip = 'The business unit associated with the tenant. This is used for organizational purposes.';
             }
         }
         addafter("Address & Contact")
@@ -230,18 +227,22 @@ pageextension 50105 Customers extends "Customer Card"
                 field("Passport Number"; rec."Passport Number")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The passport number of the tenant. This is used for identification purposes.';
                 }
                 field("Passport Issue Date"; rec."Passport Issue Date")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The issue date of the passport of the tenant. This is used for identification purposes.';
                 }
                 field("Passport Expiry Date"; rec."Passport Expiry Date")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The expiry date of the passport of the tenant. This is used for identification purposes.';
                 }
                 field("Country of Passport"; rec."Country of Passport")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The country that issued the passport of the tenant. This is used for identification purposes.';
                 }
             }
 
@@ -258,11 +259,13 @@ pageextension 50105 Customers extends "Customer Card"
                 {
                     ApplicationArea = All;
                     Caption = 'Approve';
+                    ToolTip = 'Indicates whether the tenant has been approved.';
                 }
                 field("Decline"; Rec."Decline")
                 {
                     ApplicationArea = All;
                     Caption = 'Decline';
+                    ToolTip = 'Indicates whether the tenant has been declined.';
                 }
             }
 
@@ -273,6 +276,7 @@ pageextension 50105 Customers extends "Customer Card"
             {
                 ApplicationArea = All;
                 Caption = 'P.O.Box';
+                ToolTip = 'The P.O. Box number for the tenant. This is used for mailing purposes.';
             }
         }
     }
@@ -294,14 +298,10 @@ pageextension 50105 Customers extends "Customer Card"
     trigger OnAfterGetRecord()
     begin
         CurrPage."Document Attachments".Page.SetPropertyId(Rec."No.");
-        if Rec."No." <> '' then begin
-            isVisible := true;
-        end
-        else begin
+        if Rec."No." <> '' then
+            isVisible := true
+        else
             isVisible := false;
-        end;
-    end;
 
-    var
-        documentattachment: Codeunit UploadAttachment;
+    end;
 }
