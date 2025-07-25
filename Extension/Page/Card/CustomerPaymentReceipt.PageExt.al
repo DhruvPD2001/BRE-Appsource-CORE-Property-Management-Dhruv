@@ -1,16 +1,11 @@
 pageextension 50106 CustomerPaymentReceipt extends "Cash Receipt Journal"
 {
-    layout
-    {
-
-    }
     actions
     {
         modify(Post)
         {
             ApplicationArea = All;
             Caption = 'Post Entry';
-            // Image = PostDocument;
             Promoted = true;
             PromotedCategory = Process;
             PromotedIsBig = true;
@@ -19,26 +14,6 @@ pageextension 50106 CustomerPaymentReceipt extends "Cash Receipt Journal"
             var
                 PaymentReceiptEntry: Record "Customer Payment Receipt";
                 GenJournalLine: Record "Gen. Journal Line";
-                GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-
-                // AzureBlobUploader: Codeunit "Azure Blob Management";
-                InStream: InStream;
-                FileName: Text;
-                SASUrlBase: Text;
-                SASUrlWithFileName: Text;
-                UploadResult: Text;
-                TempBlob: Codeunit "Temp Blob";
-                ValidFormats: List of [Text];
-                FileExtension: Text[10];
-                FileSize: Decimal;
-                ConfigRecord: Record AzureConfiguration;
-                ReportID: Integer; // Your report ID
-                RecRef: RecordRef;
-                FieldRef1: FieldRef;
-                FieldRef2: FieldRef;
-                OutStream: OutStream;
-                documentattachment: Codeunit UploadAttachment;
-                SalesHeader1: Record "Gen. Journal Line";
             begin
                 CurrPage.SetSelectionFilter(GenJournalLine);
                 if GenJournalLine.FindSet() then
@@ -52,7 +27,6 @@ pageextension 50106 CustomerPaymentReceipt extends "Cash Receipt Journal"
                             PaymentReceiptEntry."Account No." := GenJournalLine."Account No.";
                             PaymentReceiptEntry.Description := GenJournalLine.Description;
                             PaymentReceiptEntry.Amount := Abs(GenJournalLine.Amount);
-                            // PaymentReceiptEntry."Invoice No." := GenJournalLine."Applies-to Invoice Id";
                             PaymentReceiptEntry.Modify(true);
                         end else begin
                             // Create new entry
@@ -63,7 +37,6 @@ pageextension 50106 CustomerPaymentReceipt extends "Cash Receipt Journal"
                             PaymentReceiptEntry."Account No." := GenJournalLine."Account No.";
                             PaymentReceiptEntry.Description := GenJournalLine.Description;
                             PaymentReceiptEntry.Amount := Abs(GenJournalLine.Amount);
-                            // PaymentReceiptEntry."Invoice No." := GenJournalLine."Applies-to Invoice Id";
                             PaymentReceiptEntry.Insert(true);
                         end;
                     until GenJournalLine.Next() = 0;

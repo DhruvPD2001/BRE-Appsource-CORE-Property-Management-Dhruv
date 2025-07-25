@@ -7,12 +7,10 @@ pageextension 50302 Vendor extends "Vendor Card"
         {
             Visible = false;
         }
-
         modify(City)
         {
             Visible = false;
         }
-
         modify("Post Code")
         {
             Visible = false;
@@ -33,6 +31,7 @@ pageextension 50302 Vendor extends "Vendor Card"
                 ApplicationArea = All;
                 Caption = 'Vendor Category';
                 TableRelation = "Vendor Category"."Vendor Category Type";
+                ToolTip = 'Specifies the vendor category for this vendor.';
             }
         }
 
@@ -43,6 +42,7 @@ pageextension 50302 Vendor extends "Vendor Card"
                 ApplicationArea = All;
                 Caption = 'Country';
                 TableRelation = Country."Country Code";
+                ToolTip = 'Specifies the country in which the vendor is located.';
             }
         }
         addafter("Country")
@@ -52,6 +52,7 @@ pageextension 50302 Vendor extends "Vendor Card"
                 ApplicationArea = All;
                 Caption = 'Emirate';
                 TableRelation = Emirate."Emirate Name" where("Country Code" = field(Country));
+                ToolTip = 'Specifies the emirate in which the vendor is located.';
             }
         }
 
@@ -62,6 +63,7 @@ pageextension 50302 Vendor extends "Vendor Card"
                 ApplicationArea = All;
                 Caption = 'Community';
                 TableRelation = Community."Community Name" where("Emirate Name" = field(Emirate));
+                ToolTip = 'Specifies the community in which the vendor is located.';
             }
         }
     }

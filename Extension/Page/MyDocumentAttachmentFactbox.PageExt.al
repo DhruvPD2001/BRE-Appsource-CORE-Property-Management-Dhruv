@@ -11,15 +11,13 @@ pageextension 50500 MyDocumentAttachmentFactbox extends "Doc. Attachment List Fa
             field("No."; Rec."No.")
             {
                 ApplicationArea = All;
+                ToolTip = 'Specifies the unique identifier for the document attachment.';
             }
-            // field("Field Name"; Rec."Field Name")
-            // {
-            //     ApplicationArea = All;
-            // }
 
             field("Table Name"; Rec."Table Name")
             {
                 ApplicationArea = All;
+                ToolTip = 'Specifies the name of the table to which the document attachment is linked.';
             }
 
             field(DocumentMedia; Rec.DocumentMedia)
@@ -29,8 +27,6 @@ pageextension 50500 MyDocumentAttachmentFactbox extends "Doc. Attachment List Fa
                 Editable = false;
                 ToolTip = 'Displays the uploded document.';
             }
-
-
         }
     }
 }

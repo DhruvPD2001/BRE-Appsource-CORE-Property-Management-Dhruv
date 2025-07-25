@@ -22,6 +22,7 @@ pageextension 50303 PropertyRegistrationCardExt extends "Property Registration C
     begin
         AccessControl.SetRange("User ID", UserId());
         AccessControl.SetRange("Profile ID", ProfileID);
-        exit(AccessControl.FindFirst());
+        // exit(AccessControl.FindFirst());
+        exit(not AccessControl.IsEmpty());
     end;
 }

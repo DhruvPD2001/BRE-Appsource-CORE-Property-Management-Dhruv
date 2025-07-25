@@ -9,7 +9,6 @@ pageextension 50110 CustomerLedgerEntries extends "Customer Ledger Entries"
                 ApplicationArea = All;
                 Caption = 'Positive';
                 ToolTip = 'Indicates if the entry is positive.';
-                //   Editable = false;
             }
         }
 

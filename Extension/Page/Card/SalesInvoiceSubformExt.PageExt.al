@@ -7,11 +7,13 @@ pageextension 50505 SalesInvoiceSubformExt extends "Sales Invoice Subform"
             field("Contract ID"; Rec."Contract ID")
             {
                 ApplicationArea = All;
+                ToolTip = 'Specifies the contract associated with this sales invoice line.';
             }
             field("FC ID"; Rec."FC ID")
             {
                 ApplicationArea = All;
                 Editable = false;
+                ToolTip = 'Specifies the financial charge associated with this sales invoice line.';
             }
 
         }
@@ -21,9 +23,6 @@ pageextension 50505 SalesInvoiceSubformExt extends "Sales Invoice Subform"
     trigger OnAfterGetRecord()
     var
         vatpostingsetup: Record "VAT Posting Setup";
-        salesline: Record "Sales Line";
-        salesheader: Record "Sales Header";
-        TotalAmount: Decimal;
     begin
 
         if VATPostingSetup.Get(Rec."VAT Bus. Posting Group", Rec."VAT Prod. Posting Group") then begin
@@ -35,11 +34,6 @@ pageextension 50505 SalesInvoiceSubformExt extends "Sales Invoice Subform"
             Rec.Modify();
         end;
 
-
     end;
-
-
-
-
 
 }

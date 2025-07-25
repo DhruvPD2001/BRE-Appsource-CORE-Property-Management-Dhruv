@@ -7,6 +7,7 @@ pageextension 50512 "PostedsalesinvoiceList" extends "Posted Sales Invoices"
             field("Pre-Assigned No."; Rec."Pre-Assigned No.")
             {
                 ApplicationArea = All;
+                ToolTip = 'Specifies the pre-assigned number of the sales invoice.';
             }
         }
     }

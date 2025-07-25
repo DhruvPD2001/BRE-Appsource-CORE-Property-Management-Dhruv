@@ -13,14 +13,17 @@ page 50121 "PDR Revenue Allocation Grid"
                 field("Praposal ID"; Rec."Praposal ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The unique identifier for the proposal.';
                 }
                 field(Year; Rec.Year)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The year for which the revenue allocation is being made.';
                 }
                 field("Unit ID"; Rec."Unit ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The identifier for the unit associated with the proposal.';
                     trigger OnDrillDown()
                     var
                         LeaseProposal: Record "Lease Proposal Details"; // Assuming Lease Proposal record
@@ -33,7 +36,7 @@ page 50121 "PDR Revenue Allocation Grid"
                             SingleUnitNames := GetLeaseUnitNames(LeaseProposal);
 
                             // Set the SingleUnitNames field in the new revenue allocation grid
-                            NewAllocationDetails."Unit ID" := SingleUnitNames;
+                            NewAllocationDetails."Unit ID" := CopyStr(SingleUnitNames, 1, 2048);
 
                             // Open the new grid page and pass the NewAllocationDetails record
                             PAGE.Run(PAGE::"PDR Revenue Allocation Grid", NewAllocationDetails);
@@ -43,24 +46,25 @@ page 50121 "PDR Revenue Allocation Grid"
                 field("Sq. Ft."; Rec."Sq. Ft.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The square footage of the unit associated with the proposal.';
                 }
                 field("Per Day Rent Per Unit"; Rec."Per Day Rent Per Unit")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The rent amount per day for the unit associated with the proposal.';
                 }
                 field("Total Revenue"; Rec."Total Revenue")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The total revenue generated from the proposal.';
                 }
             }
         }
     }
 
-
     //-----------------Get Lease Unit Name -----------------//
     local procedure GetLeaseUnitNames(var LeaseProposal: Record "Lease Proposal Details"): Text
     var
-        SingleUnitNamesList: List of [Text];
         Result: Text;
     begin
         // Initialize Result as an empty string
@@ -93,7 +97,6 @@ page 50121 "PDR Revenue Allocation Grid"
         // Return the concatenated result
         exit(Result);
     end;
-
 
     //-----------------Get Lease Unit Name -----------------//
 }
