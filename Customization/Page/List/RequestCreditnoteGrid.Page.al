@@ -16,17 +16,17 @@ page 50981 "Request CreditNote Grid"
                 {
                     ApplicationArea = All;
                     Caption = 'Request No.';
+                    ToolTip = 'Specifies the unique identifier for the request credit note.';
                 }
 
                 field("Payment Series"; Rec."Payment Series")
                 {
                     ApplicationArea = All;
                     Caption = 'Payment Series';
+                    ToolTip = 'Specifies the payment series for the request credit note.';
 
-                    //TableRelation = "Payment Mode2"."Payment Series" where("Contract ID" = field("Contract ID"));
                     trigger OnLookup(var Text: Text): Boolean
                     var
-                        paymenschedule2: Record "Payment Schedule2";
                         paymentmode2Rec: Record "Payment Mode2";
                     begin
                         Rec."Current Charges Amount" := 0; // Reset Current Charges Amount on series change
@@ -38,13 +38,9 @@ page 50981 "Request CreditNote Grid"
                                 Rec.Insert(true);
                             paymentmode2Rec.SetRange("Payment Series", Rec."Payment Series");
                             paymentmode2Rec.SetRange("Contract ID", Rec."Contract ID");
-                            //paymenschedule2.SetFilter("Secondary Item Type", '=%1', 'Rent');
-                            if paymentmode2Rec.FindSet() then
-                               // repeat 
-                               begin
+                            if paymentmode2Rec.FindFirst() then begin
                                 Rec."Current Charges Amount" := paymentmode2Rec.Amount;
                                 Rec."Total Reduction" := Rec."Current Charges Amount";
-                                // Rec."Secondary Item Type" := paymenschedule2."Secondary Item Type";
                             end;
                         end;
                     end;
@@ -64,7 +60,7 @@ page 50981 "Request CreditNote Grid"
                         PaymentSchedule2.SetRange("Contract ID", Rec."Contract ID");
                         PaymentSchedule2.SetRange("Payment Series", Rec."Payment Series");
                         PaymentSchedule2.SetRange("Secondary Item Type", Rec.Charges);
-                        if PaymentSchedule2.FindSet()
+                        if PaymentSchedule2.FindFirst()
                         then begin
                             Rec."Current Charges Amount" := PaymentSchedule2.Amount;
                             Rec."Total Reduction" := Rec."Current Charges Amount";
@@ -78,11 +74,13 @@ page 50981 "Request CreditNote Grid"
                     ApplicationArea = All;
                     Caption = 'Current Charges Amount';
                     Editable = false;
+                    ToolTip = 'Specifies the current charges amount for the request credit note.';
                 }
                 field("Total Reduction"; Rec."Total Reduction")
                 {
                     ApplicationArea = All;
                     Caption = 'Total Reduction';
+                    ToolTip = 'Specifies the total reduction amount for the request credit note.';
                     trigger OnValidate()
                     var
                     begin
@@ -97,12 +95,14 @@ page 50981 "Request CreditNote Grid"
                     ApplicationArea = All;
                     Caption = 'Total Pay Amount';
                     Editable = false; // This field is calculated and not editable
+                    ToolTip = 'Specifies the total amount to be paid after reductions for the request credit note.';
                 }
                 field("Credit Note No."; Rec."Credit Note No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Credit Note No.';
                     Editable = false; // This field is not editable
+                    ToolTip = 'Specifies the unique identifier for the credit note associated with the request.';
                 }
 
                 field("Credit Memo Generated"; Rec."Credit Memo Generated")
@@ -110,6 +110,7 @@ page 50981 "Request CreditNote Grid"
                     ApplicationArea = All;
                     Caption = 'Credit Memo Generated';
                     Editable = IsFinanceManager;
+                    ToolTip = 'Indicates whether a credit memo has been generated for this request credit note.';
                 }
 
             }
@@ -120,15 +121,8 @@ page 50981 "Request CreditNote Grid"
     }
 
     var
-        requestno: Code[20];
         ContractID: Integer;
         IsFinanceManager: Boolean;
-
-
-    // procedure SetRequestNo(pRequestNo: Code[20])
-    // begin
-    //     requestno := pRequestNo;
-    // end;
 
     procedure SetContractID(pContractID: Integer)
     begin
@@ -145,14 +139,14 @@ page 50981 "Request CreditNote Grid"
     var
         UserPersonalization: Record "User Personalization";
     begin
-        if UserPersonalization.Get(UserSecurityId()) then begin
+        if UserPersonalization.Get(UserSecurityId()) then
             case UserPersonalization."Profile ID" of
                 'FINANCE MANAGER':
                     exit(true);  // Only property managers can approve/reject
                 else
                     exit(false);
             end;
-        end;
+
         exit(false);
     end;
 

@@ -20,6 +20,7 @@ page 50969 "Credit Note Approval List"
                     ApplicationArea = All;
                     Caption = 'Status';
                     Editable = false;
+                    ToolTip = 'Specifies the current status of the credit note approval.';
                 }
                 field("ID"; Rec."ID")
                 {
@@ -27,6 +28,7 @@ page 50969 "Credit Note Approval List"
                     Caption = 'ID';
                     Editable = false;
                     DrillDown = true;
+                    ToolTip = 'Specifies the unique identifier for the credit note approval record.';
 
                     trigger OnDrillDown()
                     var
@@ -45,6 +47,7 @@ page 50969 "Credit Note Approval List"
                     Caption = 'FC ID';
                     Editable = false;
                     DrillDown = true;
+                    ToolTip = 'Specifies the unique identifier for the final calculation associated with the credit note approval.';
 
                     trigger OnDrillDown()
                     var
@@ -63,6 +66,7 @@ page 50969 "Credit Note Approval List"
                     Caption = 'Contract ID';
                     Editable = false;
                     DrillDown = true;
+                    ToolTip = 'Specifies the unique identifier for the contract associated with the credit note approval.';
 
                     trigger OnDrillDown()
                     var
@@ -79,17 +83,20 @@ page 50969 "Credit Note Approval List"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the total amount of the credit note approval.';
                 }
 
                 field("Contract Start Date"; Rec."Contract Start Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the start date of the contract associated with the credit note approval.';
                 }
                 field("Contract End Date"; Rec."Contract End Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the end date of the contract associated with the credit note approval.';
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
@@ -97,18 +104,21 @@ page 50969 "Credit Note Approval List"
                     ApplicationArea = All;
                     Caption = 'Tenant ID';
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the tenant associated with the credit note approval.';
                 }
                 field("Tenant Name"; Rec."Tenant Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Tenant Name';
                     Editable = false;
+                    ToolTip = 'Specifies the name of the tenant associated with the credit note approval.';
                 }
                 field("Credit Note Type"; Rec."Credit Note Type")
                 {
                     ApplicationArea = All;
                     Caption = 'Credit Note Type';
                     Editable = false;
+                    ToolTip = 'Specifies the type of credit note associated with the approval.';
                 }
 
             }
@@ -128,6 +138,7 @@ page 50969 "Credit Note Approval List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 Visible = IsFinanceManager;
+                ToolTip = 'Approve the selected credit note approval.';
 
 
                 trigger OnAction()
@@ -170,6 +181,7 @@ page 50969 "Credit Note Approval List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 Visible = IsFinanceManager;
+                ToolTip = 'Reject the selected credit note approval.';
 
                 trigger OnAction()
                 var
@@ -180,7 +192,7 @@ page 50969 "Credit Note Approval List"
                     if Rec.Status = Rec.Status::Reject then
                         Error('This entry is already rejected');
 
-                    if Confirm('Do you want to reject this entry?') then begin
+                    if Confirm('Do you want to reject this entry?') then
                         if DialogPage.RunModal() = Action::OK then begin
                             ReasonForRejection := DialogPage.GetReason();
 
@@ -195,14 +207,14 @@ page 50969 "Credit Note Approval List"
                             // Update Credit Note record
                             if CreditNote.Get(Rec."ID") then begin
                                 CreditNote.Status := CreditNote.Status::Reject;
-                                CreditNote."Reason for Rejection" := ReasonForRejection;
+                                CreditNote."Reason for Rejection" := CopyStr(ReasonForRejection, 1, StrLen(ReasonForRejection));
                                 CreditNote.Modify();
                             end;
 
                             Message('Entry has been rejected successfully!');
                         end else
                             Error('Rejection cancelled.');
-                    end;
+
                 end;
 
             }
@@ -224,8 +236,7 @@ page 50969 "Credit Note Approval List"
         UserPersonalization: Record "User Personalization";
     begin
 
-        if UserPersonalization.Get(UserSecurityId()) then begin
-
+        if UserPersonalization.Get(UserSecurityId()) then
             case UserPersonalization."Profile ID" of
                 'PROPERTY MANAGER':
                     exit(false);
@@ -234,12 +245,11 @@ page 50969 "Credit Note Approval List"
                 'finance manager':
                     exit(true);
             end;
-        end;
 
         exit(false);
     end;
 
     var
         IsFinanceManager: Boolean;
-        IsFieldEditable: Boolean;
+
 }
