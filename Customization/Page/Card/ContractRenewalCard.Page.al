@@ -1,4 +1,6 @@
+#pragma warning disable AW0006
 page 50335 "Contract Renewal Card"
+#pragma warning restore AW0006
 {
     PageType = Card;
     SourceTable = "Contract Renewal";
@@ -9,36 +11,36 @@ page 50335 "Contract Renewal Card"
     {
         area(content)
         {
-
-
-
             group("General Info")
             {
                 Caption = 'General Information';
 
                 field("Id"; rec.Id)
-
                 {
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Specifies the unique identifier for the contract renewal.';
                 }
 
                 field("Contract ID"; rec."Contract ID")
                 {
                     ApplicationArea = All;
                     Editable = true; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Specifies the unique identifier for the contract renewal.';
                 }
 
                 field("Proposal ID"; Rec."Proposal ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the proposal ID associated with the contract renewal.';
                 }
                 field("Contract Date"; Rec."Contract Date")
                 {
                     ApplicationArea = All;
                     Caption = 'Proposal Date';
                     Editable = true;
+                    ToolTip = 'Specifies the date of the contract renewal proposal.';
                 }
             }
 
@@ -48,42 +50,49 @@ page 50335 "Contract Renewal Card"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the name of the owner of the property.';
                 }
 
                 field("Lessor's Name"; rec."Lessor's Name")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the name of the lessor of the property.';
                 }
 
                 field("Lessor's Emirates ID"; rec."Lessor's Emirates ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the Emirates ID of the lessor of the property.';
                 }
 
                 field("License No."; rec."License No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the license number of the lessor of the property.';
                 }
 
                 field("Licensing Authority"; rec."Licensing Authority")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the licensing authority of the lessor of the property.';
                 }
 
                 field("Lessor's Email"; rec."Lessor's Email")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the email address of the lessor of the property.';
                 }
 
                 field("Lessor's Phone"; rec."Lessor's Phone")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the phone number of the lessor of the property.';
                 }
             }
 
@@ -95,42 +104,48 @@ page 50335 "Contract Renewal Card"
                     ApplicationArea = All;
                     Lookup = true;
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the tenant.';
                 }
                 field("Tenant Full Name"; rec."Tenant Full Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Tenant Name';
                     Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Specifies the name of the tenant.';
                 }
                 field("Emirates ID"; rec."Emirates ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the Emirates ID of the tenant.';
                 }
 
                 field("Contact Number"; rec."Contact Number")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the contact number of the tenant.';
                 }
 
                 field("Email Address"; rec."Email Address")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the email address of the tenant.';
                 }
 
                 field("Tenant_License No."; Rec."Tenant_License No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the license number of the tenant.';
                 }
 
                 field("Tenant_Licensing Authority"; Rec."Tenant_Licensing Authority")
                 {
                     ApplicationArea = All;
                     Editable = false;
-
+                    ToolTip = 'Specifies the licensing authority of the tenant.';
                 }
             }
 
@@ -143,14 +158,15 @@ page 50335 "Contract Renewal Card"
                 {
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Specifies the unique identifier for the unit.';
                 }
 
                 field("Praposal Type Selected"; rec."Praposal Type Selected")
                 {
                     ApplicationArea = All;
-                    // Lookup = true; // Enable lookup for Property ID
                     Caption = 'Unit Category';
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the unit.';
 
                     trigger OnValidate()
                     begin
@@ -162,16 +178,19 @@ page 50335 "Contract Renewal Card"
                 {
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Specifies the name of the unit.';
                 }
                 field("Property ID"; rec."Property ID")
                 {
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Specifies the unique identifier for the property.';
                 }
                 field("Property Name"; rec."Property Name")
                 {
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Specifies the name of the property.';
                 }
 
                 field("Property Classification"; rec."Property Classification")
@@ -179,64 +198,62 @@ page 50335 "Contract Renewal Card"
                     ApplicationArea = All;
                     Lookup = true;
                     Editable = false;
+                    ToolTip = 'Specifies the classification of the property.';
                 }
                 field("Property Type"; rec."Property Type")
                 {
                     ApplicationArea = All;
                     Lookup = true;
                     Editable = false;
+                    ToolTip = 'Specifies the type of the property.';
                 }
-
 
                 field("Merge Unit ID"; Rec."Merge Unit ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     Lookup = true; // Enable lookup for Unit ID
+                    ToolTip = 'Specifies the unique identifier for the unit.';
                 }
-
 
                 field("Unit Number"; Rec."Unit Number")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the number of the unit.';
                 }
 
                 field("UnitID"; Rec."UnitID")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the unit.';
                 }
 
                 field("Single Unit Name"; Rec."Single Unit Name")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the name of the unit.';
                 }
-
-
-                // field("Uniq Unit ID"; Rec.UnitID) // Auto-generated Unit ID
-                // {
-                //     ApplicationArea = All;
-                //     Caption = 'Uniq Unit ID';
-                //     Editable = false;
-                // }
-
 
                 field("Ejari Name"; Rec."Ejari Name")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the name of the ejari.';
                 }
                 field("Unit Sq. Feet"; Rec."Unit Sq. Feet")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the square feet of the unit.';
                 }
                 field("Property Size"; Rec."Property Size")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the size of the property.';
                 }
 
                 field("Base Unit of Measure"; rec."Base Unit of Measure")
@@ -244,32 +261,36 @@ page 50335 "Contract Renewal Card"
                     ApplicationArea = All;
                     Lookup = true;
                     Editable = false;
+                    ToolTip = 'Specifies the base unit of measure for the property.';
                 }
 
                 field("Makani Number"; Rec."Makani Number")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the makani number of the property.';
                 }
 
                 field(Emirate; Rec.Emirate)
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the emirate of the property.';
                 }
 
                 field(Community; Rec.Community)
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the community of the property.';
                 }
                 field("DEWA Number"; Rec."DEWA Number")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the DEWA number of the property.';
                 }
             }
-
 
             group("Lease Terms")
             {
@@ -279,16 +300,18 @@ page 50335 "Contract Renewal Card"
                     ApplicationArea = All;
                     Editable = true; // The ID is not editable since it's auto-incrementing
                     Caption = 'Lease Start Date';
+                    ToolTip = 'Lease Start Date';
                 }
                 field("Contract End Date"; rec."Contract End Date")
                 {
                     ApplicationArea = All;
                     Editable = true; // The ID is not editable since it's auto-incrementing
                     Caption = 'Lease End Date';
-
+                    ToolTip = 'Lease End Date';
                 }
                 field("Contract Tenor"; rec."Contract Tenor")
                 {
+                    ToolTip = 'Lease Tenor';
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
                     Caption = 'Lease Duration';
@@ -297,55 +320,47 @@ page 50335 "Contract Renewal Card"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Lease Rent Amount';
                 }
-
 
                 field("Contract Amount"; rec."Contract Amount")
                 {
                     ApplicationArea = All;
                     Editable = true; // The ID is not editable since it's auto-incrementing
-
+                    ToolTip = 'Lease Contract Amount';
                 }
 
                 field("Rent VAT Amount"; rec."Rent VAT Amount")
                 {
                     ApplicationArea = All;
-
-
+                    ToolTip = 'Lease Rent VAT Amount';
                 }
 
                 field("Rent Amount VAT %"; rec."Rent Amount VAT %")
                 {
                     ApplicationArea = All;
-
-
+                    ToolTip = 'Lease Rent Amount VAT %';
                 }
 
                 field("Rent Amount Including VAT"; rec."Rent Amount Including VAT")
                 {
                     ApplicationArea = All;
-
-
+                    ToolTip = 'Lease Rent Amount Including VAT';
                 }
-
-
-                // field("Annual Rent Amount"; Rec."Annual Rent Amount")
-                // {
-                //     ApplicationArea = All;
-                //     Editable = false;
-                // }
 
                 field("Payment Frequency"; rec."Payment Frequency")
                 {
                     ApplicationArea = All;
                     Caption = 'Frequency of payment';
                     Editable = false;
+                    ToolTip = 'Frequency of payment';
                 }
                 field("Payment Method"; rec."Payment Method")
                 {
                     ApplicationArea = All;
                     Caption = 'Payment Mode';
                     Editable = false;
+                    ToolTip = 'Payment Mode';
                 }
 
                 field("No of Installments"; rec."No of Installments")
@@ -353,29 +368,30 @@ page 50335 "Contract Renewal Card"
                     ApplicationArea = All;
                     Caption = 'No of Installments';
                     Editable = false;
-                    // Visible = false;
+                    ToolTip = 'No of Installments';
                 }
 
                 field("Rera"; Rec."Rera")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Rera';
                 }
 
                 field("Ejari Processing Charges"; Rec."Ejari Processing Charges")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Ejari Processing Charges';
                 }
 
                 field("Renewal Charges"; Rec."Renewal Charges")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Renewal Charges';
                 }
             }
-
-
 
             group("Deposit and Fees")
             {
@@ -383,47 +399,48 @@ page 50335 "Contract Renewal Card"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Security Deposit Amount';
                 }
                 field("Other Fees"; rec."Other Fees")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Other Fees';
                 }
                 field("Refund Conditions"; rec."Refund Conditions")
                 {
                     ApplicationArea = All;
                     MultiLine = true;
+                    ToolTip = 'Refund Conditions';
                 }
-
-
             }
-
-
 
             group("Responsibilities")
             {
                 field("Maintenance Responsibilities"; rec."Maintenance Responsibilities")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Maintenance Responsibilities';
                 }
                 field("Utility Bills Responsibility"; rec."Utility Bills Responsibility")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Utility Bills Responsibility';
                 }
                 field("Insurance Requirements"; rec."Insurance Requirements")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Insurance Requirements';
                 }
             }
 
             group("Conditions for Renewal")
             {
-
                 field("Rent Escalation Clause"; rec."Rent Escalation Clause")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Rent Escalation Clause';
                 }
             }
-
 
             group("Special Conditions")
             {
@@ -432,45 +449,51 @@ page 50335 "Contract Renewal Card"
                 field("Early Termination Conditions"; rec."Early Termination Conditions")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Early Termination Conditions';
                 }
                 field("Restrictions"; rec."Restrictions")
                 {
                     ApplicationArea = All;
                     MultiLine = true;
+                    ToolTip = 'Restrictions';
                 }
                 field("Legal Jurisdiction"; rec."Legal Jurisdiction")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Legal Jurisdiction';
                 }
-
 
                 field("Created By"; rec."Created By")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Created By';
                 }
 
                 field("Approval For Renewal"; rec."Approval For Renewal")
                 {
                     ApplicationArea = All;
                     Editable = true; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Approval For Renewal';
                 }
                 field("Renewal Contract Status"; rec."Renewal Contract Status")
                 {
                     ApplicationArea = All;
                     Editable = true; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Renewal Contract Status';
                 }
 
                 field("Original Contract ID"; rec."Original Contract ID")
                 {
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Original Contract ID';
                 }
                 field("Single Rent Calculation"; Rec."Single Rent Calculation")
                 {
                     ApplicationArea = All;
                     Editable = Rec."Praposal Type Selected" = Rec."Praposal Type Selected"::"Single Unit";
-
+                    ToolTip = 'Single Rent Calculation';
                     trigger OnValidate()
                     begin
                         UpdateVisibility();
@@ -480,7 +503,7 @@ page 50335 "Contract Renewal Card"
                 {
                     ApplicationArea = All;
                     Editable = Rec."Praposal Type Selected" = Rec."Praposal Type Selected"::"Merge Unit";
-
+                    ToolTip = 'Merge Rent Calculation';
                     trigger OnValidate()
                     begin
                         UpdateVisibility();
@@ -491,18 +514,15 @@ page 50335 "Contract Renewal Card"
                 {
                     ApplicationArea = All;
                     Editable = true; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Final Status';
                 }
-
-
 
                 field("Contract Status"; rec."Contract Status")
                 {
                     ApplicationArea = All;
                     Editable = true; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Contract Status';
                 }
-
-
-
             }
 
             group("Lease Unit Details")
@@ -525,7 +545,6 @@ page 50335 "Contract Renewal Card"
                 {
                     SubPageLink = "ID" = FIELD("ID"); // Link to filter attachments for this owner only
                     ApplicationArea = All;
-                    // Visible = isVisible;
                 }
             }
 
@@ -538,7 +557,6 @@ page 50335 "Contract Renewal Card"
                 {
                     SubPageLink = "ID" = FIELD("ID"); // Link to filter attachments for this owner only
                     ApplicationArea = All;
-                    // Visible = isVisible;
                 }
 
             }
@@ -550,7 +568,6 @@ page 50335 "Contract Renewal Card"
                 {
                     SubPageLink = "ID" = FIELD("ID"); // Link to filter attachments for this owner only
                     ApplicationArea = All;
-                    // Visible = isVisible;
                 }
             }
             group("Merged Unit with differential square feet rate")
@@ -561,7 +578,6 @@ page 50335 "Contract Renewal Card"
                 {
                     SubPageLink = "ID" = FIELD("ID"); // Link to filter attachments for this owner only
                     ApplicationArea = All;
-                    // Visible = isVisible;
                 }
             }
             group("Merged Unit with lumpsum annual amount")
@@ -572,7 +588,6 @@ page 50335 "Contract Renewal Card"
                 {
                     SubPageLink = "ID" = FIELD("ID"); // Link to filter attachments for this owner only
                     ApplicationArea = All;
-                    // Visible = isVisible;
                 }
             }
 
@@ -593,8 +608,7 @@ page 50335 "Contract Renewal Card"
                 part("ContractRenewal"; "Contract Renewal SubPage Card")
                 {
                     SubPageLink = Id = FIELD(Id),
-                  "TenantID" = FIELD("Tenant ID");
-                    //    "PS ID" = field("PS Id"); // Link to filter attachments for this owner only
+                    "TenantID" = FIELD("Tenant ID");
                     ApplicationArea = All;
                 }
             }
@@ -602,6 +616,7 @@ page 50335 "Contract Renewal Card"
             field("Is any Broker Involved?"; Rec."Is any Broker Involved?")
             {
                 ApplicationArea = All;
+                ToolTip = 'Is any Broker Involved?';
             }
 
             group("Brokers and Commission Agent Details")
@@ -611,6 +626,7 @@ page 50335 "Contract Renewal Card"
                 field("Vendor ID"; Rec."Vendor ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Vendor ID';
 
                     // Trasfer from Table Start 
                     trigger OnLookup(var Text: Text): Boolean
@@ -661,70 +677,71 @@ page 50335 "Contract Renewal Card"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Vendor Name';
                 }
 
                 field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Start Date';
                 }
 
                 field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'End Date';
                 }
 
                 field("Calculation Method"; Rec."Calculation Method")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Calculation Method';
                 }
 
                 field("Percentage Type"; Rec."Percentage Type")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Percentage Type';
                 }
 
                 field("Percentage"; Rec."Percentage")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Percentage';
                 }
 
                 field("Amount"; Rec."Amount")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Amount';
                 }
-                // field("Percentage/Amount"; Rec."Percentage/Amount")
-                // {
-                //     ApplicationArea = All;
-                //     Editable = false;
-                // }
 
                 field("Base Amount Type"; Rec."Base Amount Type")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Base Amount Type';
                 }
                 field("Frequency Of Payment"; Rec."Frequency Of Payment")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Frequency Of Payment';
                 }
 
                 field("ContractStatus"; Rec."ContractStatus")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Contract Status';
                 }
             }
-
-
-
-
         }
     }
 
@@ -739,27 +756,21 @@ page 50335 "Contract Renewal Card"
 
         CurrPage."Single Unit Rent".Page.Update();
         CurrPage."Merge SameSqure Rent".Page.Update();
-        // CurrPage."Merge DifferentSqure Rent".Page.Update();
+
         CurrPage."Merge Lum_AnnualAmount Rent".Page.Update();
         CurrPage."Single Unit lumpsum Rent".Page.Update();
-        // CurrPage."Unit all Details".Page.Update();
-
 
         CurrPage."ContractRenewal".Page.SetId(Rec."ID");
         CurrPage."ContractRenewal".Page.SetStartEndDate(Rec."Contract Start Date", Rec."Contract End Date");
         CurrPage."ContractRenewal".Page.SetTenantID(Rec."Tenant ID");
 
-
     end;
-
-
 
     trigger OnModifyRecord(): Boolean
     begin
         CurrPage."ContractRenewal".Page.SetId(Rec."ID");
         CurrPage."ContractRenewal".Page.SetStartEndDate(Rec."Contract Start Date", Rec."Contract End Date");
         CurrPage."ContractRenewal".Page.SetTenantID(Rec."Tenant ID");
-
 
     end;
 
@@ -769,9 +780,7 @@ page 50335 "Contract Renewal Card"
         CurrPage."ContractRenewal".Page.SetStartEndDate(Rec."Contract Start Date", Rec."Contract End Date");
         CurrPage."ContractRenewal".Page.SetTenantID(Rec."Tenant ID");
 
-
     end;
-
 
 
     // Function to update enabled state of Unit fields
@@ -798,19 +807,14 @@ page 50335 "Contract Renewal Card"
     var
         ShowLegalReasonFields: Boolean;
         ShowBusinessReasonFields: Boolean;
-
         ShowLegalReasonFields1: Boolean;
         ShowBusinessReasonFields2: Boolean;
         ShowLegalReasonFields3: Boolean;
-
         ShowLegalReasonFields4: Boolean;
-
-        ShowLegalReasonFields5: Boolean;
 
     trigger OnOpenPage()
     begin
         UpdateVisibility();
-        // SetRange("Merge Unit ID", Rec."Merge Unit ID");
     end;
 
     // Procedure to update visibility dynamically

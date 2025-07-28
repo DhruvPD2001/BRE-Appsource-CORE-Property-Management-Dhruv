@@ -173,6 +173,7 @@ page 50122 "Revenue Allocation Card"
         {
             action(FilterSubgrid)
             {
+                ToolTip = 'Filter Subgrid';
                 Caption = 'Revenue Allocation-Rent';
                 trigger OnAction()
                 var
@@ -187,9 +188,7 @@ page 50122 "Revenue Allocation Card"
                             CalculateTotals();
                         end else
                             Message('First Select Revenue Method in Company Data Card');
-
                 end;
-
             }
 
             action(RevenueAllocation)
@@ -304,8 +303,6 @@ page 50122 "Revenue Allocation Card"
         SelectedMonth: Integer;
         SelectedYear: Integer): Integer
     var
-        StartDate: Date;
-        EndDate: Date;
         MonthStartDate: Date;
         MonthEndDate: Date;
         EffectiveStartDate: Date;
@@ -433,8 +430,7 @@ page 50122 "Revenue Allocation Card"
         SelectedMonthEnd: Date;
         ShouldInsertGraceLine: Boolean;
         AdjustedStartDate: Date; // 🔹 new
-        AdjustedEndDate: Date;   // 🔹 new
-        SuspensionStartDateInMonth: Date; // 🔹 ADDED   
+        AdjustedEndDate: Date;   // 🔹 new        
         SuspensionStartDate: Date;
         SuspensionEndDate: Date;
     begin
@@ -482,13 +478,13 @@ page 50122 "Revenue Allocation Card"
             // If suspension start date is within selected month
             if (SuspensionStartDate <> 0D) and
                (SuspensionStartDate >= SelectedMonthStart) and
-               (SuspensionStartDate <= SelectedMonthEnd) then begin
+               (SuspensionStartDate <= SelectedMonthEnd) then
                 // Adjust end date to day before suspension
                 AdjustedEndDate := SuspensionStartDate;
-            end;
+
 
             // If suspension period overlaps with selected month
-            if (SuspensionStartDate <> 0D) and (SuspensionEndDate <> 0D) then begin
+            if (SuspensionStartDate <> 0D) and (SuspensionEndDate <> 0D) then
                 // Case 1: Suspension starts before selected month and ends during selected month
                 if (SuspensionStartDate < SelectedMonthStart) and
                    (SuspensionEndDate >= SelectedMonthStart) and
@@ -529,7 +525,7 @@ page 50122 "Revenue Allocation Card"
                     AdjustedStartDate := SelectedMonthEnd + 1;
                     AdjustedEndDate := SelectedMonthStart - 1;
                 end;
-            end;
+
         end;
 
         if (AdjustedStartDate <= AdjustedEndDate) then
@@ -742,9 +738,9 @@ page 50122 "Revenue Allocation Card"
             // Check Single Unit Rent grid
             SingleUnitRent.Reset();
             SingleUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if SingleUnitRent.FindSet() then begin
+            if SingleUnitRent.FindSet() then
                 repeat
-                    if (SingleUnitRent."Start Date" <= PreviousMonthEnd) and (SingleUnitRent."End Date" >= ContractStartDate) then begin
+                    if (SingleUnitRent."Start Date" <= PreviousMonthEnd) and (SingleUnitRent."End Date" >= ContractStartDate) then
                         InsertMissedAllocationLine(
                             ContractRec,
                             SingleUnitRent."Start Date",
@@ -759,16 +755,16 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until SingleUnitRent.Next() = 0;
-            end;
+
 
             // Check Multi Unit Rent grid
             MultiUnitRent.Reset();
             MultiUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if MultiUnitRent.FindSet() then begin
+            if MultiUnitRent.FindSet() then
                 repeat
-                    if (MultiUnitRent."SL_Start Date" <= PreviousMonthEnd) and (MultiUnitRent."SL_End Date" >= ContractStartDate) then begin
+                    if (MultiUnitRent."SL_Start Date" <= PreviousMonthEnd) and (MultiUnitRent."SL_End Date" >= ContractStartDate) then
                         InsertMissedAllocationLine(
                             ContractRec,
                             MultiUnitRent."SL_Start Date",
@@ -783,16 +779,16 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until MultiUnitRent.Next() = 0;
-            end;
+
 
             // Check Merged Single Rent grid
             MergedSingleRent.Reset();
             MergedSingleRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if MergedSingleRent.FindSet() then begin
+            if MergedSingleRent.FindSet() then
                 repeat
-                    if (MergedSingleRent."MS_Start Date" <= PreviousMonthEnd) and (MergedSingleRent."MS_End Date" >= ContractStartDate) then begin
+                    if (MergedSingleRent."MS_Start Date" <= PreviousMonthEnd) and (MergedSingleRent."MS_End Date" >= ContractStartDate) then
                         InsertMissedAllocationLine(
                             ContractRec,
                             MergedSingleRent."MS_Start Date",
@@ -807,16 +803,16 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until MergedSingleRent.Next() = 0;
-            end;
+
 
             // Check Merged Multi Rent grid
             MergedMultiRent.Reset();
             MergedMultiRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if MergedMultiRent.FindSet() then begin
+            if MergedMultiRent.FindSet() then
                 repeat
-                    if (MergedMultiRent."MD_Start Date" <= PreviousMonthEnd) and (MergedMultiRent."MD_End Date" >= ContractStartDate) then begin
+                    if (MergedMultiRent."MD_Start Date" <= PreviousMonthEnd) and (MergedMultiRent."MD_End Date" >= ContractStartDate) then
                         InsertMissedAllocationLine(
                             ContractRec,
                             MergedMultiRent."MD_Start Date",
@@ -831,16 +827,16 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until MergedMultiRent.Next() = 0;
-            end;
+
 
             // Check Special Rent grid
             SpecialRent.Reset();
             SpecialRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if SpecialRent.FindSet() then begin
+            if SpecialRent.FindSet() then
                 repeat
-                    if (SpecialRent."ML_Start Date" <= PreviousMonthEnd) and (SpecialRent."ML_End Date" >= ContractStartDate) then begin
+                    if (SpecialRent."ML_Start Date" <= PreviousMonthEnd) and (SpecialRent."ML_End Date" >= ContractStartDate) then
                         InsertMissedAllocationLine(
                             ContractRec,
                             SpecialRent."ML_Start Date",
@@ -855,9 +851,9 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until SpecialRent.Next() = 0;
-            end;
+
         end;
     end;
 
@@ -1125,7 +1121,7 @@ page 50122 "Revenue Allocation Card"
             ContractRec."Tenant Contract Status"::Terminated,
             ContractRec."Tenant Contract Status"::Suspended);
 
-        if ContractRec.FindSet() then begin
+        if ContractRec.FindSet() then
             repeat
                 // Flag to determine if contract should be processed
                 TerminationDate := 0D;
@@ -1166,7 +1162,7 @@ page 50122 "Revenue Allocation Card"
                 end;
 
                 // Process contract only if it meets the criteria
-                if ShouldProcessContract then begin
+                if ShouldProcessContract then
                     // PURPOSE: Process only contracts that overlap with selected month
                     // LOGIC: Contract start date <= month end AND contract end date >= month start
                     if ((ContractRec."Contract Start Date" <= SelectedMonthEnd) and
@@ -1181,7 +1177,7 @@ page 50122 "Revenue Allocation Card"
                         // Process Single Unit Rent records
                         SingleUnitRent.Reset();
                         SingleUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if SingleUnitRent.FindSet() then begin
+                        if SingleUnitRent.FindSet() then
                             repeat
                                 // Create allocation line for this Single Unit Rent record
                                 InsertAllocationLine(
@@ -1198,12 +1194,12 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until SingleUnitRent.Next() = 0;
-                        end;
+
 
                         // Check Multi Unit Rent grid
                         MultiUnitRent.Reset();
                         MultiUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if MultiUnitRent.FindSet() then begin
+                        if MultiUnitRent.FindSet() then
                             repeat
                                 // Create allocation line for this Multi Unit Rent record
                                 InsertAllocationLine(
@@ -1220,12 +1216,12 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until MultiUnitRent.Next() = 0;
-                        end;
+
 
                         // Check Merged Single Rent grid
                         MergedSingleRent.Reset();
                         MergedSingleRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if MergedSingleRent.FindSet() then begin
+                        if MergedSingleRent.FindSet() then
                             repeat
                                 // Create allocation line for this Merged Single Rent record
                                 InsertAllocationLine(
@@ -1242,12 +1238,12 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until MergedSingleRent.Next() = 0;
-                        end;
+
 
                         // Check Merged Multi Rent grid
                         MergedMultiRent.Reset();
                         MergedMultiRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if MergedMultiRent.FindSet() then begin
+                        if MergedMultiRent.FindSet() then
                             repeat
                                 // Create allocation line for this Merged Multi Rent record
                                 InsertAllocationLine(
@@ -1264,12 +1260,12 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until MergedMultiRent.Next() = 0;
-                        end;
+
 
                         // Check Special Rent grid
                         SpecialRent.Reset();
                         SpecialRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if SpecialRent.FindSet() then begin
+                        if SpecialRent.FindSet() then
                             repeat
                                 // Create allocation line for this Special Rent record
                                 InsertAllocationLine(
@@ -1286,11 +1282,11 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until SpecialRent.Next() = 0;
-                        end;
+
                     end;
-                end;
+
             until ContractRec.Next() = 0;
-        end;
+
 
         ProcessCreditNoteEntries(SelectedMonthStart, SelectedMonthEnd, MonthNo, FinancialYear, LineNo);
 
@@ -1298,11 +1294,12 @@ page 50122 "Revenue Allocation Card"
     end;
 
 
-
-
-
     // New procedure to process credit note entries with debugging
-    procedure ProcessCreditNoteEntries(SelectedMonthStart: Date; SelectedMonthEnd: Date; MonthNo: Integer; FinancialYear: Integer; var LineNo: Integer)
+    procedure ProcessCreditNoteEntries(SelectedMonthStart: Date;
+        SelectedMonthEnd: Date;
+        MonthNo: Integer;
+        FinancialYear: Integer; var
+                                    LineNo: Integer)
     var
         RequestCreditNotegrid: Record "Request Credit Note Grid";
         RequestCreditNote: Record "Request Credit Note";
@@ -1328,7 +1325,7 @@ page 50122 "Revenue Allocation Card"
 
         // Debug: Check if credit note table has records
         RequestCreditNotegrid.Reset();
-        if RequestCreditNotegrid.FindSet() then begin
+        if RequestCreditNotegrid.FindSet() then
             repeat
                 // RequestCreditNote.Get(RequestCreditNotegrid."Request No.");
                 if not RequestCreditNote.Get(RequestCreditNotegrid."Request No.") then
@@ -1352,19 +1349,19 @@ page 50122 "Revenue Allocation Card"
                     ContractRec.Reset();
                     ContractRec.SetRange("Contract ID", RequestCreditNotegrid."Contract ID");
                     ContractRec.SetRange("Tenant Contract Status", ContractRec."Tenant Contract Status"::Active);
-                    if ContractRec.FindFirst() then begin
+                    if ContractRec.FindFirst() then
                         paymentschedule.SetRange("Contract ID", ContractRec."Contract ID");
-                        paymentschedule.SetRange("Payment Series", RequestCreditNotegrid."Payment Series");
-                        paymentschedule.SetRange("Secondary Item Type", 'Rent');
-                        if paymentschedule.FindSet() then begin
+                    paymentschedule.SetRange("Payment Series", RequestCreditNotegrid."Payment Series");
+                    paymentschedule.SetRange("Secondary Item Type", 'Rent');
+                    if paymentschedule.FindSet() then
 
-                            // Check if contract dates overlap with selected month
-                            if ((ContractRec."Contract Start Date" <= SelectedMonthEnd) and
-                                (ContractRec."Contract End Date" >= SelectedMonthStart)) then begin
-                                ShouldProcessCreditNote := true;
-                            end;
-                        end;
-                    end;
+                        // Check if contract dates overlap with selected month
+                        if ((ContractRec."Contract Start Date" <= SelectedMonthEnd) and
+                                (ContractRec."Contract End Date" >= SelectedMonthStart)) then
+                            ShouldProcessCreditNote := true;
+
+
+
 
                     // If contract dates match the posting month/year duration, create negative revenue entry
                     if ShouldProcessCreditNote then begin
@@ -1439,7 +1436,7 @@ page 50122 "Revenue Allocation Card"
                     end;
                 end;
             until RequestCreditNotegrid.Next() = 0;
-        end;
+
     end;
 
 
@@ -1504,9 +1501,9 @@ page 50122 "Revenue Allocation Card"
                 // Check Single Unit Rent grid
                 SingleUnitRent.Reset();
                 SingleUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if SingleUnitRent.FindSet() then begin
+                if SingleUnitRent.FindSet() then
                     repeat
-                        if (SingleUnitRent."Start Date" <= RecoveryEndDate) and (SingleUnitRent."End Date" >= RecoveryStartDate) then begin
+                        if (SingleUnitRent."Start Date" <= RecoveryEndDate) and (SingleUnitRent."End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLine(
                                 ContractRec,
                                 SingleUnitRent."Start Date",
@@ -1522,16 +1519,16 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Single Unit Rent Recovery');
-                        end;
+
                     until SingleUnitRent.Next() = 0;
-                end;
+
 
                 // Check Multi Unit Rent grid
                 MultiUnitRent.Reset();
                 MultiUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if MultiUnitRent.FindSet() then begin
+                if MultiUnitRent.FindSet() then
                     repeat
-                        if (MultiUnitRent."SL_Start Date" <= RecoveryEndDate) and (MultiUnitRent."SL_End Date" >= RecoveryStartDate) then begin
+                        if (MultiUnitRent."SL_Start Date" <= RecoveryEndDate) and (MultiUnitRent."SL_End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLine(
                                 ContractRec,
                                 MultiUnitRent."SL_Start Date",
@@ -1547,16 +1544,16 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Multi Unit Rent Recovery');
-                        end;
+
                     until MultiUnitRent.Next() = 0;
-                end;
+
 
                 // Check Merged Single Rent grid
                 MergedSingleRent.Reset();
                 MergedSingleRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if MergedSingleRent.FindSet() then begin
+                if MergedSingleRent.FindSet() then
                     repeat
-                        if (MergedSingleRent."MS_Start Date" <= RecoveryEndDate) and (MergedSingleRent."MS_End Date" >= RecoveryStartDate) then begin
+                        if (MergedSingleRent."MS_Start Date" <= RecoveryEndDate) and (MergedSingleRent."MS_End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLine(
                                 ContractRec,
                                 MergedSingleRent."MS_Start Date",
@@ -1572,16 +1569,16 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Merged Single Rent Recovery');
-                        end;
+
                     until MergedSingleRent.Next() = 0;
-                end;
+
 
                 // Check Merged Multi Rent grid
                 MergedMultiRent.Reset();
                 MergedMultiRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if MergedMultiRent.FindSet() then begin
+                if MergedMultiRent.FindSet() then
                     repeat
-                        if (MergedMultiRent."MD_Start Date" <= RecoveryEndDate) and (MergedMultiRent."MD_End Date" >= RecoveryStartDate) then begin
+                        if (MergedMultiRent."MD_Start Date" <= RecoveryEndDate) and (MergedMultiRent."MD_End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLine(
                                 ContractRec,
                                 MergedMultiRent."MD_Start Date",
@@ -1597,16 +1594,16 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Merged Multi Rent Recovery');
-                        end;
+
                     until MergedMultiRent.Next() = 0;
-                end;
+
 
                 // Check Special Rent grid
                 SpecialRent.Reset();
                 SpecialRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if SpecialRent.FindSet() then begin
+                if SpecialRent.FindSet() then
                     repeat
-                        if (SpecialRent."ML_Start Date" <= RecoveryEndDate) and (SpecialRent."ML_End Date" >= RecoveryStartDate) then begin
+                        if (SpecialRent."ML_Start Date" <= RecoveryEndDate) and (SpecialRent."ML_End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLine(
                                 ContractRec,
                                 SpecialRent."ML_Start Date",
@@ -1622,9 +1619,9 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Special Rent Recovery');
-                        end;
+
                     until SpecialRent.Next() = 0;
-                end;
+
             end;
         end;
     end;
@@ -1785,13 +1782,6 @@ page 50122 "Revenue Allocation Card"
     end;
 
 
-
-
-
-
-
-
-
     //////////////////////////////FIXED MONTH RENT////////////////////////////////////////////////////////////////////////////////////
     procedure CalculateDaysInSelectedMonths(
            ContractStartDate: Date;
@@ -1801,8 +1791,6 @@ page 50122 "Revenue Allocation Card"
            SelectedMonth: Integer;
            SelectedYear: Integer): Integer
     var
-        StartDate: Date;
-        EndDate: Date;
         MonthStartDate: Date;
         MonthEndDate: Date;
         EffectiveStartDate: Date;
@@ -1845,7 +1833,6 @@ page 50122 "Revenue Allocation Card"
     //---------------Should Keep Entry--------------//
     procedure ShouldKeepEntrys(StartDate: Date; EndDate: Date): Boolean
     var
-        CheckDate: Date;
         LastDayOfMonth: Date;
         FirstDayOfMonth: Date;
     begin
@@ -1903,7 +1890,6 @@ page 50122 "Revenue Allocation Card"
         permonthrent: Decimal;
         AdjustedStartDate: Date; // 🔹 new
         AdjustedEndDate: Date;   // 🔹 new
-        SuspensionStartDateInMonth: Date; // 🔹 ADDED   
         SuspensionStartDate: Date;
         SuspensionEndDate: Date;
     begin
@@ -1951,13 +1937,13 @@ page 50122 "Revenue Allocation Card"
             // If suspension start date is within selected month
             if (SuspensionStartDate <> 0D) and
                (SuspensionStartDate >= SelectedMonthStart) and
-               (SuspensionStartDate <= SelectedMonthEnd) then begin
+               (SuspensionStartDate <= SelectedMonthEnd) then
                 // Adjust end date to day before suspension
                 AdjustedEndDate := SuspensionStartDate;
-            end;
+
 
             // If suspension period overlaps with selected month
-            if (SuspensionStartDate <> 0D) and (SuspensionEndDate <> 0D) then begin
+            if (SuspensionStartDate <> 0D) and (SuspensionEndDate <> 0D) then
                 // Case 1: Suspension starts before selected month and ends during selected month
                 if (SuspensionStartDate < SelectedMonthStart) and
                    (SuspensionEndDate >= SelectedMonthStart) and
@@ -1998,23 +1984,13 @@ page 50122 "Revenue Allocation Card"
                     AdjustedStartDate := SelectedMonthEnd + 1;
                     AdjustedEndDate := SelectedMonthStart - 1;
                 end;
-            end;
+
         end;
 
         if (AdjustedStartDate <= AdjustedEndDate) then
             CalculatedDays := AdjustedEndDate - AdjustedStartDate + 1
         else
             CalculatedDays := 0;
-
-        // Calculate the actual number of days for the selected month
-        // CalculatedDays := CalculateDaysInSelectedMonths(
-        //     ContractRec."Contract Start Date",
-        //     ContractRec."Contract End Date",
-        //     MultiYearStartDate,
-        //     MultiYearEndDate,
-        //     MonthNo,
-        //     FinancialYear
-        // );
 
         // Get the days in the specific grid record's date range
         TotalContractDays := MultiYearEndDate - MultiYearStartDate + 1;
@@ -2168,11 +2144,11 @@ page 50122 "Revenue Allocation Card"
         MonthlyRate: Decimal;
     begin
 
-        if CalculatedDays < revenuerecognition.GetDaysInMonthss(DMY2Date(1, MonthNo, FinancialYear)) then begin
-            MonthlyRate := Round(permonthrent / revenuerecognition.GetDaysInMonthss(DMY2Date(1, MonthNo, FinancialYear)) * CalculatedDays);
-        end else begin
+        if CalculatedDays < revenuerecognition.GetDaysInMonthss(DMY2Date(1, MonthNo, FinancialYear)) then
+            MonthlyRate := Round(permonthrent / revenuerecognition.GetDaysInMonthss(DMY2Date(1, MonthNo, FinancialYear)) * CalculatedDays)
+        else
             MonthlyRate := permonthrent;
-        end;
+
         exit(MonthlyRate);
     end;
 
@@ -2182,11 +2158,11 @@ page 50122 "Revenue Allocation Card"
         MonthlyRate: Decimal;
     begin
 
-        if MissedDays < revenuerecognition.GetDaysInMonthss(DMY2Date(1, PreviousMonthNo, PreviousYearNo)) then begin
-            MonthlyRate := Round(permonthrent / revenuerecognition.GetDaysInMonthss(DMY2Date(1, PreviousMonthNo, PreviousYearNo)) * MissedDays);
-        end else begin
+        if MissedDays < revenuerecognition.GetDaysInMonthss(DMY2Date(1, PreviousMonthNo, PreviousYearNo)) then
+            MonthlyRate := Round(permonthrent / revenuerecognition.GetDaysInMonthss(DMY2Date(1, PreviousMonthNo, PreviousYearNo)) * MissedDays)
+        else
             MonthlyRate := permonthrent;
-        end;
+
         exit(MonthlyRate);
     end;
 
@@ -2196,11 +2172,11 @@ page 50122 "Revenue Allocation Card"
         MonthlyRate: Decimal;
     begin
 
-        if CalculatedRecoveryDays < revenuerecognition.GetDaysInMonthss(DMY2Date(1, MonthNo, FinancialYear)) then begin
-            MonthlyRate := Round(permonthrent / revenuerecognition.GetDaysInMonthss(DMY2Date(1, MonthNo, FinancialYear)) * CalculatedRecoveryDays);
-        end else begin
+        if CalculatedRecoveryDays < revenuerecognition.GetDaysInMonthss(DMY2Date(1, MonthNo, FinancialYear)) then
+            MonthlyRate := Round(permonthrent / revenuerecognition.GetDaysInMonthss(DMY2Date(1, MonthNo, FinancialYear)) * CalculatedRecoveryDays)
+        else
             MonthlyRate := permonthrent;
-        end;
+
         exit(MonthlyRate);
     end;
 
@@ -2261,9 +2237,9 @@ page 50122 "Revenue Allocation Card"
             // Check Single Unit Rent grid
             SingleUnitRent.Reset();
             SingleUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if SingleUnitRent.FindSet() then begin
+            if SingleUnitRent.FindSet() then
                 repeat
-                    if (SingleUnitRent."Start Date" <= PreviousMonthEnd) and (SingleUnitRent."End Date" >= ContractStartDate) then begin
+                    if (SingleUnitRent."Start Date" <= PreviousMonthEnd) and (SingleUnitRent."End Date" >= ContractStartDate) then
                         InsertMissedAllocationLines(
                             ContractRec,
                             SingleUnitRent."Start Date",
@@ -2278,16 +2254,16 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until SingleUnitRent.Next() = 0;
-            end;
+
 
             // Check Multi Unit Rent grid
             MultiUnitRent.Reset();
             MultiUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if MultiUnitRent.FindSet() then begin
+            if MultiUnitRent.FindSet() then
                 repeat
-                    if (MultiUnitRent."SL_Start Date" <= PreviousMonthEnd) and (MultiUnitRent."SL_End Date" >= ContractStartDate) then begin
+                    if (MultiUnitRent."SL_Start Date" <= PreviousMonthEnd) and (MultiUnitRent."SL_End Date" >= ContractStartDate) then
                         InsertMissedAllocationLines(
                             ContractRec,
                             MultiUnitRent."SL_Start Date",
@@ -2302,16 +2278,16 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until MultiUnitRent.Next() = 0;
-            end;
+
 
             // Check Merged Single Rent grid
             MergedSingleRent.Reset();
             MergedSingleRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if MergedSingleRent.FindSet() then begin
+            if MergedSingleRent.FindSet() then
                 repeat
-                    if (MergedSingleRent."MS_Start Date" <= PreviousMonthEnd) and (MergedSingleRent."MS_End Date" >= ContractStartDate) then begin
+                    if (MergedSingleRent."MS_Start Date" <= PreviousMonthEnd) and (MergedSingleRent."MS_End Date" >= ContractStartDate) then
                         InsertMissedAllocationLines(
                             ContractRec,
                             MergedSingleRent."MS_Start Date",
@@ -2326,16 +2302,16 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until MergedSingleRent.Next() = 0;
-            end;
+
 
             // Check Merged Multi Rent grid
             MergedMultiRent.Reset();
             MergedMultiRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if MergedMultiRent.FindSet() then begin
+            if MergedMultiRent.FindSet() then
                 repeat
-                    if (MergedMultiRent."MD_Start Date" <= PreviousMonthEnd) and (MergedMultiRent."MD_End Date" >= ContractStartDate) then begin
+                    if (MergedMultiRent."MD_Start Date" <= PreviousMonthEnd) and (MergedMultiRent."MD_End Date" >= ContractStartDate) then
                         InsertMissedAllocationLines(
                             ContractRec,
                             MergedMultiRent."MD_Start Date",
@@ -2350,16 +2326,16 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until MergedMultiRent.Next() = 0;
-            end;
+
 
             // Check Special Rent grid
             SpecialRent.Reset();
             SpecialRent.SetRange("Contract ID", ContractRec."Contract ID");
-            if SpecialRent.FindSet() then begin
+            if SpecialRent.FindSet() then
                 repeat
-                    if (SpecialRent."ML_Start Date" <= PreviousMonthEnd) and (SpecialRent."ML_End Date" >= ContractStartDate) then begin
+                    if (SpecialRent."ML_Start Date" <= PreviousMonthEnd) and (SpecialRent."ML_End Date" >= ContractStartDate) then
                         InsertMissedAllocationLines(
                             ContractRec,
                             SpecialRent."ML_Start Date",
@@ -2374,9 +2350,9 @@ page 50122 "Revenue Allocation Card"
                             PreviousYearNo,
                             ContractStartDate,
                             PreviousMonthEnd);
-                    end;
+
                 until SpecialRent.Next() = 0;
-            end;
+
         end;
     end;
 
@@ -2612,7 +2588,7 @@ page 50122 "Revenue Allocation Card"
             ContractRec."Tenant Contract Status"::Terminated,
             ContractRec."Tenant Contract Status"::Suspended);
 
-        if ContractRec.FindSet() then begin
+        if ContractRec.FindSet() then
             repeat
                 // Flag to determine if contract should be processed
                 TerminationDate := 0D;
@@ -2654,7 +2630,7 @@ page 50122 "Revenue Allocation Card"
 
 
                 // Process contract only if it meets the criteria
-                if ShouldProcessContract then begin
+                if ShouldProcessContract then
                     // PURPOSE: Process only contracts that overlap with selected month
                     // LOGIC: Contract start date <= month end AND contract end date >= month start
                     if ((ContractRec."Contract Start Date" <= SelectedMonthEnd) and
@@ -2669,7 +2645,7 @@ page 50122 "Revenue Allocation Card"
                         // Process Single Unit Rent records
                         SingleUnitRent.Reset();
                         SingleUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if SingleUnitRent.FindSet() then begin
+                        if SingleUnitRent.FindSet() then
                             repeat
                                 // Create allocation line for this Single Unit Rent record
                                 InsertAllocationLines(
@@ -2686,12 +2662,12 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until SingleUnitRent.Next() = 0;
-                        end;
+
 
                         // Check Multi Unit Rent grid
                         MultiUnitRent.Reset();
                         MultiUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if MultiUnitRent.FindSet() then begin
+                        if MultiUnitRent.FindSet() then
                             repeat
                                 // Create allocation line for this Multi Unit Rent record
                                 InsertAllocationLines(
@@ -2708,12 +2684,12 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until MultiUnitRent.Next() = 0;
-                        end;
+
 
                         // Check Merged Single Rent grid
                         MergedSingleRent.Reset();
                         MergedSingleRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if MergedSingleRent.FindSet() then begin
+                        if MergedSingleRent.FindSet() then
                             repeat
                                 // Create allocation line for this Merged Single Rent record
                                 InsertAllocationLines(
@@ -2730,12 +2706,12 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until MergedSingleRent.Next() = 0;
-                        end;
+
 
                         // Check Merged Multi Rent grid
                         MergedMultiRent.Reset();
                         MergedMultiRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if MergedMultiRent.FindSet() then begin
+                        if MergedMultiRent.FindSet() then
                             repeat
                                 // Create allocation line for this Merged Multi Rent record
                                 InsertAllocationLines(
@@ -2752,12 +2728,12 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until MergedMultiRent.Next() = 0;
-                        end;
+
 
                         // Check Special Rent grid
                         SpecialRent.Reset();
                         SpecialRent.SetRange("Contract ID", ContractRec."Contract ID");
-                        if SpecialRent.FindSet() then begin
+                        if SpecialRent.FindSet() then
                             repeat
                                 // Create allocation line for this Special Rent record
                                 InsertAllocationLines(
@@ -2774,11 +2750,11 @@ page 50122 "Revenue Allocation Card"
                                     FinancialYear);
                             // LineNo += 1;  // Increment by 1
                             until SpecialRent.Next() = 0;
-                        end;
+
                     end;
-                end;
+
             until ContractRec.Next() = 0;
-        end;
+
 
         ProcessCreditNoteEntriess(SelectedMonthStart, SelectedMonthEnd, MonthNo, FinancialYear, LineNo);
 
@@ -2814,7 +2790,7 @@ page 50122 "Revenue Allocation Card"
 
         // Debug: Check if credit note table has records
         RequestCreditNotegrid.Reset();
-        if RequestCreditNotegrid.FindSet() then begin
+        if RequestCreditNotegrid.FindSet() then
             repeat
                 // RequestCreditNote.Get(RequestCreditNotegrid."Request No.");
                 if not RequestCreditNote.Get(RequestCreditNotegrid."Request No.") then
@@ -2843,14 +2819,14 @@ page 50122 "Revenue Allocation Card"
                         paymentschedule.SetRange("Contract ID", ContractRec."Contract ID");
                         paymentschedule.SetRange("Payment Series", RequestCreditNotegrid."Payment Series");
                         paymentschedule.SetRange("Secondary Item Type", 'Rent');
-                        if paymentschedule.FindSet() then begin
+                        if paymentschedule.FindSet() then
 
                             // Check if contract dates overlap with selected month
                             if ((ContractRec."Contract Start Date" <= SelectedMonthEnd) and
-                                (ContractRec."Contract End Date" >= SelectedMonthStart)) then begin
+                                (ContractRec."Contract End Date" >= SelectedMonthStart)) then
                                 ShouldProcessCreditNote := true;
-                            end;
-                        end;
+
+
                     end;
 
                     // If contract dates match the posting month/year duration, create negative revenue entry
@@ -2929,7 +2905,7 @@ page 50122 "Revenue Allocation Card"
                     end;
                 end;
             until RequestCreditNotegrid.Next() = 0;
-        end;
+
     end;
 
 
@@ -2990,9 +2966,9 @@ page 50122 "Revenue Allocation Card"
                 // Check Single Unit Rent grid
                 SingleUnitRent.Reset();
                 SingleUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if SingleUnitRent.FindSet() then begin
+                if SingleUnitRent.FindSet() then
                     repeat
-                        if (SingleUnitRent."Start Date" <= RecoveryEndDate) and (SingleUnitRent."End Date" >= RecoveryStartDate) then begin
+                        if (SingleUnitRent."Start Date" <= RecoveryEndDate) and (SingleUnitRent."End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLines(
                                 ContractRec,
                                 SingleUnitRent."Start Date",
@@ -3008,16 +2984,16 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Single Unit Rent Recovery');
-                        end;
+
                     until SingleUnitRent.Next() = 0;
-                end;
+
 
                 // Check Multi Unit Rent grid
                 MultiUnitRent.Reset();
                 MultiUnitRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if MultiUnitRent.FindSet() then begin
+                if MultiUnitRent.FindSet() then
                     repeat
-                        if (MultiUnitRent."SL_Start Date" <= RecoveryEndDate) and (MultiUnitRent."SL_End Date" >= RecoveryStartDate) then begin
+                        if (MultiUnitRent."SL_Start Date" <= RecoveryEndDate) and (MultiUnitRent."SL_End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLines(
                                 ContractRec,
                                 MultiUnitRent."SL_Start Date",
@@ -3033,16 +3009,16 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Multi Unit Rent Recovery');
-                        end;
+
                     until MultiUnitRent.Next() = 0;
-                end;
+
 
                 // Check Merged Single Rent grid
                 MergedSingleRent.Reset();
                 MergedSingleRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if MergedSingleRent.FindSet() then begin
+                if MergedSingleRent.FindSet() then
                     repeat
-                        if (MergedSingleRent."MS_Start Date" <= RecoveryEndDate) and (MergedSingleRent."MS_End Date" >= RecoveryStartDate) then begin
+                        if (MergedSingleRent."MS_Start Date" <= RecoveryEndDate) and (MergedSingleRent."MS_End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLines(
                                 ContractRec,
                                 MergedSingleRent."MS_Start Date",
@@ -3058,16 +3034,16 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Merged Single Rent Recovery');
-                        end;
+
                     until MergedSingleRent.Next() = 0;
-                end;
+
 
                 // Check Merged Multi Rent grid
                 MergedMultiRent.Reset();
                 MergedMultiRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if MergedMultiRent.FindSet() then begin
+                if MergedMultiRent.FindSet() then
                     repeat
-                        if (MergedMultiRent."MD_Start Date" <= RecoveryEndDate) and (MergedMultiRent."MD_End Date" >= RecoveryStartDate) then begin
+                        if (MergedMultiRent."MD_Start Date" <= RecoveryEndDate) and (MergedMultiRent."MD_End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLines(
                                 ContractRec,
                                 MergedMultiRent."MD_Start Date",
@@ -3083,16 +3059,16 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Merged Multi Rent Recovery');
-                        end;
+
                     until MergedMultiRent.Next() = 0;
-                end;
+
 
                 // Check Special Rent grid
                 SpecialRent.Reset();
                 SpecialRent.SetRange("Contract ID", ContractRec."Contract ID");
-                if SpecialRent.FindSet() then begin
+                if SpecialRent.FindSet() then
                     repeat
-                        if (SpecialRent."ML_Start Date" <= RecoveryEndDate) and (SpecialRent."ML_End Date" >= RecoveryStartDate) then begin
+                        if (SpecialRent."ML_Start Date" <= RecoveryEndDate) and (SpecialRent."ML_End Date" >= RecoveryStartDate) then
                             InsertSuspensionRecoveryLines(
                                 ContractRec,
                                 SpecialRent."ML_Start Date",
@@ -3108,9 +3084,9 @@ page 50122 "Revenue Allocation Card"
                                 RecoveryStartDate,
                                 RecoveryEndDate,
                                 'Special Rent Recovery');
-                        end;
+
                     until SpecialRent.Next() = 0;
-                end;
+
             end;
         end;
     end;

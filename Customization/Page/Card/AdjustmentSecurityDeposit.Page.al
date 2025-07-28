@@ -15,11 +15,13 @@ page 50125 "Adjustment Security Deposit"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the adjustment security deposit record.';
                 }
 
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the unique identifier for the contract associated with the adjustment security deposit.';
                     trigger OnValidate()
                     begin
                         CurrPage.Update();
@@ -31,42 +33,41 @@ page 50125 "Adjustment Security Deposit"
                     ApplicationArea = All;
                     Lookup = true;
                     Visible = false;
+                    ToolTip = 'Specifies the main security deposit associated with the contract.';
                 }
                 field("Security Deposit"; Rec."Security Deposit")
                 {
                     ApplicationArea = All;
                     Lookup = true;
+                    ToolTip = 'Specifies the security deposit amount associated with the contract.';
                 }
 
                 field("Contract Start Date"; Rec."Contract Start Date")
                 {
                     ApplicationArea = All;
                     Lookup = true;
+                    ToolTip = 'Specifies the start date of the contract associated with the adjustment security deposit.';
                 }
 
                 field("Contract End Date"; Rec."Contract End Date")
                 {
                     ApplicationArea = All;
                     Lookup = true;
+                    ToolTip = 'Specifies the end date of the contract associated with the adjustment security deposit.';
                 }
 
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    // trigger OnValidate()
-                    // begin
-                    //     if (Rec."Status" = Rec."Status"::Approved) then begin
-                    //         AdditinalchargescashReceipt();
-                    //         // receivablecashrecipt();
-                    //     end;
-                    // end;
+                    ToolTip = 'Specifies the current status of the adjustment security deposit, such as Open, Approved, or Closed.';
 
                 }
 
                 field("Security Amount Status"; Rec."Security Amount Status")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the status of the security amount, such as Adjust Installment or Termination Charges.';
                     trigger OnValidate()
                     begin
                         SetControlVisibility();
@@ -82,13 +83,14 @@ page 50125 "Adjustment Security Deposit"
                 field("Payment Series"; Rec."Payment Series")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the payment series for the adjustment security deposit. This field allows you to select multiple payment series associated with the contract.';
 
                     // Trasfer from Table Start  
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         PaymentMode2Rec: Record "Payment Mode2";
                         Selection: Page "Payment Mode2 List";
-                        SelectedPaymentSeries: Text[250];
+                        SelectedPaymentSeries: Text;
                         TotalAmount: Decimal;
                         TotalVATAmount: Decimal;
                         TotalAmountInclVAT: Decimal;
@@ -126,7 +128,7 @@ page 50125 "Adjustment Security Deposit"
                                 until PaymentMode2Rec.Next() = 0;
 
                                 // Set all values to the record
-                                Rec."Payment Series" := SelectedPaymentSeries;
+                                Rec."Payment Series" := CopyStr(SelectedPaymentSeries, 1, StrLen(SelectedPaymentSeries));
                                 Rec.Amount := TotalAmount;
                                 Rec."VAT Amount" := TotalVATAmount;
                                 Rec."Amount Including VAT" := TotalAmountInclVAT;
@@ -138,18 +140,22 @@ page 50125 "Adjustment Security Deposit"
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total amount for the adjustment security deposit. This field is calculated based on the selected payment series and includes all relevant charges.';
                 }
                 field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the VAT amount applicable to the adjustment security deposit. This field is calculated based on the selected payment series and includes all relevant charges.';
                 }
                 field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the total amount including VAT for the adjustment security deposit. This field is calculated based on the selected payment series and includes all relevant charges.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the due date for the payment of the adjustment security deposit. This field is calculated based on the selected payment series and includes all relevant charges.';
                 }
             }
             group(Termination_Charges)
@@ -171,6 +177,7 @@ page 50125 "Adjustment Security Deposit"
         {
             action(Post)
             {
+                ToolTip = 'Post the entry for the adjustment security deposit. This action creates a new security deposit entry based on the current record and validates required fields before posting.';
                 ApplicationArea = All;
                 Caption = 'Post Entry';
                 Image = PostDocument;
@@ -181,7 +188,7 @@ page 50125 "Adjustment Security Deposit"
                 trigger OnAction()
                 var
                     SecurityDepositEntry: Record "Security Deposit Entry";
-                    terminationcharges: Record "Termination Charges Sub";
+
                 begin
                     // Validate required fields
                     if Rec."Contract ID" = 0 then
@@ -190,8 +197,6 @@ page 50125 "Adjustment Security Deposit"
                     if (Rec."Security Amount Status" = Rec."Security Amount Status"::" ") then
                         Error('Please select Security Amount Status');
 
-                    // if Rec.Amount = 0 then
-                    //     Error('Amount must be specified');
 
                     // Create new entry
                     SecurityDepositEntry.Init();
@@ -205,8 +210,7 @@ page 50125 "Adjustment Security Deposit"
                     SecurityDepositEntry.Insert(true);
                     Message('Entry posted successfully!');
 
-                    // Open the entries list
-                    // Page.Run(Page::"Security Deposit Entries");
+
                 end;
             }
         }
@@ -222,14 +226,6 @@ page 50125 "Adjustment Security Deposit"
             FetchAdditionalChargesData();
     end;
 
-    // trigger OnModifyRecord(): Boolean
-    // begin
-    //     if (Rec."Status" = Rec."Status"::Approved) then begin
-    //         AdditinalchargescashReceipt();
-    //         //  receivablecashrecipt();
-    //     end;
-    // end;
-
     local procedure FetchAdditionalChargesData()
     var
         AdditionalCharges: Record "Additional Charges Sub";
@@ -242,7 +238,7 @@ page 50125 "Adjustment Security Deposit"
 
         // Check if Final Calculation exists with same Contract ID
         FinalCalculation.SetRange("Contract ID", Rec."Contract ID");
-        if not FinalCalculation.FindFirst() then
+        if FinalCalculation.IsEmpty() then
             exit;
 
         // Clear existing termination charges for this contract
