@@ -17,6 +17,7 @@ page 50307 "Availability Status Card"
                 {
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Specifies the unique identifier for the availability status.';
                 }
                 field("Status"; Rec."Status")
                 {
@@ -28,8 +29,4 @@ page 50307 "Availability Status Card"
         }
     }
 
-
 }
-
-
-

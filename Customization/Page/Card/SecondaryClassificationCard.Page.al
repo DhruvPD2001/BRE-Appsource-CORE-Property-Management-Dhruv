@@ -17,15 +17,14 @@ page 50302 "Secondary Classification Card"
                 {
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'Specifies the unique identifier for the secondary classification.';
                 }
                 field("Classification Name"; Rec."Classification Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Primary Classification';
                     ToolTip = 'Select the associated primary classification.';
-                    // TableRelation = "Primary Classification";
-                    // Add a lookup to the Primary Classification table
-                    // Lookup = true;
+
                 }
                 field("Property Type"; Rec."Property Type")
                 {
@@ -38,7 +37,4 @@ page 50302 "Secondary Classification Card"
     }
 
 
-
-    // Adding navigation from the list page
-    // usagecategory = Lists;
 }
