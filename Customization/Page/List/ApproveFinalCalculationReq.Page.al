@@ -1,4 +1,4 @@
-page 50916 "Approval FinalCalculation List"
+page 50916 "Approve FinalCalculation Req"
 {
     PageType = List;
     SourceTable = "Approval Final Calculation";
@@ -18,41 +18,46 @@ page 50916 "Approval FinalCalculation List"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Unique identifier for the approval final calculation.';
                 }
                 field("Status"; Rec."Status")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Current status of the approval final calculation.';
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Unique identifier for the tenant associated with the approval final calculation.';
                 }
 
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Unique identifier for the contract associated with the approval final calculation.';
                 }
 
                 field("FC ID"; Rec."FC ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Unique identifier for the final calculation associated with the approval.';
                 }
 
                 field("Link"; Rec."Link")
                 {
                     ApplicationArea = All;
                     DrillDown = true;
+                    ToolTip = 'Link to the final calculation record.';
 
 
                     trigger OnDrillDown()
                     var
                         FinalCalculation: Record "Final Calculation";
-                        FinalCalculationid: Integer;
                     begin
 
                         // Navigate to the Revenue Structure Card page
@@ -68,24 +73,28 @@ page 50916 "Approval FinalCalculation List"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Start date of the contract associated with the approval final calculation.';
                 }
 
                 field("Contract End Date"; Rec."Contract End Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'End date of the contract associated with the approval final calculation.';
                 }
 
                 field("Termination Date"; Rec."Termination Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Date when the contract associated with the approval final calculation was terminated.';
                 }
 
                 field("Contract Amount"; Rec."Contract Amount")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Total amount of the contract associated with the approval final calculation.';
                 }
 
 
@@ -101,7 +110,9 @@ page 50916 "Approval FinalCalculation List"
     {
         area(Processing)
         {
+#pragma warning disable AW0011
             action(Approve)
+#pragma warning restore AW0011
             {
                 ApplicationArea = All;
                 Caption = 'Approve';
@@ -110,6 +121,7 @@ page 50916 "Approval FinalCalculation List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 Visible = IsFinanceManager;
+                ToolTip = 'Approve the selected final calculation entry.';
 
 
                 trigger OnAction()
@@ -152,8 +164,7 @@ page 50916 "Approval FinalCalculation List"
         UserPersonalization: Record "User Personalization";
     begin
 
-        if UserPersonalization.Get(UserSecurityId()) then begin
-
+        if UserPersonalization.Get(UserSecurityId()) then
             case UserPersonalization."Profile ID" of
                 'PROPERTY MANAGER':
                     exit(false);
@@ -162,13 +173,12 @@ page 50916 "Approval FinalCalculation List"
                 'finance manager':
                     exit(true);
             end;
-        end;
+
 
         exit(false);
     end;
 
     var
         IsFinanceManager: Boolean;
-        IsFieldEditable: Boolean;
 
 }
