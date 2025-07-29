@@ -15,36 +15,42 @@ page 50340 "CR Merge SameSqure SubPage"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Unique identifier for the record.';
                 }
                 field("MS_Merged Unit ID"; rec."MS_Merged Unit ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Merged Unit ID';
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the merged unit.';
                 }
                 field("MS_Unit ID"; rec."MS_Unit ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Unit ID';
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the unit.';
                 }
                 field("MS_Year"; rec.MS_Year)
                 {
                     ApplicationArea = All;
                     Caption = 'Year';
                     Editable = false;
+                    ToolTip = 'Specifies the year for the record.';
                 }
                 field("MS_Start Date"; rec."MS_Start Date")
                 {
                     ApplicationArea = All;
                     Caption = 'Start Date';
                     Editable = false;
+                    ToolTip = 'Start Date of the contract period.';
                 }
                 field("MS_End Date"; rec."MS_End Date")
                 {
                     ApplicationArea = All;
                     Caption = 'End Date';
                     Editable = false;
+                    ToolTip = 'End Date of the contract period.';
                 }
                 field("MS_Number of Days"; rec."MS_Number of Days")
                 {
@@ -62,63 +68,18 @@ page 50340 "CR Merge SameSqure SubPage"
                     ApplicationArea = All;
                     Caption = 'Unit Sq Ft';
                     Editable = false;
+                    ToolTip = 'Unit Size in Square Feet';
                     trigger OnValidate()
                     begin
                         RecalculateAnnualAmount();
                     end;
                 }
-                // field("MS_Rate per Sq.Ft"; rec."MS_Rate per Sq.Ft")
-                // {
-                //     ApplicationArea = All;
-                //     Caption = 'Rate per Sq.Ft';
-
-                //     trigger OnValidate()
-                //     var
-                //         PreviousYearRecord: Record "Merge SameSqure SubPage";
-                //         PreviousRate: Decimal;
-                //     begin
-                //         // Ensure the value is not negative
-                //         if Rec."MS_Rate per Sq.Ft" < 0 then
-                //             Error('Rate per Sq.Ft cannot be negative.');
-
-                //         // Fetch the previous year's record to calculate Rent Increase %
-                //         PreviousYearRecord.SetRange("Proposal ID", Rec."Proposal ID");
-                //         PreviousYearRecord.SetRange("MS_Year", Rec.MS_Year - 1);
-
-                //         if PreviousYearRecord.FindFirst() then begin
-                //             PreviousRate := PreviousYearRecord."MS_Rate per Sq.Ft";
-
-                //             // Ensure previous rate is greater than 0 to avoid division by zero
-                //             if PreviousRate > 0 then
-                //                 Rec."MS_Rent Increase %" :=
-                //                     ((Rec."MS_Rate per Sq.Ft" - PreviousRate) / PreviousRate) * 100
-                //             else
-                //                 Rec."MS_Rent Increase %" := 0; // No increase if previous rate is 0
-                //         end else
-                //             Rec."MS_Rent Increase %" := 0; // No increase for the first year or no previous record
-
-                //         // Recalculate Annual Amount
-                //         if (Rec."MS_Rate per Sq.Ft" > 0) and (Rec."MS_Unit Sq Ft" > 0) then
-                //             Rec."MS_Annual Amount" := Rec."MS_Rate per Sq.Ft" * Rec."MS_Unit Sq Ft"
-                //         else
-                //             Rec."MS_Annual Amount" := 0;
-
-                //         // Set Final Annual Amount equal to Annual Amount
-                //         Rec."MS_Final Annual Amount" := Rec."MS_Annual Amount";
-
-                //         // Recalculate Per Day Rent
-                //         RecalculatePerDayRent();
-
-                //         // Save changes
-                //         Rec.Modify();
-                //         CurrPage.Update();
-                //     end;
-                // }
 
                 field("MS_Rate per Sq.Ft"; rec."MS_Rate per Sq.Ft")
                 {
                     ApplicationArea = All;
                     Caption = 'Rate per Sq.Ft';
+                    ToolTip = 'Rate per Sq.Ft';
 
                     trigger OnValidate()
                     var
@@ -165,52 +126,6 @@ page 50340 "CR Merge SameSqure SubPage"
                         CurrPage.Update();
                     end;
                 }
-
-                // field("MS_Rent Increase %"; rec."MS_Rent Increase %")
-                // {
-                //     ApplicationArea = All;
-                //     Caption = 'Rent Increase %';
-                //     ToolTip = 'Enter the rent increase percentage for this year.';
-
-                //     trigger OnValidate()
-                //     var
-                //         PreviousYearRecord: Record "Merge SameSqure SubPage";
-                //         IncreaseFactor: Decimal;
-                //     begin
-                //         // Ensure that Rent Increase % is not negative
-                //         if Rec."MS_Rent Increase %" < 0 then
-                //             Error('Rent Increase % cannot be negative.');
-
-                //         // Skip calculation for the first year
-                //         if Rec.MS_Year = 1 then
-                //             exit;
-
-                //         // Fetch the previous year's record
-                //         PreviousYearRecord.SetRange("Proposal ID", Rec."Proposal ID");
-                //         PreviousYearRecord.SetRange(MS_Year, Rec.MS_Year - 1);
-
-                //         if PreviousYearRecord.FindFirst() then begin
-                //             // Calculate the new rate for the current year
-                //             IncreaseFactor := 1 + (Rec."MS_Rent Increase %" / 100);
-                //             Rec."MS_Rate per Sq.Ft" := PreviousYearRecord."MS_Rate per Sq.Ft" * IncreaseFactor;
-
-                //             // Recalculate Annual Amount
-                //             Rec."MS_Annual Amount" := Rec."MS_Rate per Sq.Ft" * Rec."MS_Unit Sq Ft";
-
-                //             // Update Final Annual Amount to match Annual Amount
-                //             Rec."MS_Final Annual Amount" := Rec."MS_Annual Amount";
-
-                //             // Recalculate Per Day Rent
-                //             RecalculatePerDayRent();
-
-                //             // Save changes
-                //             Rec.Modify();
-                //             CurrPage.Update();
-                //         end else
-                //             Error('No record found for the previous year to base the calculation.');
-                //     end;
-
-                // }
 
                 field("MS_Rent Increase %"; rec."MS_Rent Increase %")
                 {
@@ -302,7 +217,6 @@ page 50340 "CR Merge SameSqure SubPage"
                     DecimalPlaces = 2 : 2;
 
                 }
-
             }
 
             group("Total Rent Caculation")
@@ -313,7 +227,7 @@ page 50340 "CR Merge SameSqure SubPage"
                     Caption = 'Total Contract Amount';
                     ApplicationArea = All;
                     Editable = false; // Make it read-only
-
+                    ToolTip = 'Total Annual Amount for the contract.';
                 }
 
                 field("TotalRoundOff"; rec.TotalRoundOff)
@@ -321,7 +235,7 @@ page 50340 "CR Merge SameSqure SubPage"
                     Caption = 'Round Off';
                     ApplicationArea = All;
                     Editable = false; // Make it read-only
-
+                    ToolTip = 'Total Round Off Amount for the contract.';
                 }
 
                 field("TotalFinalAmount"; rec.TotalFinalAmount)
@@ -329,6 +243,7 @@ page 50340 "CR Merge SameSqure SubPage"
                     Caption = 'Total Final Contract Amount';
                     ApplicationArea = All;
                     Editable = false; // Make it read-only
+                    ToolTip = 'Total Final Annual Amount for the contract.';
                 }
 
                 field("TotalFirstAnnualAmount"; rec.TotalFirstAnnualAmount)
@@ -336,6 +251,7 @@ page 50340 "CR Merge SameSqure SubPage"
                     Caption = 'Total Annual Amount';
                     ApplicationArea = All;
                     Editable = false; // Make it read-only
+                    ToolTip = 'Total Annual Amount for the first year of the contract.';
                 }
             }
         }
@@ -347,6 +263,7 @@ page 50340 "CR Merge SameSqure SubPage"
         {
             action(InsertData)
             {
+                ToolTip = 'Insert data from Merge SameSqure SubPage and Sub Lease Merged Units';
                 ApplicationArea = All;
                 Caption = 'Insert Data';
                 Image = NewDocument; // Optionally, define an icon
@@ -368,10 +285,10 @@ page 50340 "CR Merge SameSqure SubPage"
                     SubLeaseMergeRec.SetRange("ID", Rec."ID");
 
                     // Fetch the first record from the Merge SameSqure SubPage table
-                    if MergeSameSquareRec.FindSet() then begin
+                    if MergeSameSquareRec.FindSet() then
                         repeat
                             // Loop through Sub Lease Merged Units and fetch relevant data
-                            if SubLeaseMergeRec.FindSet() then begin
+                            if SubLeaseMergeRec.FindSet() then
                                 repeat
                                     PerDayRevnue.Init();
 
@@ -379,7 +296,7 @@ page 50340 "CR Merge SameSqure SubPage"
                                     PerDayRevnue."Contract Renewal Id" := MergeSameSquareRec."ID";
                                     PerDayRevnue."Year" := MergeSameSquareRec."MS_Year"; // From Merge SameSqure SubPage
                                     PerDayRevnue."Sq.Ft" := SubLeaseMergeRec."Unit Size"; // From Sub Lease Merged Units
-                                    PerDayRevnue."Unit ID" := SubLeaseMergeRec."Single Unit Name"; // From Sub Lease Merged Units
+                                    PerDayRevnue."Unit ID" := CopyStr(SubLeaseMergeRec."Single Unit Name", 1, strlen(SubLeaseMergeRec."Single Unit Name")); // From Sub Lease Merged Units
 
                                     // Calculate Per Day Revenue using the updated formula
                                     if MergeSameSquareRec."MS_Unit Sq Ft" = 0 then
@@ -395,10 +312,9 @@ page 50340 "CR Merge SameSqure SubPage"
                                     PerDayRevnue.SetRange("Unit ID", PerDayRevnue."Unit ID");
 
                                     // Find if a record with the same ID and Unit ID already exists
-                                    if PerDayRevnue.FindFirst() then begin
+                                    if PerDayRevnue.FindFirst() then
                                         // Record exists, so skip inserting
-                                        Clear(PerDayRevnue);
-                                    end
+                                        Clear(PerDayRevnue)
                                     else begin
                                         // Insert the new record only if it doesn't exist
                                         PerDayRevnue.Insert();
@@ -406,9 +322,9 @@ page 50340 "CR Merge SameSqure SubPage"
                                     end;
 
                                 until SubLeaseMergeRec.Next() = 0;
-                            end;
-                        until MergeSameSquareRec.Next() = 0;
-                    end
+
+                        until MergeSameSquareRec.Next() = 0
+
                     else
                         Error('No matching records found in Merge SameSqure SubPage for the given Proposal ID.');
 
@@ -424,52 +340,44 @@ page 50340 "CR Merge SameSqure SubPage"
     local procedure RecalculateTotals()
     var
         LeaseProposalRec: Record "Contract Renewal"; // Replace with your actual Lease Proposal table name
-        TotalAnnualAmount: Decimal;
-        TotalRoundOff: Decimal;
-        TotalFinalAmount: Decimal;
+        RecordTemp: Record "CR Merge SameSqure SubPage";
+        lTotalAnnualAmount: Decimal;
+        lTotalRoundOff: Decimal;
+        lTotalFinalAmount: Decimal;
         FirstYearAnnualAmount: Decimal; // Variable for the first year's annual amount
-        TempRecord: Record "CR Merge SameSqure SubPage";
-        vatPer: Integer;
+
     begin
-        TotalAnnualAmount := 0;
-        TotalRoundOff := 0;
-        TotalFinalAmount := 0;
+        lTotalAnnualAmount := 0;
+        lTotalRoundOff := 0;
+        lTotalFinalAmount := 0;
         FirstYearAnnualAmount := 0; // Initialize to 0
 
         // Filter records by the current Proposal ID
-        TempRecord.SetRange("ID", Rec."ID");
+        RecordTemp.SetRange("ID", Rec."ID");
 
         // Sum up the values for the filtered records
-        if TempRecord.FindSet() then
+        if RecordTemp.FindSet() then
             repeat
-                TotalAnnualAmount += TempRecord."MS_Annual Amount";
-                TotalRoundOff += TempRecord."MS_Round off";
-                TotalFinalAmount += TempRecord."MS_Final Annual Amount";
+                lTotalAnnualAmount += RecordTemp."MS_Annual Amount";
+                lTotalRoundOff += RecordTemp."MS_Round off";
+                lTotalFinalAmount += RecordTemp."MS_Final Annual Amount";
 
                 // Check for the first year and assign its Final Annual Amount
-                if TempRecord.MS_Year = 1 then
-                    FirstYearAnnualAmount := TempRecord."MS_Final Annual Amount";
-            until TempRecord.Next() = 0;
+                if RecordTemp.MS_Year = 1 then
+                    FirstYearAnnualAmount := RecordTemp."MS_Final Annual Amount";
+            until RecordTemp.Next() = 0;
 
         // Assign the calculated totals to the respective fields
-        Rec.TotalAnnualAmount := TotalAnnualAmount;
-        Rec.TotalRoundOff := TotalRoundOff;
-        Rec.TotalFinalAmount := TotalFinalAmount;
+        Rec.TotalAnnualAmount := lTotalAnnualAmount;
+        Rec.TotalRoundOff := lTotalRoundOff;
+        Rec.TotalFinalAmount := lTotalFinalAmount;
         Rec.TotalFirstAnnualAmount := FirstYearAnnualAmount;
 
         // Update Lease Proposal Details with calculated totals
         LeaseProposalRec.SetRange("ID", Rec."ID");
         if LeaseProposalRec.FindSet() then begin
             LeaseProposalRec."Rent Amount" := FirstYearAnnualAmount; // Update Rent Amount with the first year's Final Annual Amount
-            LeaseProposalRec."Contract Amount" := TotalFinalAmount; // Update Annual Rent Amount with the Total Final Amount
-
-            // if LeaseProposalRec."Rent Amount VAT %" = LeaseProposalRec."Rent Amount VAT %"::"5%" then
-            //     vatPer := 5
-            // else
-            //     vatPer := 0;
-
-            // LeaseProposalRec."Rent VAT Amount" := LeaseProposalRec."Annual Rent Amount" * (vatPer / 100);
-            // LeaseProposalRec."Rent Amount Including VAT" := LeaseProposalRec."Annual Rent Amount" + LeaseProposalRec."Rent VAT Amount";
+            LeaseProposalRec."Contract Amount" := lTotalFinalAmount; // Update Annual Rent Amount with the Total Final Amount
 
             LeaseProposalRec.Modify(); // Save the changes to the Lease Proposal record
         end;
@@ -537,12 +445,12 @@ page 50340 "CR Merge SameSqure SubPage"
                 Rec."MS_Annual Amount" := Rec."MS_Rate per Sq.Ft" * Rec."MS_Unit Sq Ft"
             else
                 Rec."MS_Annual Amount" := 0;
-        end else begin
+        end else
             if (Rec."MS_Rate per Sq.Ft" > 0) and (Rec."MS_Unit Sq Ft" > 0) then
                 Rec."MS_Annual Amount" := Rec."MS_Rate per Sq.Ft" * Rec."MS_Unit Sq Ft"
             else
                 Rec."MS_Annual Amount" := 0;
-        end;
+
         Rec.Modify();
         CurrPage.Update();
     end;
