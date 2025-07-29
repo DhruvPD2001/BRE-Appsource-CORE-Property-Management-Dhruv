@@ -17,19 +17,20 @@ page 50513 "PDC Approval"
         {
             repeater(Group)
             {
-                field(Id; Rec.Id) { Editable = false; }
-                field(Status; Rec.Status) { Editable = false; }
-                field("PDC Id"; Rec."PDC Id") { Editable = false; }
-                field(Tenant_Id; Rec.Tenant_Id) { Editable = false; }
-                field(Contract_Id; Rec.Contract_Id) { Editable = false; }
-                field(Check_No; Rec.Check_No) { Editable = false; }
-                field(Deposite_Bank; Rec.Deposite_Bank) { Editable = false; }
-                field(Total_Amount; Rec.Total_Amount) { Editable = false; }
-                field(Due_Date; Rec.Due_Date) { Editable = false; }
+                field(Id; Rec.Id) { Editable = false; ToolTip = 'Unique identifier for the PDC approval.'; }
+                field(Status; Rec.Status) { Editable = false; ToolTip = 'Current status of the PDC approval.'; }
+                field("PDC Id"; Rec."PDC Id") { Editable = false; ToolTip = 'Identifier for the PDC associated with the approval.'; }
+                field(Tenant_Id; Rec.Tenant_Id) { Editable = false; ToolTip = 'Identifier for the tenant associated with the PDC approval.'; }
+                field(Contract_Id; Rec.Contract_Id) { Editable = false; ToolTip = 'Identifier for the contract associated with the PDC approval.'; }
+                field(Check_No; Rec.Check_No) { Editable = false; ToolTip = 'Check number associated with the PDC approval.'; }
+                field(Deposite_Bank; Rec.Deposite_Bank) { Editable = false; ToolTip = 'Bank where the PDC is deposited.'; }
+                field(Total_Amount; Rec.Total_Amount) { Editable = false; ToolTip = 'Total amount of the PDC approval.'; }
+                field(Due_Date; Rec.Due_Date) { Editable = false; ToolTip = 'Due date for the PDC approval.'; }
                 field(View; Rec.View)
                 {
                     Editable = false;
                     DrillDown = true;
+                    ToolTip = 'Click to view the uploaded document associated with the PDC approval.';
                     trigger OnDrillDown()
                     var
                         FileURL: Text;
@@ -59,6 +60,7 @@ page 50513 "PDC Approval"
                 Caption = 'Approve';
                 ApplicationArea = All;
                 Image = Approve;
+                ToolTip = 'Approve the selected PDC approval.';
 
                 trigger OnAction()
                 var
@@ -87,6 +89,7 @@ page 50513 "PDC Approval"
                 Caption = 'Reject';
                 ApplicationArea = All;
                 Image = Reject;
+                ToolTip = 'Reject the selected PDC approval.';
 
                 trigger OnAction()
                 begin
@@ -112,6 +115,4 @@ page 50513 "PDC Approval"
             Error('The file URL is invalid.');
     end;
 
-    var
-        myInt: Integer;
 }

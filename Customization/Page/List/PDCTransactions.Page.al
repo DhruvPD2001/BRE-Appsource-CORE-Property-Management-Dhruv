@@ -19,12 +19,13 @@ page 50508 "PDC Transactions"
                     ApplicationArea = All;
                     Editable = true;
                     ToolTip = 'Filter PDCs by Tenant Name.';
+                    Caption = 'Tenant Name Filter';
                     trigger OnValidate()
                     begin
                         if TenantFilter <> '' then
                             Rec.SETFILTER("Tenant Name Display", '&&' + TenantFilter + '*')
                         else
-                            Rec.RESET;
+                            Rec.RESET();
 
                         CurrPage.UPDATE(false);
                     end;
@@ -34,12 +35,13 @@ page 50508 "PDC Transactions"
                     ApplicationArea = All;
                     Editable = true;
                     ToolTip = 'Filter PDCs by Status.';
+                    Caption = 'Status Filter';
                     trigger OnValidate()
                     begin
                         if StatusFilter <> StatusFilter::" " then
                             Rec.SETRANGE(Rec."Cheque Status", StatusFilter)
                         else
-                            Rec.RESET;
+                            Rec.RESET();
 
                         CurrPage.UPDATE(false);
                     end;
@@ -49,12 +51,13 @@ page 50508 "PDC Transactions"
                     ApplicationArea = All;
                     Editable = true;
                     ToolTip = 'Specify the start date for the filter.';
+                    Caption = 'Cheque Number Filter';
                     trigger OnValidate()
                     begin
                         if ChequeNo <> '' then
                             Rec.SETFILTER("Cheque Number", '&&' + ChequeNo + '*')
                         else
-                            Rec.RESET;
+                            Rec.RESET();
 
                         CurrPage.UPDATE(false);
                     end;
@@ -64,12 +67,13 @@ page 50508 "PDC Transactions"
                     ApplicationArea = All;
                     Editable = true;
                     ToolTip = 'Specify the end date for the filter.';
+                    Caption = 'Cheque Date Filter';
                     trigger OnValidate()
                     begin
                         if DateToFilter <> 0D then
                             Rec.SETFILTER("Cheque Date", '<=%1', DateToFilter)
                         else
-                            Rec.RESET;
+                            Rec.RESET();
 
                         CurrPage.UPDATE(false);
                     end;
@@ -77,19 +81,19 @@ page 50508 "PDC Transactions"
             }
             repeater(Group)
             {
-                field("PDC ID"; Rec."PDC ID") { }
-                field("payment Series"; Rec."payment Series") { }
-                field("Tenant Name"; Rec."Tenant Name Display") { }
-                field("Tenant Id"; Rec."Tenant Id") { }
-                field("Contract ID"; Rec."Contract ID") { }
-                field("Bank Name"; Rec."Bank Name") { }
-                field("Cheque Number"; Rec."Cheque Number") { }
-                field("Cheque Date"; Rec."Cheque Date") { }
-                field("Amount"; Rec.Amount) { }
-                field("Status"; Rec."Cheque Status") { }
-                field("Approval Status"; Rec."Approval Status") { }
+                field("PDC ID"; Rec."PDC ID") { ToolTip = 'Unique identifier for the PDC transaction.'; }
+                field("payment Series"; Rec."payment Series") { ToolTip = 'Payment series associated with the PDC transaction.'; }
+                field("Tenant Name"; Rec."Tenant Name Display") { ToolTip = 'Name of the tenant associated with the PDC transaction.'; }
+                field("Tenant Id"; Rec."Tenant Id") { ToolTip = 'Identifier for the tenant associated with the PDC transaction.'; }
+                field("Contract ID"; Rec."Contract ID") { ToolTip = 'Identifier for the contract associated with the PDC transaction.'; }
+                field("Bank Name"; Rec."Bank Name") { ToolTip = 'Name of the bank associated with the PDC transaction.'; }
+                field("Cheque Number"; Rec."Cheque Number") { ToolTip = 'Cheque number associated with the PDC transaction.'; }
+                field("Cheque Date"; Rec."Cheque Date") { ToolTip = 'Date when the cheque was issued.'; }
+                field("Amount"; Rec.Amount) { ToolTip = 'Amount of the PDC transaction.'; }
+                field("Status"; Rec."Cheque Status") { ToolTip = 'Current status of the PDC transaction, such as Pending, Cleared, or Rejected.'; }
+                field("Approval Status"; Rec."Approval Status") { ToolTip = 'Approval status of the PDC transaction.'; }
 
-                field("Selected"; Rec."Selected") { }
+                field("Selected"; Rec."Selected") { ToolTip = 'Indicates whether the PDC transaction is selected for bulk operations.'; }
 
             }
         }
@@ -99,7 +103,9 @@ page 50508 "PDC Transactions"
     {
         area(processing)
         {
+#pragma warning disable AW0005
             action("Apply Filters")
+#pragma warning restore AW0005
             {
                 ApplicationArea = All;
                 Caption = 'Apply Filters';
@@ -122,14 +128,16 @@ page 50508 "PDC Transactions"
                 end;
             }
 
+#pragma warning disable AW0005
             action("Clear Filters")
+#pragma warning restore AW0005
             {
                 ApplicationArea = All;
                 Caption = 'Clear Filters';
                 ToolTip = 'Clear all applied filters.';
                 trigger OnAction()
                 begin
-                    Rec.RESET;
+                    Rec.RESET();
                     TenantFilter := '';
                     StatusFilter := StatusFilter::" ";
                     ChequeNo := '';
@@ -147,12 +155,13 @@ page 50508 "PDC Transactions"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
+                ToolTip = 'Change the status of selected PDC transactions to Deposited.';
 
                 trigger OnAction()
                 var
                     UnitRec: Record "PDC Transaction";
-                    PDCStatusEnum: Enum "PDC Status Type Enum";
                     PaymentSeriesRec: Record "Payment Mode2";
+                    PDCStatusEnum: Enum "PDC Status Type Enum";
 
                 begin
                     // Filter for selected records
@@ -167,12 +176,12 @@ page 50508 "PDC Transactions"
                             PaymentSeriesRec.SetRange("Payment Series", UnitRec."payment Series");
                             PaymentSeriesRec.SetRange("Contract ID", UnitRec."Contract ID");
 
-                            if PaymentSeriesRec.FindSet() then begin
+                            if PaymentSeriesRec.FindSet() then
                                 repeat
                                     PaymentSeriesRec."Cheque Status" := PaymentSeriesRec."Cheque Status"::Deposited;
                                     PaymentSeriesRec.Modify();
-                                until PaymentSeriesRec.Next() = 0;
-                            end else
+                                until PaymentSeriesRec.Next() = 0
+                            else
                                 Error('The related Payment Series record was not found.');
                         until UnitRec.Next() = 0;
 
@@ -182,85 +191,9 @@ page 50508 "PDC Transactions"
                 end;
             }
 
-            // action(BulkUpdateChequeStatus)
-            // {
-            //     Caption = 'Bulk Update Cheque Status';
-            //     ApplicationArea = All;
-            //     Promoted = true;
-            //     PromotedCategory = Process;
-            //     ToolTip = 'Update the Cheque Status to Deposited for selected records.';
-            //     Image = Checkmark;
 
-            //     trigger OnAction()
-            //     begin
-            //         UpdateChequeStatus();
-            //     end;
-            // }
         }
     }
-
-
-    // procedure UpdateChequeStatus()
-    // var
-    //     Confirmation: Boolean;
-    //     SelectedRecords: Record "PDC Transaction";
-    //     PDCStatusEnum: Enum "PDC Status Type Enum";
-    //     UpdatedCount: Integer;
-    // begin
-    //     // Ask for confirmation
-    //     Confirmation := Confirm('Do you want to update the Cheque Status to Deposited for the selected records?');
-    //     if not Confirmation then
-    //         exit;
-
-    //     UpdatedCount := 0;
-
-    //     // Filter records that are selected
-    //     Rec.Reset();
-    //     Rec.SetRange(Selected, true);
-
-    //     if Rec.FindSet() then begin
-    //         repeat
-    //             // Update the Cheque Status field to Deposited
-    //             Rec.Validate("Cheque Status", PDCStatusEnum::Deposited); // Validate the new status
-    //             Rec.Modify(true); // Save the changes
-    //             UpdatedCount += 1;
-    //         until Rec.Next() = 0;
-
-    //         // Display success message
-    //         Message('Cheque Status updated to Deposited for %1 record(s).', UpdatedCount);
-    //     end else begin
-    //         // Display message if no records are selected
-    //         Message('No records selected for update.');
-    //     end;
-    // end;
-
-    // procedure UpdateChequeStatus()
-    // var
-    //     Confirmation: Boolean;
-    //     SelectedRecords: Record "PDC Transaction";
-    //     PDCStatusEnum: Enum "PDC Status Type Enum";
-    // begin
-    //     // Ask for confirmation
-    //     Confirmation := Confirm('Do you want to update the Cheque Status to Deposited for the selected records?');
-    //     if not Confirmation then
-    //         exit;
-
-    //     // Ensure that records are selected
-    //     if Rec.FindSet() then begin
-    //         repeat
-    //             // Update the Cheque Status field to Deposited
-    //             SelectedRecords.Get(Rec."PDC ID"); // Retrieve the current record by PDC ID
-    //             SelectedRecords.Validate("Cheque Status", PDCStatusEnum::Deposited); // Validate the new status
-    //             SelectedRecords.Modify(true); // Save the changes
-    //         until Rec.Next() = 0;
-
-    //         // Display success message
-    //         Message('Cheque Status updated to Deposited for the selected records.');
-    //     end
-    //     else begin
-    //         Message('No records selected for update.');
-    //     end;
-    // end;
 
     var
 

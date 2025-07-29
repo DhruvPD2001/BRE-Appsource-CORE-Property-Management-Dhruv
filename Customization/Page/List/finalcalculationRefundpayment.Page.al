@@ -1,13 +1,13 @@
-page 50715 "Online Payment Request"
+page 50739 "finalcalculation_Refundpayment"
 {
     PageType = List;
-    SourceTable = OnlinePaymentApproval;
+    SourceTable = finalcalculation_refunApproval;
     ApplicationArea = All;
-    Caption = 'Payment receive Approval';
+    Caption = 'Final Calculation Refund Approval';
     UsageCategory = Lists;
-    InsertAllowed = false;
+    InsertAllowed = true;
     ModifyAllowed = true;
-    DeleteAllowed = false;
+    DeleteAllowed = true;
 
     layout
     {
@@ -19,62 +19,98 @@ page 50715 "Online Payment Request"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the final calculation refund approval record.';
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
-                    Editable = true;
+                    Editable = false;
+                    ToolTip = 'Specifies the current status of the final calculation refund approval.';
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the tenant associated with this refund approval.';
                 }
                 field("Tenant Name"; Rec."Tenant Name")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the name of the tenant associated with this refund approval.';
                 }
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the contract associated with this refund approval.';
                 }
-                field("Payment transaction ID"; Rec."Payment transaction ID")
+                field(fcID; Rec.fcID)
                 {
                     ApplicationArea = All;
                     Editable = false;
-                }
-                field("Payment Series"; Rec."Payment Series")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Payment Date"; Rec."Payment Date")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Total Amount"; Rec."Total Amount")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
+                    ToolTip = 'Specifies the unique identifier for the final calculation associated with this refund approval.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the due date for the final calculation refund approval.';
                 }
-                field("Payment mode"; Rec."Payment mode")
+                field("Total Amount"; Rec."Total Amount")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Specifies the total amount of the final calculation refund approval.';
+                }
+                field("Bank Name"; Rec."Bank Name")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the name of the bank associated with this refund approval.';
+                }
+                field("Branch Address"; Rec."Branch Address")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the address of the bank branch associated with this refund approval.';
+                }
+                field("Account Holder Name"; Rec."Account Holder Name")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the name of the account holder for the bank account associated with this refund approval.';
+                }
+                field("Account Number"; Rec."Account Number")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the bank account number associated with this refund approval.';
+                }
+                field("Swift Code"; Rec."Swift Code")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the SWIFT code for the bank associated with this refund approval.';
+                }
+                field("IBAN number"; Rec."IBAN number")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the IBAN number for the bank account associated with this refund approval.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies any additional description or notes related to the final calculation refund approval.';
+                }
+                field("Request Date"; Rec."Request Date")
+                {
+                    ApplicationArea = All;
+                    Editable = true;
+                    ToolTip = 'Specifies the date when the refund approval request was made.';
                 }
 
             }
@@ -85,20 +121,19 @@ page 50715 "Online Payment Request"
     {
         area(processing)
         {
-            action(Received)
+            action(paid)
             {
-                Caption = 'Received';
+                Caption = 'paid';
                 ApplicationArea = All;
                 Image = Approve;
+                ToolTip = 'Approve selected records as paid';
 
                 trigger OnAction()
                 var
-                    SelectedRecs: Record "OnlinePaymentApproval";
+                    FinalsettlementRefund: Record "FinalSettlementRefund";
+                    SelectedRecs: Record "finalcalculation_refunApproval";
                     ApproveCount: Integer;
                     ErrorCount: Integer;
-                    PaymentRec: Record "Payment Mode2";
-                    PaymentStatus: Enum "Payment Status";
-                    PaymentScheduleRec: Record "Payment Schedule2";
                 begin
                     CurrPage.SetSelectionFilter(SelectedRecs);
 
@@ -113,34 +148,14 @@ page 50715 "Online Payment Request"
                     if SelectedRecs.FindSet() then
                         repeat
                             if SelectedRecs.Status = 'Pending' then begin
-                                SelectedRecs.Status := 'Received';
+                                SelectedRecs.Status := 'paid';
                                 SelectedRecs.Modify();
 
-                                PaymentRec.SetRange(PaymentRec."Contract ID", SelectedRecs."Contract ID");
-                                PaymentRec.SetRange(PaymentRec."Tenant ID", SelectedRecs."Tenant ID");
-                                PaymentRec.SetRange(PaymentRec."Payment Series", SelectedRecs."Payment Series");
+                                FinalsettlementRefund.SetRange("Contract ID", SelectedRecs."Contract ID");
 
-                                if PaymentRec.FindSet() then begin
-                                    // Update the status of OnlinePaymentApproval record
-                                    PaymentRec."Approve/Decline Status" := 'Received';
-                                    // PaymentRec."Payment Status" := PaymentStatus::Received;
-                                    PaymentRec.Validate("Payment Status", PaymentStatus::Received);
-                                    PaymentRec."Payment Received Date" := Today;
-                                    PaymentRec.Modify(true);
-                                end;
-
-                                PaymentScheduleRec.SetRange(PaymentScheduleRec."Contract ID", PaymentRec."Contract ID");
-                                PaymentScheduleRec.SetRange(PaymentScheduleRec."Tenant ID", PaymentRec."Tenant ID");
-                                PaymentScheduleRec.SetRange(PaymentScheduleRec."Payment Series", PaymentRec."Payment Series");
-
-                                // Loop through the Payment Schedule records to find matching Payment Series
-                                if PaymentScheduleRec.FindSet() then begin
-                                    repeat
-                                        // Update Payment Schedule status to "Received" for the matching Payment Series
-                                        PaymentScheduleRec."Payment Status" := 'Received';
-                                        PaymentScheduleRec."Payment Recieved Date" := PaymentRec."Payment Received Date";
-                                        PaymentScheduleRec.Modify; // Save the updated record
-                                    until PaymentScheduleRec.Next() = 0; // Continue until all matching records are processed
+                                if FinalsettlementRefund.FindSet() then begin
+                                    FinalsettlementRefund."Refund Payment Status" := FinalsettlementRefund."Refund Payment Status"::Paid;
+                                    FinalsettlementRefund.Modify(true);
                                 end;
 
                                 ApproveCount += 1;
@@ -150,26 +165,21 @@ page 50715 "Online Payment Request"
 
                     Commit();
                     CurrPage.Update(false);
-
                     Message('%1 record(s) approved. %2 record(s) were not in "Pending" status.', ApproveCount, ErrorCount);
-
-
-
-
                 end;
             }
-            action(NotReceived)
+            action(NotPaid)
             {
-                Caption = 'Not Received';
+                Caption = 'Not Paid';
                 ApplicationArea = All;
-                Image = Reject;
+                Image = Cancel;
+                ToolTip = 'Reject selected records as not paid';
 
                 trigger OnAction()
                 var
-                    SelectedRecs: Record "OnlinePaymentApproval";
+                    SelectedRecs: Record "finalcalculation_refunApproval";
                     RejectCount: Integer;
                     ErrorCount: Integer;
-                    PaymentRec: Record "Payment Mode2";
                 begin
                     // Store selected records
                     CurrPage.SetSelectionFilter(SelectedRecs);
@@ -185,33 +195,18 @@ page 50715 "Online Payment Request"
                     if SelectedRecs.FindSet() then
                         repeat
                             if SelectedRecs.Status = 'Pending' then begin
-                                SelectedRecs.Status := 'Not Received'; // Set status to "Declined"
+                                SelectedRecs.Status := 'Not Paid'; // Set status to "Declined"
                                 SelectedRecs.Modify();
-
-                                PaymentRec.SetRange(PaymentRec."Contract ID", SelectedRecs."Contract ID");
-                                PaymentRec.SetRange(PaymentRec."Tenant ID", SelectedRecs."Tenant ID");
-                                PaymentRec.SetRange(PaymentRec."Payment Series", SelectedRecs."Payment Series");
-
-                                if PaymentRec.FindSet() then begin
-                                    // Update the status of OnlinePaymentApproval record
-                                    PaymentRec."Approve/Decline Status" := 'Not Received';
-                                    PaymentRec.Modify(true);
-                                end;
-
                                 RejectCount += 1;
                             end else
                                 ErrorCount += 1; // Count records that are not in "Pending" status
                         until SelectedRecs.Next() = 0;
-
                     Commit(); // Commit changes
                     CurrPage.Update(false); // Refresh page
-
                     // Display result messages
                     Message('%1 record(s) rejected. %2 record(s) were not in "Pending" status.', RejectCount, ErrorCount);
                 end;
             }
         }
-
-
     }
 }

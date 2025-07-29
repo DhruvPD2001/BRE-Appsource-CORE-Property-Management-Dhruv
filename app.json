@@ -11,10 +11,10 @@
   "url": "",
   "logo": "",
   "dependencies": [{
-    "id": "6ec69b13-fab8-474a-afde-cb88f1bca51f",
+    "id": "87e40ced-b925-4fad-b625-87a4aa2c7b4a",
     "name": "Core-RealEstate-AppSource",
     "publisher": "Default Publisher",
-    "version": "1.0.0.0"
+    "version": "1.0.0.2"
   }],
   "screenshots": [],
   "platform": "1.0.0.0",
