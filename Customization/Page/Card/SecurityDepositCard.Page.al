@@ -15,18 +15,21 @@ page 50337 "Security Deposit Card"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Security Deposit ID';
                 }
 
                 field("Tenant Full Name"; rec."Tenant Full Name")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Tenant Full Name';
                 }
 
 
                 field("Contract ID"; rec."Contract ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Contract ID';
 
                     // Trasfer from Table Start  
                     trigger OnLookup(var Text: Text): Boolean
@@ -50,6 +53,7 @@ page 50337 "Security Deposit Card"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Property Classification';
                 }
 
 
@@ -57,28 +61,29 @@ page 50337 "Security Deposit Card"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Contract Start Date';
                 }
 
                 field("Contract End Date"; rec."Contract End Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Contract End Date';
                 }
 
                 field("Security Deposit Amount"; rec."Security Deposit Amount")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Security Deposit Amount';
                 }
-
 
                 field("Balance Amount"; rec."Balance Amount")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Balance Amount';
                 }
-
-
             }
 
             group("Carry Forward To")
@@ -88,6 +93,7 @@ page 50337 "Security Deposit Card"
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'New Contract ID';
 
                     // Trasfer from Table Start  
                     trigger OnLookup(var Text: Text): Boolean
@@ -111,16 +117,15 @@ page 50337 "Security Deposit Card"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'New Tenant Full Name';
                 }
-
-
 
                 field("New_Contract Start Date"; rec."New_Contract Start Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     Caption = 'Contract Start Date';
-
+                    ToolTip = 'New Contract Start Date';
                 }
 
                 field("New_Contract End Date"; rec."New_Contract End Date")
@@ -128,31 +133,34 @@ page 50337 "Security Deposit Card"
                     ApplicationArea = All;
                     Editable = false;
                     Caption = 'Contract End Date';
+                    ToolTip = 'New Contract End Date';
                 }
 
                 field("New_Security Deposit Amount"; rec."New_Security Deposit Amount")
                 {
                     ApplicationArea = All;
                     Editable = true;
-
-
+                    ToolTip = 'New Security Deposit Amount';
                 }
                 field("New Security Amount"; rec."New Security Amount")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'New Security Amount';
                 }
 
                 field("New_Balance Amount"; rec."New_Balance Amount")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'New Balance Amount';
                 }
 
                 field("Adjusted amount"; rec."Adjusted amount")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Adjusted Amount';
                 }
 
                 field("Narration"; rec."Narration")
@@ -160,6 +168,7 @@ page 50337 "Security Deposit Card"
                     ApplicationArea = All;
                     Editable = false;
                     MultiLine = true;
+                    ToolTip = 'Narration for the security deposit transfer.';
                 }
             }
         }
@@ -173,6 +182,7 @@ page 50337 "Security Deposit Card"
             {
                 ApplicationArea = All;
                 Caption = 'Post Security Deposit';
+                ToolTip = 'Post Security Deposit';
                 Image = Post;
                 trigger OnAction()
                 var
@@ -184,27 +194,11 @@ page 50337 "Security Deposit Card"
         }
     }
 
-
-    // actions
-    // {
-    //     area(processing)
-    //     {
-    //         action(Save)
-    //         {
-    //             ApplicationArea = All;
-    //             Caption = 'Save';
-    //             trigger OnAction()
-    //             begin
-    //                 // Save logic, if needed
-    //             end;
-    //         }
-    //     }
-    // }
-
     // Trasfer from Table Start  
     local procedure FetchContractDetails(ContractID: Integer; IsNewContract: Boolean)
     var
         TenancyContractRec: Record "Tenancy Contract";
+        NarrationLbl: Label 'Carry forward of security deposit from %1 to %2.', Comment = '%1 is the old contract ID, %2 is the new contract ID';
     begin
         TenancyContractRec.SetRange("Contract ID", ContractID);
         if TenancyContractRec.FindFirst() then begin
@@ -216,23 +210,16 @@ page 50337 "Security Deposit Card"
                 Rec."New_Balance Amount" := TenancyContractRec."Balance Amount";
                 Rec."Adjusted amount" := TenancyContractRec."Security Amount Received"; // Update the remaining balance
 
-
                 // Update the Narration field dynamically
-                Rec."Narration" := StrSubstNo(
-                    'Carry forward of security deposit from %1 to %2.',
-                    Rec."Contract ID", Rec."New_Contract ID");
+                Rec."Narration" := StrSubstNo(NarrationLbl, Rec."Contract ID", Rec."New_Contract ID");
             end else begin
                 Rec."Contract Start Date" := TenancyContractRec."Contract Start Date";
                 Rec."Contract End Date" := TenancyContractRec."Contract End Date";
-                // "Tenant Full Name" := TenancyContractRec."Customer Name";
                 Rec."Security Deposit Amount" := TenancyContractRec."Security Deposit Amount";
                 Rec."Balance Amount" := TenancyContractRec."Security Balanced Amount";
             end;
 
-
-            // Recalculate Adjusted Amount
-            // UpdateAdjustedAmount();
-        end else begin
+        end else
             // Clear fields if no record is found
             if IsNewContract then begin
                 Clear(Rec."New_Contract Start Date");
@@ -250,12 +237,6 @@ page 50337 "Security Deposit Card"
 
             end;
 
-            // Clear Adjusted Amount
-            // UpdateAdjustedAmount();
-        end;
     end;
     // Trasfer from Table End
-
-
 }
-
