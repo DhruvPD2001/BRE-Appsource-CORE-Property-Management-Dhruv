@@ -19,18 +19,21 @@ page 50719 "Contract End Process Approval"
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the unique identifier for the contract end process approval record.';
                 }
 
                 field("Lease_M Status"; Rec."Lease_M Status")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the current status of the lease management process for this contract.';
                 }
 
                 field("Lease Manager Remark"; Rec."Lease Manager Remark")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the remark provided by the lease manager regarding this contract end process approval.';
                 }
 
 
@@ -38,43 +41,51 @@ page 50719 "Contract End Process Approval"
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the current status of the property management process for this contract.';
                 }
 
                 field("Property Manager Remark"; Rec."Property Manager Remark")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the remark provided by the property manager regarding this contract end process approval.';
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the unique identifier for the tenant associated with this contract end process approval.';
                 }
                 field("Tenant Name"; Rec."Tenant Name")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the name of the tenant associated with this contract end process approval.';
                 }
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the unique identifier for the contract associated with this contract end process approval.';
                 }
                 field("Contract Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the start date of the contract associated with this contract end process approval.';
                 }
                 field("Contract End Date"; Rec."End Date")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the end date of the contract associated with this contract end process approval.';
                 }
                 field("Tenant Email"; Rec."Tenant Email")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the email address of the tenant associated with this contract end process approval.';
                 }
 
                 field("Value"; Rec."Value")
@@ -82,12 +93,14 @@ page 50719 "Contract End Process Approval"
                     ApplicationArea = All;
                     Editable = true;
                     Visible = true;
+                    ToolTip = 'Specifies the value indicating whether the tenant has been notified about the contract end process.';
                 }
 
                 field("Renewal Notification to Tenant"; Rec."Renewal Notification to Tenant")
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the number of days before the contract end date when the tenant should be notified about the renewal options.';
 
                 }
 
@@ -101,69 +114,23 @@ page 50719 "Contract End Process Approval"
         area(processing)
         {
 
-
-            // action(ApproveProperty)
-            // {
-            //     Caption = 'Approve';
-            //     ApplicationArea = All;
-            //     Image = Approve;
-            //     Visible = IsPropertyManager;
-
-            //     trigger OnAction()
-            //     var
-            //         SelectedRecs: Record "ContractEndProcessApproval";
-            //         ApproveCount: Integer;
-            //         ErrorCount: Integer;
-            //         LeaseNotApprovedCount: Integer;
-            //     begin
-            //         CurrPage.SetSelectionFilter(SelectedRecs);
-
-            //         if SelectedRecs.IsEmpty() then begin
-            //             Message('No records selected for approval.');
-            //             exit;
-            //         end;
-
-            //         ApproveCount := 0;
-            //         ErrorCount := 0;
-            //         LeaseNotApprovedCount := 0;
-
-            //         if SelectedRecs.FindSet() then
-            //             repeat
-            //                 if SelectedRecs."Lease_M Status" = 'Approved' then begin
-            //                     if SelectedRecs."Property_M Status" = 'Pending' then begin
-            //                         SelectedRecs."Property_M Status" := 'Approved';
-            //                         SelectedRecs.Modify();
-            //                         ApproveCount += 1;
-            //                     end else
-            //                         ErrorCount += 1;
-            //                 end else
-            //                     LeaseNotApprovedCount += 1;
-            //             until SelectedRecs.Next() = 0;
-
-            //         Commit();
-            //         CurrPage.Update(false);
-
-            //         Message('%1 record(s) approved for Property. %2 record(s) were not in "Pending" status. %3 record(s) were skipped as Lease_M Status was not "Approved".',
-            //             ApproveCount, ErrorCount, LeaseNotApprovedCount);
-            //     end;
-            // }
-
             action(ApproveProperty)
             {
                 Caption = 'Approve';
                 ApplicationArea = All;
                 Image = Approve;
                 Visible = IsPropertyManager;
+                ToolTip = 'Approve selected records for Property Management.';
 
                 trigger OnAction()
                 var
                     SelectedRecs: Record "ContractEndProcessApproval";
+                    SendTenantMail: Codeunit "SendTenantMail";
                     ApproveCount: Integer;
                     ErrorCount: Integer;
                     LeaseNotApprovedCount: Integer;
                     TodayDate: Date;
                     DaysRemaining: Integer;
-                    SendTenantMail: Codeunit "SendTenantMail";
                 begin
                     CurrPage.SetSelectionFilter(SelectedRecs);
 
@@ -217,13 +184,14 @@ page 50719 "Contract End Process Approval"
                 ApplicationArea = All;
                 Image = Approve;
                 Visible = IsLeaseManager;
+                ToolTip = 'Approve selected records for Lease Management.';
 
                 trigger OnAction()
                 var
                     SelectedRecs: Record "ContractEndProcessApproval";
+                    EmailSender: Codeunit 50302;
                     ApproveCount: Integer;
                     ErrorCount: Integer;
-                    EmailSender: Codeunit 50302;
                 begin
                     CurrPage.SetSelectionFilter(SelectedRecs);
 
@@ -263,6 +231,7 @@ page 50719 "Contract End Process Approval"
                 ApplicationArea = All;
                 Image = Cancel;
                 Visible = IsPropertyManager; // Button visible only for Property Manager
+                ToolTip = 'Decline selected records for Property Management.';
 
                 trigger OnAction()
                 var
@@ -304,6 +273,7 @@ page 50719 "Contract End Process Approval"
                 ApplicationArea = All;
                 Image = Cancel;
                 Visible = IsLeaseManager; // Button visible only for Lease Manager
+                ToolTip = 'Decline selected records for Lease Management.';
 
                 trigger OnAction()
                 var
@@ -351,14 +321,14 @@ page 50719 "Contract End Process Approval"
     var
         UserPersonalization: Record "User Personalization";
     begin
-        if UserPersonalization.Get(UserSecurityId()) then begin
+        if UserPersonalization.Get(UserSecurityId()) then
             case UserPersonalization."Profile ID" of
                 'PROPERTY MANAGER':
                     exit(true);  // Only property managers can approve/reject
                 else
                     exit(false);
             end;
-        end;
+
         exit(false);
     end;
 
@@ -366,14 +336,13 @@ page 50719 "Contract End Process Approval"
     var
         UserPersonalization: Record "User Personalization";
     begin
-        if UserPersonalization.Get(UserSecurityId()) then begin
+        if UserPersonalization.Get(UserSecurityId()) then
             case UserPersonalization."Profile ID" of
                 'LEASE_MANAGER':
                     exit(true);  // Only property managers can approve/reject
                 else
                     exit(false);
             end;
-        end;
         exit(false);
     end;
 

@@ -1,9 +1,9 @@
-page 50739 "finalcalculation_Refundpayment"
+page 50732 "final payment approval"
 {
     PageType = List;
-    SourceTable = finalcalculation_refunApproval;
+    SourceTable = finalPaymentApproval;
     ApplicationArea = All;
-    Caption = 'Final Calculation Refund Approval';
+    Caption = 'Final Payment Approval';
     UsageCategory = Lists;
     InsertAllowed = true;
     ModifyAllowed = true;
@@ -18,83 +18,70 @@ page 50739 "finalcalculation_Refundpayment"
                 field("ID"; Rec."ID")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the unique identifier for the final payment approval record.';
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the current status of the final payment approval.';
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the unique identifier for the tenant associated with this payment approval.';
                 }
                 field("Tenant Name"; Rec."Tenant Name")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the name of the tenant associated with this payment approval.';
                 }
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the unique identifier for the contract associated with this payment approval.';
                 }
-                field(fcID; Rec.fcID)
+                field("Payment transaction ID"; Rec."Payment transaction ID")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the unique identifier for the payment transaction associated with this payment approval.';
                 }
-                field("Due Date"; Rec."Due Date")
+
+                field("Payment Date"; Rec."Payment Date")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the date of the payment associated with this approval.';
                 }
                 field("Total Amount"; Rec."Total Amount")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the total amount of the payment associated with this approval.';
                 }
-                field("Bank Name"; Rec."Bank Name")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the due date for the payment approval.';
                 }
-                field("Branch Address"; Rec."Branch Address")
+                field("Payment mode"; Rec."Payment mode")
                 {
                     ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Account Holder Name"; Rec."Account Holder Name")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Account Number"; Rec."Account Number")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Swift Code"; Rec."Swift Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("IBAN number"; Rec."IBAN number")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
+                    Editable = true;
+                    ToolTip = 'Specifies the mode of payment for this approval.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     Editable = true;
-                }
-                field("Request Date"; Rec."Request Date")
-                {
-                    ApplicationArea = All;
-                    Editable = true;
+                    ToolTip = 'Specifies the description or notes related to the payment approval.';
                 }
 
             }
@@ -105,20 +92,20 @@ page 50739 "finalcalculation_Refundpayment"
     {
         area(processing)
         {
-            action(paid)
+            action(Received)
             {
-                Caption = 'paid';
+                Caption = 'Received';
                 ApplicationArea = All;
-                Image = paid;
+                Image = Approve;
+                ToolTip = 'Approve selected records as received';
 
                 trigger OnAction()
                 var
-                    SelectedRecs: Record "finalcalculation_refunApproval";
+                    Finalsettlement: Record "FinalSettlement";
+                    SelectedRecs: Record "finalPaymentApproval";
                     ApproveCount: Integer;
                     ErrorCount: Integer;
-                    // Finalsettlement: Record "FinalSettlement";
-                    // PaymentStatus: Enum "Payment Status";
-                    FinalsettlementRefund: Record "FinalSettlementRefund";
+                    PaymentStatus: Enum "Payment Status";
                 begin
                     CurrPage.SetSelectionFilter(SelectedRecs);
 
@@ -133,22 +120,15 @@ page 50739 "finalcalculation_Refundpayment"
                     if SelectedRecs.FindSet() then
                         repeat
                             if SelectedRecs.Status = 'Pending' then begin
-                                SelectedRecs.Status := 'paid';
+                                SelectedRecs.Status := 'Received';
                                 SelectedRecs.Modify();
 
-                                FinalsettlementRefund.SetRange("Contract ID", SelectedRecs."Contract ID");
-
-                                if FinalsettlementRefund.FindSet() then begin
-                                    FinalsettlementRefund."Refund Payment Status" := FinalsettlementRefund."Refund Payment Status"::Paid;
-                                    FinalsettlementRefund.Modify(true);
+                                Finalsettlement.SetRange("Contract ID", SelectedRecs."Contract ID");
+                                if Finalsettlement.FindSet() then begin
+                                    // Update the status of OnlinePaymentApproval record
+                                    Finalsettlement."Receivable Payment Status" := PaymentStatus::Received;
+                                    Finalsettlement.Modify(true);
                                 end;
-
-                                // Finalsettlement.SetRange("Contract ID", SelectedRecs."Contract ID");
-                                // if Finalsettlement.FindSet() then begin
-                                //     // Update the status of OnlinePaymentApproval record
-                                //     Finalsettlement."Receivable Payment Status" := PaymentStatus::Received;
-                                //     Finalsettlement.Modify(true);
-                                // end;
                                 ApproveCount += 1;
                             end else
                                 ErrorCount += 1;
@@ -159,15 +139,16 @@ page 50739 "finalcalculation_Refundpayment"
                     Message('%1 record(s) approved. %2 record(s) were not in "Pending" status.', ApproveCount, ErrorCount);
                 end;
             }
-            action(NotPaid)
+            action(NotReceived)
             {
-                Caption = 'Not Paid';
+                Caption = 'Not Received';
                 ApplicationArea = All;
-                Image = "Not Paid";
+                Image = Reject;
+                ToolTip = 'Reject selected records as not received';
 
                 trigger OnAction()
                 var
-                    SelectedRecs: Record "finalcalculation_refunApproval";
+                    SelectedRecs: Record "finalPaymentApproval";
                     RejectCount: Integer;
                     ErrorCount: Integer;
                 begin
@@ -185,7 +166,7 @@ page 50739 "finalcalculation_Refundpayment"
                     if SelectedRecs.FindSet() then
                         repeat
                             if SelectedRecs.Status = 'Pending' then begin
-                                SelectedRecs.Status := 'Not Paid'; // Set status to "Declined"
+                                SelectedRecs.Status := 'Not Received'; // Set status to "Declined"
                                 SelectedRecs.Modify();
                                 RejectCount += 1;
                             end else
