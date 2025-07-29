@@ -17,18 +17,16 @@ page 50308 "Availability Status List"
                 {
                     ApplicationArea = All;
                     Caption = 'ID';
+                    ToolTip = 'Unique identifier for the availability status.';
                 }
                 field("Status"; Rec."Status")
                 {
                     ApplicationArea = All;
                     Caption = 'Status Name';
+                    ToolTip = 'Name of the availability status.';
                 }
             }
         }
     }
 
-
-    // Link to open the card page for detailed editing
-    // DrillDownPageId = "Primary Classification Card";
-    // EditPageId = "Primary Classification Card";
 }
