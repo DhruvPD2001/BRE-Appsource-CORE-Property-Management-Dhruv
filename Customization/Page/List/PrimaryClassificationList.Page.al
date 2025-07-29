@@ -17,18 +17,15 @@ page 50303 "Primary Classification List"
                 {
                     ApplicationArea = All;
                     Caption = 'ID';
+                    ToolTip = 'Unique identifier for the primary classification.';
                 }
                 field("Classification Name"; Rec."Classification Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Primary Classification Name';
+                    ToolTip = 'Name of the primary classification.';
                 }
             }
         }
     }
-
-
-    // Link to open the card page for detailed editing
-    // DrillDownPageId = "Primary Classification Card";
-    // EditPageId = "Primary Classification Card";
 }

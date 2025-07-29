@@ -19,40 +19,48 @@ page 50138 "Business Suspended Contracts" // Use an appropriate page number
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Unique identifier for the suspended contract.';
                 }
                 field(TenantID; Rec.TenantID)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Unique identifier for the tenant associated with the suspended contract.';
                 }
                 field(TenantName; Rec.TenantName)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Name of the tenant associated with the suspended contract.';
                 }
                 field("Contract Type"; Rec."Contract Type")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Type of the contract associated with the suspended contract.';
                 }
                 field(ID; Rec.ID)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Unique identifier for the suspended contract record.';
                 }
                 field(SuspensionEffectiveDate; Rec.SuspensionEffectiveDate) // Adjust field name as needed
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Effective date of the suspension for the contract.';
                 }
                 field(SuspensionEndDate; Rec.SuspensionEndDate) // Adjust field name as needed
                 {
                     ApplicationArea = All;
+                    ToolTip = 'End date of the suspension for the contract.';
                 }
                 field(Reason; Rec.Reason) // Adjust field name as needed
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Reason for the suspension of the contract.';
                 }
                 field("Tenant Contract Status"; Rec."Tenant Contract Status") // Adjust field name as needed
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Status of the tenant contract, indicating it is suspended.';
                 }
-                // Add other relevant fields here
             }
         }
     }

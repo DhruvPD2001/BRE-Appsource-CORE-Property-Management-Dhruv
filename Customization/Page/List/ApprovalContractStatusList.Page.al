@@ -5,11 +5,8 @@ page 50321 "Approval Contract Status List"
     ApplicationArea = All;
     Caption = 'Approval Request Contract Status List';
     UsageCategory = Lists;
-    // CardPageId = 50320;
-
     InsertAllowed = false;
     ModifyAllowed = false;
-    // DeleteAllowed = false;
 
     layout
     {
@@ -21,14 +18,17 @@ page 50321 "Approval Contract Status List"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Unique identifier for the approval request.';
                 }
                 field("Status"; Rec."Status")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Current status of the approval request.';
                 }
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Identifier for the associated tenancy contract.';
 
                     // DrillDown trigger to navigate to the Tenancy Contract Card
                     trigger OnDrillDown()
@@ -41,19 +41,20 @@ page 50321 "Approval Contract Status List"
                         // Use SetRange and FindFirst to locate the record
                         TenancyContractRec.SetRange("Contract ID", Rec."Contract ID");
 
-                        if TenancyContractRec.FindFirst() then begin
+                        if TenancyContractRec.FindFirst() then
                             // Record found, open the Tenancy Contract Card page
-                            PAGE.Run(PAGE::"Tenancy Contract Card", TenancyContractRec); // Replace with the correct card page ID or name
-                        end else begin
+                            PAGE.Run(PAGE::"Tenancy Contract Card", TenancyContractRec) // Replace with the correct card page ID or name
+                        else
                             // Record not found
                             Message('The selected Contract ID (%1) does not exist in the Tenancy Contract table.', Rec."Contract ID");
-                        end;
+
                     end;
                 }
 
                 field("Renewal Contract ID"; Rec."Renewal Contract ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Identifier for the associated renewal contract.';
 
                     trigger OnDrillDown()
                     var
@@ -65,23 +66,25 @@ page 50321 "Approval Contract Status List"
                         // Use SetRange and FindFirst to locate the record
                         RenewalContractRec.SetRange("ID", Rec."Renewal Contract ID");
 
-                        if RenewalContractRec.FindFirst() then begin
+                        if RenewalContractRec.FindFirst() then
                             // Record found, open the Contract Renewal Card page
-                            PAGE.Run(PAGE::"Contract Renewal Card", RenewalContractRec); // Replace with the correct card page ID or name
-                        end else begin
+                            PAGE.Run(PAGE::"Contract Renewal Card", RenewalContractRec) // Replace with the correct card page ID or name
+                        else
                             // Record not found
                             Message('The selected Contract Renewal ID (%1) does not exist in the Contract Renewal table.', Rec."Renewal Contract ID");
-                        end;
+
                     end;
                 }
 
                 field("Lease ID"; Rec."Lease ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Identifier for the associated lease.';
                 }
                 field("Tenancy Contract Status"; Rec."Tenancy Contract Status")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Status of the associated tenancy contract.';
                 }
             }
         }
@@ -97,6 +100,7 @@ page 50321 "Approval Contract Status List"
                 ApplicationArea = All;
                 Image = Approve;
                 Visible = IsPropertyManager; // Button visible only for Property Manager
+                ToolTip = 'Approve the selected contract status request.';
 
                 trigger OnAction()
                 var
@@ -127,6 +131,7 @@ page 50321 "Approval Contract Status List"
                 ApplicationArea = All;
                 Image = Reject;
                 Visible = IsPropertyManager; // Button visible only for Property Manager
+                ToolTip = 'Reject the selected contract status request.';
 
                 trigger OnAction()
                 var
@@ -156,7 +161,8 @@ page 50321 "Approval Contract Status List"
             {
                 Caption = 'Open Tenancy Contract';
                 ApplicationArea = All;
-                Image = OpenRecord;
+                Image = Open;
+                ToolTip = 'Open the associated tenancy contract card.';
 
                 trigger OnAction()
                 var
@@ -168,13 +174,13 @@ page 50321 "Approval Contract Status List"
                     // Use SetRange and FindFirst to locate the record
                     TenancyContractRec.SetRange("Contract ID", Rec."Contract ID");
 
-                    if TenancyContractRec.FindFirst() then begin
+                    if TenancyContractRec.FindFirst() then
                         // Record found, open the Tenancy Contract Card page
-                        PAGE.Run(PAGE::"Tenancy Contract Card", TenancyContractRec); // Replace with the correct card page ID or name
-                    end else begin
+                        PAGE.Run(PAGE::"Tenancy Contract Card", TenancyContractRec) // Replace with the correct card page ID or name
+                    else
                         // Record not found
                         Message('The selected Contract ID (%1) does not exist in the Tenancy Contract table.', Rec."Contract ID");
-                    end;
+
                 end;
             }
 
@@ -182,7 +188,8 @@ page 50321 "Approval Contract Status List"
             {
                 Caption = 'Open Renewal Contract';
                 ApplicationArea = All;
-                Image = OpenRecord;
+                Image = Open;
+                ToolTip = 'Open the associated renewal contract card.';
 
 
                 trigger OnAction()
@@ -195,13 +202,13 @@ page 50321 "Approval Contract Status List"
                     // Use SetRange and FindFirst to locate the record
                     RenewalContractRec.SetRange("ID", Rec."Renewal Contract ID");
 
-                    if RenewalContractRec.FindFirst() then begin
+                    if RenewalContractRec.FindFirst() then
                         // Record found, open the Renewal Contract Card page
-                        PAGE.Run(PAGE::"Contract Renewal Card", RenewalContractRec); // Replace with the correct card page ID or name
-                    end else begin
+                        PAGE.Run(PAGE::"Contract Renewal Card", RenewalContractRec) // Replace with the correct card page ID or name
+                    else
                         // Record not found
                         Message('The selected Renewal Contract ID (%1) does not exist in the Contract Renewal table.', Rec."Renewal Contract ID");
-                    end;
+
                 end;
             }
         }
@@ -216,14 +223,14 @@ page 50321 "Approval Contract Status List"
     var
         UserPersonalization: Record "User Personalization";
     begin
-        if UserPersonalization.Get(UserSecurityId()) then begin
+        if UserPersonalization.Get(UserSecurityId()) then
             case UserPersonalization."Profile ID" of
                 'PROPERTY MANAGER':
                     exit(true);  // Only property managers can approve/reject
                 else
                     exit(false);
             end;
-        end;
+
         exit(false);
     end;
 
