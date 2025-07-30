@@ -6,7 +6,6 @@ page 50109 "Common Property List"
     Caption = 'Common Property List';
     UsageCategory = Lists;
     ShowFilter = false;
-    // CardPageId = 31;
     SourceTableView = where("Property Classification" = const('Common'));
 
     InsertAllowed = false;
@@ -23,16 +22,20 @@ page 50109 "Common Property List"
                 {
                     ApplicationArea = All;
                     Caption = 'Property ID';
+                    ToolTip = 'The unique identifier for the property.';
                 }
                 field("Property Name"; Rec."Property Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Property Name';
+                    ToolTip = 'The name of the property.';
                 }
                 field("Property Type"; Rec."Property Classification")
                 {
                     ApplicationArea = All;
                     Caption = 'Property Type';
+                    ToolTip = 'The classification of the property.';
+                    TableRelation = "Property Type";
                 }
             }
         }

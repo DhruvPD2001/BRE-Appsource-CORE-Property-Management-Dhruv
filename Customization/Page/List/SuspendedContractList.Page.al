@@ -21,25 +21,31 @@ page 50133 "Suspended Contract List"
                 {
                     ApplicationArea = All;
                     Caption = 'Contract ID';
+                    ToolTip = 'The unique identifier for the suspended contract.';
                 }
                 field("Proposal ID"; Rec."Proposal ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Proposal ID';
+                    ToolTip = 'The unique identifier for the proposal associated with this contract.';
                 }
                 field("Renewal Proposal ID"; Rec."Renewal Proposal ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Renewal Proposal ID';
+                    ToolTip = 'The unique identifier for the renewal proposal associated with this contract.';
                 }
                 field("Tenant Contract Status"; Rec."Tenant Contract Status")
                 {
                     ApplicationArea = All;
                     Caption = 'Tenant Contract Status';
+                    ToolTip = 'The current status of the tenant contract.';
                 }
-                field(Reason; Rec.Reason) // Adjust field name as needed
+                field(Reason; Rec.Reason)
                 {
                     ApplicationArea = All;
+                    Caption = 'Suspension Reason';
+                    ToolTip = 'The reason for the suspension of the contract.';
                 }
             }
         }
