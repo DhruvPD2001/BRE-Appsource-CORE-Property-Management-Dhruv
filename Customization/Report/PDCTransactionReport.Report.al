@@ -1,5 +1,4 @@
 namespace BREPropertyManagementMargi.BREPropertyManagementMargi;
-
 report 50111 "PDC Transaction Report"
 {
     ApplicationArea = All;
@@ -15,9 +14,6 @@ report 50111 "PDC Transaction Report"
             column(Report_Period; CustomDateRangeText)
             {
             }
-            // column(PDC_ID; "PDC ID")
-            // {
-            // }
             column(payment_Series; "payment Series")
             {
             }
@@ -30,9 +26,6 @@ report 50111 "PDC Transaction Report"
             column(Tenant_Name; "Tenant Name")
             {
             }
-            // column(Bank_Name; "Bank Name")
-            // {
-            // }
             column(Cheque_Number; "Cheque Number")
             {
             }
@@ -59,17 +52,13 @@ report 50111 "PDC Transaction Report"
                 StartDateIsInRange: Boolean;
                 EndDateIsInRange: Boolean;
             begin
-                // Set the custom date range text
                 CustomDateRangeText :=
-                    Format(CustomStartDate, 0, '<Day,2>/<Month,2>/<Year4>') + ' - ' +
-                    Format(CustomEndDate, 0, '<Day,2>/<Month,2>/<Year4>');
-
-                // Check if Contract Start Date or Contract End Date is in the specified range
-                StartDateIsInRange := ("Due Date" >= CustomStartDate) and ("Due Date" <= CustomEndDate);
-                EndDateIsInRange := ("Due Date" >= CustomStartDate) and ("Due Date" <= CustomEndDate);
-
+                    Format(gCustomStartDate, 0, '<Day,2>/<Month,2>/<Year4>') + ' - ' +
+                    Format(gCustomEndDate, 0, '<Day,2>/<Month,2>/<Year4>');
+                StartDateIsInRange := ("Due Date" >= gCustomStartDate) and ("Due Date" <= gCustomEndDate);
+                EndDateIsInRange := ("Due Date" >= gCustomStartDate) and ("Due Date" <= gCustomEndDate);
                 if not (StartDateIsInRange or EndDateIsInRange) then
-                    CurrReport.SKIP(); // Skip record if neither date is in range
+                    CurrReport.SKIP();
             end;
         }
     }
@@ -81,15 +70,17 @@ report 50111 "PDC Transaction Report"
             {
                 group(DateFilter)
                 {
-                    field(CustomStartDate; CustomStartDate)
+                    field(CustomStartDate; gCustomStartDate)
                     {
                         ApplicationArea = All;
-                        // Caption = 'Custom Start Date';
+                        Caption = 'Custom Start Date';
+                        ToolTip = 'Custom Start Date';
                     }
-                    field(CustomEndDate; CustomEndDate)
+                    field(CustomEndDate; gCustomEndDate)
                     {
                         ApplicationArea = All;
-                        // Caption = 'Custom End Date';
+                        Caption = 'Custom End Date';
+                        ToolTip = 'Custom End Date';
                     }
                 }
             }
@@ -102,7 +93,7 @@ report 50111 "PDC Transaction Report"
         }
     }
     var
-        CustomStartDate: Date;
-        CustomEndDate: Date;
+        gCustomStartDate: Date;
+        gCustomEndDate: Date;
         CustomDateRangeText: Text;
 }

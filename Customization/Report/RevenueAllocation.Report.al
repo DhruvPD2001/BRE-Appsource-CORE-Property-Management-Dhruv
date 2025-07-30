@@ -1,5 +1,4 @@
 namespace PropertyManagement.PropertyManagement;
-
 report 50107 "Revenue Allocation"
 {
     ApplicationArea = All;
@@ -7,8 +6,6 @@ report 50107 "Revenue Allocation"
     UsageCategory = ReportsAndAnalysis;
     ExcelLayout = 'Revenue Allocation.xlsx';
     DefaultLayout = Excel;
-
-
     dataset
     {
         dataitem(TenancyContract; "Tenancy Contract")
@@ -46,20 +43,16 @@ report 50107 "Revenue Allocation"
             column(Owner_s_Name; "Owner's Name")
             {
             }
-
             trigger OnAfterGetRecord()
             var
                 StartDateIsInRange: Boolean;
                 EndDateIsInRange: Boolean;
             begin
-                // Check if Contract Start Date or Contract End Date is in the specified range
-                StartDateIsInRange := ("Contract Start Date" >= CustomStartDate) and ("Contract Start Date" <= CustomEndDate);
-                EndDateIsInRange := ("Contract End Date" >= CustomStartDate) and ("Contract End Date" <= CustomEndDate);
-
+                StartDateIsInRange := ("Contract Start Date" >= gCustomStartDate) and ("Contract Start Date" <= gCustomEndDate);
+                EndDateIsInRange := ("Contract End Date" >= gCustomStartDate) and ("Contract End Date" <= gCustomEndDate);
                 if not (StartDateIsInRange or EndDateIsInRange) then
-                    CurrReport.SKIP(); // Skip record if neither date is in range
+                    CurrReport.SKIP();
             end;
-
         }
     }
     requestpage
@@ -70,15 +63,17 @@ report 50107 "Revenue Allocation"
             {
                 group(DateFilter)
                 {
-                    field(CustomStartDate; CustomStartDate)
+                    field(CustomStartDate; gCustomStartDate)
                     {
                         ApplicationArea = All;
                         Caption = 'Custom Start Date';
+                        ToolTip = 'Custom Start Date';
                     }
-                    field(CustomEndDate; CustomEndDate)
+                    field(CustomEndDate; gCustomEndDate)
                     {
                         ApplicationArea = All;
                         Caption = 'Custom End Date';
+                        ToolTip = 'Cutom End Date';
                     }
                 }
             }
@@ -91,7 +86,6 @@ report 50107 "Revenue Allocation"
         }
     }
     var
-        CustomStartDate: Date;
-        CustomEndDate: Date;
-
+        gCustomStartDate: Date;
+        gCustomEndDate: Date;
 }

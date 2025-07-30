@@ -35,11 +35,11 @@ page 50949 DialogBoxForInvoiceRejection
         exit(true); // Allows closing if validation passes or Cancel is clicked
     end;
 
-    procedure GetReason(): Text;
+    procedure GetReason(): Text[1000];
     begin
         exit(reasonvalue);
     end;
 
     var
-        reasonvalue: Text;
+        reasonvalue: Text[1000];
 }

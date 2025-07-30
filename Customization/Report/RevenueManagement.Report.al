@@ -1,5 +1,4 @@
 namespace PropertyManagement.PropertyManagement;
-
 report 50105 RevenueManagement
 {
     ApplicationArea = All;

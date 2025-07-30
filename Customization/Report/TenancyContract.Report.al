@@ -1,6 +1,5 @@
 namespace PropertyManagement.PropertyManagement;
 using Microsoft.Foundation.Company;
-
 report 50101 "Tenancy Contract"
 {
     ApplicationArea = All;
@@ -131,11 +130,9 @@ report 50101 "Tenancy Contract"
             column(Contract_Start_Date; Format("Contract Start Date", 0, '<Day,2>/<Month,2>/<Year4>'))
             {
             }
-
             column(Contract_End_Date; Format("Contract End Date", 0, '<Day,2>/<Month,2>/<Year4>'))
             {
             }
-
             column(No_of_Installments; "No of Installments")
             {
             }
@@ -168,16 +165,13 @@ report 50101 "Tenancy Contract"
             Caption = 'TenancyContract (Word)';
             Summary = 'The TenancyContract (Word) provides a simple layout that is also relatively easy for an end-user to modify.';
         }
-
     }
     trigger OnInitReport()
     begin
-        if not CompanyInfo.Get() then begin
-            Error('Company Information not found.');
-        end else begin
-            // CompanyAddress := CompanyInfo.City + ', ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code";
+        if not CompanyInfo.Get() then
+            Error('Company Information not found.')
+        else
             CompanyInfo.CalcFields(Picture);
-        end;
     end;
 
     var
