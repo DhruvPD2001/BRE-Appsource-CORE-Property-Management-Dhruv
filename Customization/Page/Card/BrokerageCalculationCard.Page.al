@@ -4,8 +4,7 @@ page 50963 "Brokerage Calculation Card"
     SourceTable = "Brokerage Calculation";
     ApplicationArea = All;
     Caption = 'Brokerage Calculation Card';
-    // UsageCategory = Administration;
-
+    UsageCategory = Administration;
     layout
     {
         area(content)
@@ -15,52 +14,51 @@ page 50963 "Brokerage Calculation Card"
                 Caption = 'Brokerage Calculation Details';
                 field("ID"; Rec."ID")
                 {
+                    ToolTip = 'The unique identifier for the brokerage calculation.';
                     ApplicationArea = All;
                 }
                 field("Owner ID"; Rec."Owner ID")
                 {
+                    ToolTip = 'The unique identifier for the owner associated with the brokerage calculation.';
                     ApplicationArea = All;
                 }
                 field("Property ID"; Rec."Property ID")
                 {
+                    ToolTip = 'The unique identifier for the property associated with the brokerage calculation.';
                     ApplicationArea = All;
                 }
                 field("Start Date"; Rec."Start Date")
                 {
+                    ToolTip = 'The start date of the brokerage calculation period.';
                     ApplicationArea = All;
                 }
                 field("End Date"; Rec."End Date")
                 {
+                    ToolTip = 'The end date of the brokerage calculation period.';
                     ApplicationArea = All;
                 }
-
             }
-
             group("Brokerage Calculation")
             {
                 Caption = 'Brokerage Calculation';
                 part("Brokerage Calculations"; "Brokerage Calculation Sub Card")
                 {
-                    SubPageLink = "ID" = FIELD("ID"); // Link to filter attachments for this owner only
+                    SubPageLink = "ID" = FIELD("ID");
                     ApplicationArea = All;
-                    // Visible = isVisible;
                 }
             }
-
-
         }
     }
-
     actions
     {
         area(processing)
         {
             action(SelectVendor)
             {
+                ToolTip = 'Select Vendor for Brokerage Calculation';
                 Caption = 'Brokerage Calculation';
                 Image = Find;
                 ApplicationArea = All;
-
                 trigger OnAction()
                 var
                     MasterDataRec: Record "Brokerage Master Data";
@@ -69,30 +67,22 @@ page 50963 "Brokerage Calculation Card"
                     CardStartDate: Date;
                     CardEndDate: Date;
                 begin
-                    // 1. Validation
                     if Rec."Owner ID" = 0 then
                         Error('Owner Name is required.');
                     if Rec."Property ID" = '' then
                         Error('Property ID is required.');
-
-                    // 2. Clear previous sub-records linked to current header
                     SubDetailRec.Reset();
-                    SubDetailRec.SetRange("Property ID", Rec."Property ID"); // Link field between header and sub
+                    SubDetailRec.SetRange("Property ID", Rec."Property ID");
                     if SubDetailRec.FindFirst() then
                         SubDetailRec.DeleteAll();
-
-                    CalcHeaderRec.Get(Rec.ID); // Assuming current Rec is the header
+                    CalcHeaderRec.Get(Rec.ID);
                     begin
                         CardStartDate := CalcHeaderRec."Start Date";
                         CardEndDate := CalcHeaderRec."End Date";
                     end;
-
-                    // 3. Filter master data using Vendor Name = Owner Name, and Property ID
                     MasterDataRec.Reset();
-                    // MasterDataRec.SetRange("Owner Name", Rec."Owner Name");
                     MasterDataRec.SetRange("Property ID", Rec."Property ID");
                     MasterDataRec.SetRange("Owner ID", Rec."Owner ID");
-
                     if MasterDataRec.FindSet() then begin
                         repeat
                             if not (
@@ -100,15 +90,11 @@ page 50963 "Brokerage Calculation Card"
                    (MasterDataRec."Start Date" > CardEndDate)
                ) then begin
                                 SubDetailRec.Init();
-
-                                // Assign unique Entry No.
                                 SubDetailRec.Reset();
                                 if SubDetailRec.FindLast() then
                                     SubDetailRec."Entry No." := SubDetailRec."Entry No." + 1
                                 else
                                     SubDetailRec."Entry No." := 1;
-
-                                // Populate fields from master
                                 SubDetailRec.ID := Rec.ID;
                                 SubDetailRec."Owner ID" := MasterDataRec."Owner ID";
                                 SubDetailRec."Vendor ID" := MasterDataRec."Vendor ID";
@@ -116,35 +102,27 @@ page 50963 "Brokerage Calculation Card"
                                 SubDetailRec."End Date" := MasterDataRec."End Date";
                                 SubDetailRec."Property ID" := MasterDataRec."Property ID";
                                 SubDetailRec."Contract ID" := MasterDataRec."Contract ID";
-                                SubDetailRec."Tenant Name" := MasterDataRec."Tenant Name";
-                                SubDetailRec."Property Name" := MasterDataRec."Property Name";
-                                SubDetailRec."Unit Number" := MasterDataRec."Unit Number";
-                                SubDetailRec."Unit Name" := MasterDataRec."Unit Name";
-                                SubDetailRec."Vendor Name" := MasterDataRec."Vendor Name";
+                                SubDetailRec."Tenant Name" := COPYSTR(MasterDataRec."Tenant Name", 1, StrLen(MasterDataRec."Tenant Name"));
+                                SubDetailRec."Property Name" := CopyStr(MasterDataRec."Property Name", 1, StrLen(MasterDataRec."Property Name"));
+                                SubDetailRec."Unit Number" := CopyStr(MasterDataRec."Unit Number", 1, StrLen(MasterDataRec."Unit Number"));
+                                SubDetailRec."Unit Name" := CopyStr(MasterDataRec."Unit Number", 1, StrLen(MasterDataRec."Unit Name"));
+                                SubDetailRec."Vendor Name" := COPYSTR(MasterDataRec."Vendor Name", 1, StrLen(MasterDataRec."Vendor Name"));
                                 SubDetailRec."Brokerage Percentage" := MasterDataRec.Percentage;
                                 SubDetailRec."Brokerage Amount" := MasterDataRec."Amount";
-                                SubDetailRec."Owner Name" := MasterDataRec."Owner Name";
+                                SubDetailRec."Owner Name" := CopyStr(MasterDataRec."Owner Name", 1, StrLen(MasterDataRec."Owner Name"));
                                 SubDetailRec."Calculation Method" := MasterDataRec."Calculation Method";
                                 SubDetailRec."Base Amount Type" := MasterDataRec."Base Amount Type";
                                 SubDetailRec."Base Amount" := MasterDataRec."Base Amount";
                                 SubDetailRec."Amount" := MasterDataRec.Amount;
-
-
-                                // Insert
                                 SubDetailRec.Insert(true);
                             end;
                         until MasterDataRec.Next() = 0;
-
                         CurrPage.Update();
                         Message('Matching brokerage data inserted.');
-                    end else begin
+                    end else
                         Message('No matching data found in master for selected Owner and Property.');
-                    end;
                 end;
             }
         }
     }
 }
-
-
-

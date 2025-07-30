@@ -13,16 +13,19 @@ page 50973 "Revenue Recognition Item Sub"
             {
                 field("RR_No."; Rec."RR_No.")
                 {
+                    ToolTip = 'The unique identifier for the revenue recognition record.';
                     ApplicationArea = All;
                     Visible = false;
                 }
                 field("Item Type"; Rec."Item Type")
                 {
+                    ToolTip = 'The type of item associated with the revenue recognition.';
                     ApplicationArea = All;
                     Caption = 'Item Type';
                 }
                 field("Entry No."; Rec."Entry No.")
                 {
+                    ToolTip = 'The unique entry number for the revenue recognition item.';
                     ApplicationArea = All;
                     Caption = 'Entry No.';
                     Editable = false;
@@ -38,6 +41,7 @@ page 50973 "Revenue Recognition Item Sub"
         {
             action(FetchRevenueDetails)
             {
+                ToolTip = 'Fetches revenue details for the selected item types.';
                 Caption = 'Revenue Allocation-Other Charges';
                 ApplicationArea = All;
                 Image = List;
@@ -45,7 +49,7 @@ page 50973 "Revenue Recognition Item Sub"
                 var
                     ConfirmFetch: Boolean;
                     revenueAllocation: Record "Revenue Allocation Details";
-                    companydata: Record "testData";
+                    companydata: Record "Company Data";
                 begin
                     if companydata.FindSet() then begin
                         if companydata."Revenue Methods" = companydata."Revenue Methods"::"Per Day Rent" then begin
