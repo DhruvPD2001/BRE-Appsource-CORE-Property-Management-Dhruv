@@ -18,32 +18,39 @@ page 50135 "Upcoming Payments List" // Use an appropriate page number
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The unique identifier for the contract associated with this payment.';
                 }
                 field("Tenant Id"; Rec."Tenant Id")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The unique identifier for the tenant associated with this payment.';
                 }
                 field("Tenant Name"; Rec."Tenant Name")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The name of the tenant associated with this payment.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The date when the payment is due.';
                     Style = Attention;
                 }
                 field("Amount"; Rec.Amount)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The amount due for this payment.';
                 }
                 field("Days Until Due"; CalcDaysUntilDue())
                 {
                     ApplicationArea = All;
                     Caption = 'Days Until Due';
+                    ToolTip = 'The number of days remaining until the payment is due.';
                 }
                 field("Payment Status"; Rec."Payment Status")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The current status of the payment.';
                 }
             }
         }

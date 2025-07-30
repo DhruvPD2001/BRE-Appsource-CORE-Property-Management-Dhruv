@@ -17,6 +17,7 @@ page 50111 "Property Type List"
                 {
                     ApplicationArea = All;
                     Caption = 'ID';
+                    ToolTip = 'The unique identifier for the property type.';
                 }
                 field("Classification Name"; Rec."Classification Name")
                 {
@@ -24,11 +25,13 @@ page 50111 "Property Type List"
                     Caption = 'Primary Classification';
                     TableRelation = "Primary Classification";
                     Lookup = true;
+                    ToolTip = 'The primary classification of the property type.';
                 }
                 field("Property Type"; Rec."Property Type")
                 {
                     ApplicationArea = All;
                     Caption = 'Property Type';
+                    ToolTip = 'The name of the property type.';
                 }
             }
         }
@@ -42,8 +45,9 @@ page 50111 "Property Type List"
             {
                 ApplicationArea = All;
                 Caption = 'New';
-                Promoted = true;
-                PromotedCategory = Process;
+                Image = New;
+                ToolTip = 'Create a new property type.';
+
                 trigger OnAction()
                 begin
                     Rec.Init();
@@ -51,6 +55,10 @@ page 50111 "Property Type List"
                     CurrPage.Update();
                 end;
             }
+        }
+        area(Promoted)
+        {
+            actionref(new_; New) { }
         }
     }
 }

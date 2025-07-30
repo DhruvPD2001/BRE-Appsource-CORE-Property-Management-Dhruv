@@ -17,11 +17,13 @@ page 50116 "Community List"
                 {
                     ApplicationArea = All;
                     Caption = 'ID';
+                    ToolTip = 'The unique identifier for the community.';
                 }
                 field("Sl No."; Rec."Sl No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Sl No.';
+                    ToolTip = 'The serial number of the community.';
                 }
                 field("Emirate Name"; Rec."Emirate Name")
                 {
@@ -29,16 +31,19 @@ page 50116 "Community List"
                     Caption = 'Emirate Name';
                     TableRelation = Emirate;
                     Lookup = true;
+                    ToolTip = 'The name of the emirate where the community is located.';
                 }
                 field("Community Code"; Rec."Community Code")
                 {
                     ApplicationArea = All;
                     Caption = 'Community Code';
+                    ToolTip = 'The unique code assigned to the community.';
                 }
                 field("Community Name"; Rec."Community Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Community Name';
+                    ToolTip = 'The name of the community.';
                 }
             }
         }
