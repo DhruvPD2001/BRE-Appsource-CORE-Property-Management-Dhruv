@@ -5,13 +5,10 @@ page 50107 "Residential Property List"
     ApplicationArea = All;
     Caption = 'Residential Property List';
     UsageCategory = Lists;
-    // CardPageId = 31;
     SourceTableView = where("Property Classification" = const('Residential'));
-
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = false;
-
     layout
     {
         area(content)
@@ -22,24 +19,25 @@ page 50107 "Residential Property List"
                 {
                     ApplicationArea = All;
                     Caption = 'Property ID';
+                    ToolTip = 'Specifies the unique identifier for the property.';
                 }
                 field("Property Name"; Rec."Property Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Property Name';
+                    ToolTip = 'Specifies the name of the property.';
                 }
                 field("Property Type"; Rec."Property Classification")
                 {
                     ApplicationArea = All;
                     Caption = 'Property Type';
+                    ToolTip = 'Specifies the classification of the property (e.g., Residential).';
                 }
             }
         }
     }
-
     trigger OnOpenPage();
     begin
-        Rec.SetRange("Property Classification", 'Residential'); // Filter for only vacant properties
+        Rec.SetRange("Property Classification", 'Residential');
     end;
-
 }
