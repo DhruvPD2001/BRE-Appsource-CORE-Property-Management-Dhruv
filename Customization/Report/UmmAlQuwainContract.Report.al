@@ -147,12 +147,10 @@ report 50115 UmmAlQuwainContract
     }
     trigger OnInitReport()
     begin
-        if not CompanyInfo.Get() then begin
-            Error('Company Information not found.');
-        end else begin
-            // CompanyAddress := CompanyInfo.City + ', ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code";
-            CompanyInfo.CalcFields(Picture);
-        end;
+        if not CompanyInfo.Get() then
+            Error('Company Information not found.')
+        else
+            CompanyInfo.CalcFields(Picture)
     end;
 
     var

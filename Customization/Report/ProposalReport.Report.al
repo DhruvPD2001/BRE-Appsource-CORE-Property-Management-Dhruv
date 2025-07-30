@@ -34,7 +34,6 @@ report 50102 "Proposal Report"
             column(CompanyPicture; CompanyInfo.Picture)
             {
             }
-
         }
     }
     requestpage
@@ -67,12 +66,10 @@ report 50102 "Proposal Report"
     }
     trigger OnInitReport()
     begin
-        if not CompanyInfo.Get() then begin
-            Error('Company Information not found.');
-        end else begin
-            // CompanyAddress := CompanyInfo.City + ', ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code";
-            CompanyInfo.CalcFields(Picture);
-        end;
+        if not CompanyInfo.Get() then
+            Error('Company Information not found.')
+        else
+            CompanyInfo.CalcFields(Picture)
     end;
 
     var

@@ -15,12 +15,10 @@ pageextension 50503 salesinvoiceext extends "Sales Invoice List"
                 begin
                     tenancyContract.SetRange("Contract ID", Rec."Contract ID");
                     if tenancyContract.FindFirst() then begin
-
                         Rec."Property Name" := tenancyContract."Property Name";
                         Rec."Unit Name" := tenancyContract."Unit Name";
                         Rec."Contract Tenure" := tenancyContract."Contract Tenor";
                         Rec."Contract Period" := Format(tenancyContract."Contract Start Date") + 'To' + Format(tenancyContract."Contract End Date");
-
                     end else begin
                         rec."Property Name" := '';
                         Rec."Unit Name" := '';
@@ -64,7 +62,6 @@ pageextension 50503 salesinvoiceext extends "Sales Invoice List"
                 Editable = false;
                 ToolTip = 'Specifies the email address of the customer associated with the sales invoice.';
             }
-
             field("Contract Period"; Rec."Contract Period")
             {
                 Caption = 'Contract Period';
@@ -103,10 +100,8 @@ pageextension 50503 salesinvoiceext extends "Sales Invoice List"
             }
         }
     }
-
     actions
     {
-
         modify(Post)
         {
             trigger OnBeforeAction()
@@ -114,59 +109,49 @@ pageextension 50503 salesinvoiceext extends "Sales Invoice List"
                 ConfigRecord: Record AzureConfiguration;
                 SalesHeader1: Record "Sales Header";
                 TempBlob: Codeunit "Temp Blob";
-                documentattachment: Codeunit UploadAttachment;
+                azureBlobUploader: Codeunit "Azure AD Blob Storage";
                 RecRef: RecordRef;
                 InStream: InStream;
                 FileName: Text[250];
                 SASUrlBase: Text;
-                SASUrlWithFileName: Text;
-                UploadResult: Text[1000];
+                UploadResult: Text;
                 ValidFormats: List of [Text];
                 FileExtension: Text[10];
                 ReportID: Integer;
                 OutStream: OutStream;
-
+                folderName: Text;
             begin
                 if not ConfigRecord.FindFirst() then
                     Error('Azure configuration is missing. Please set up the SAS URL in the Azure Configuration table.');
                 ValidFormats.Add('.png');
                 ValidFormats.Add('.jpg');
                 ValidFormats.Add('.jpeg');
-
                 SASUrlBase := ConfigRecord."SAS URL";
                 FileExtension := '.pdf';
                 ReportID := 50104;
-
                 SalesHeader1.Reset();
                 SalesHeader1.SetRange("No.", Rec."No.");
                 if not SalesHeader1.FindFirst() then
                     Error('Sales Invoice record not found.');
-
-                // Open the correct record in RecRef
                 RecRef.GetTable(SalesHeader1);
                 TempBlob.CreateOutStream(OutStream);
                 Report.SaveAs(ReportID, '', ReportFormat::Pdf, OutStream, RecRef);
-
                 TempBlob.CreateInStream(InStream);
                 FileName := 'Invoice_' + Rec."No." + FileExtension;
-                SASUrlWithFileName := StrSubstNo('%1/%2?%3', CopyStr(SASUrlBase, 1, StrPos(SASUrlBase, '?') - 1), FileName, CopyStr(SASUrlBase, StrPos(SASUrlBase, '?') + 1));
-                UploadResult := documentattachment.UploadDocumentToBlobStorage(SASUrlWithFileName, FileName, InStream);
+                folderName := 'SalesInvoiceDocuments';
+                UploadResult := azureBlobUploader.UploadDocumentToBlob(InStream, FileName, folderName);
                 Rec."View Invoice" := FileName;
-                Rec."View Document URL" := UploadResult;
+                Rec."View Document URL" := Format(UploadResult);
                 Rec.Modify();
-
             end;
         }
     }
-
     trigger OnAfterGetRecord()
     var
         tenancyContract: Record "Tenancy Contract";
         customer: Record Customer;
         salesline: Record "Sales Line";
-
     begin
-
         customer.SetRange("No.", Rec."Sell-to Customer No.");
         if customer.FindFirst() then begin
             Rec."Sell-to Customer Name" := customer.Name;
@@ -181,7 +166,6 @@ pageextension 50503 salesinvoiceext extends "Sales Invoice List"
             Rec."Bill-to Address" := customer.Address;
             Rec.Modify();
         end;
-
         salesline.SetRange("Document No.", Rec."No.");
         if salesline.FindSet() then
             repeat
@@ -190,7 +174,6 @@ pageextension 50503 salesinvoiceext extends "Sales Invoice List"
                 salesline."VAT Bus. Posting Group" := Rec."VAT Bus. Posting Group";
                 salesline.Modify();
             until salesline.Next() = 0;
-
         tenancyContract.SetRange("Contract ID", Rec."Contract ID");
         if tenancyContract.FindFirst() then begin
             Rec."Property Name" := tenancyContract."Property Name";
@@ -204,5 +187,4 @@ pageextension 50503 salesinvoiceext extends "Sales Invoice List"
             Rec."Contract Period" := '';
         end;
     end;
-
 }

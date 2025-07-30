@@ -49,7 +49,7 @@ report 50110 "Other Payment Details"
             column(CompanyPicture; CompanyInfo.Picture)
             {
             }
-            column(CurrentDate; Format(CurrentDateTime, 0, '<Day,2>/<Month,2>/<Year4>'))  // Add a column to hold the current date
+            column(CurrentDate; Format(CurrentDateTime, 0, '<Day,2>/<Month,2>/<Year4>'))
             {
             }
             column(CompanyName; CompanyInfo.Name)
@@ -57,13 +57,12 @@ report 50110 "Other Payment Details"
             }
             trigger OnAfterGetRecord()
             begin
-                AutoEntryNo += 1;  // Auto-increment Entry No.
-                                   // Store values in global variables
+                AutoEntryNo += 1;
+
                 PropertyNameStored := "Property Name";
                 UnitNameStored := "Unit Name";
-                UnitSizeStored := "Unit Size";
                 CustomerNameStored := "Customer Name";
-                // Accumulate values for each record
+
                 TotalAmount += Amount;
                 TotalVATAmount += "VAT Amount";
                 TotalAmountIncludingVAT += "Amount Including VAT";
@@ -72,7 +71,6 @@ report 50110 "Other Payment Details"
         dataitem(TotalSection; System.Utilities.Integer)
         {
             DataItemTableView = sorting(Number) where(Number = const(1));
-
             column(T_Amount; TotalAmount)
             {
             }
@@ -83,7 +81,6 @@ report 50110 "Other Payment Details"
             {
             }
         }
-
         dataitem("Lease Proposal Details"; "Lease Proposal Details")
         {
             DataItemLink = "Proposal ID" = field(ProposalID);
@@ -113,7 +110,6 @@ report 50110 "Other Payment Details"
             {
                 group(GroupName)
                 {
-
                 }
             }
         }
@@ -121,7 +117,6 @@ report 50110 "Other Payment Details"
         {
             area(Processing)
             {
-
             }
         }
     }
@@ -137,13 +132,11 @@ report 50110 "Other Payment Details"
     }
     trigger OnInitReport()
     begin
-        if not CompanyInfo.Get() then begin
-            Error('Company Information not found.');
-        end else begin
-            // CompanyAddress := CompanyInfo.City + ', ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code";
+        if not CompanyInfo.Get() then
+            Error('Company Information not found.')
+        else
             CompanyInfo.CalcFields(Picture);
-        end;
-        AutoEntryNo := 0;  // Initialize auto-increment variable
+        AutoEntryNo := 0;
     end;
 
     var
@@ -153,8 +146,6 @@ report 50110 "Other Payment Details"
         TotalAmountIncludingVAT: Decimal;
         PropertyNameStored: Text;
         UnitNameStored: Text;
-        UnitSizeStored: Decimal;
         CustomerNameStored: Text[100];
-        AutoEntryNo: Integer;  // New variable for auto-increment Entry No.
+        AutoEntryNo: Integer;
 }
-

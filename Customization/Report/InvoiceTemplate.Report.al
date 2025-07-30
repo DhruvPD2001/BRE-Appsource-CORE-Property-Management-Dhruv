@@ -1,10 +1,8 @@
 namespace PropertyManagement.PropertyManagement;
 using Microsoft.Foundation.Company;
-
 using Microsoft.Sales.Document;
 using System.Text;
 using Microsoft.Bank.Check;
-
 report 50104 InvoiceTemplate
 {
     ApplicationArea = All;
@@ -65,17 +63,7 @@ report 50104 InvoiceTemplate
             }
             column(Document_Date; "Document Date")
             {
-
             }
-            // column(Property_Name; "Property Name")
-            // {
-            // }
-            // column(Unit_Name; "Unit Name")
-            // {
-            // }
-            // column(Contract_Tenure; "Contract Tenure")
-            // {
-            // }
             column(BankAccountName; CompanyInfo."Bank Name")
             {
             }
@@ -93,15 +81,12 @@ report 50104 InvoiceTemplate
             }
             column(Customer_P_O; "Customer P.O")
             {
-
             }
             column(Customer_P_O_Date; "Customer P.O Date")
             {
-
             }
             column(Contract_Period; "Contract Period")
             {
-
             }
             dataitem("Tenancy Contract"; "Tenancy Contract")
             {
@@ -130,7 +115,6 @@ report 50104 InvoiceTemplate
                 }
                 column(VAT_Base_Amount; "VAT Base Amount")
                 {
-
                 }
                 column(Amount_Including_VAT; "Amount Including VAT")
                 {
@@ -144,16 +128,11 @@ report 50104 InvoiceTemplate
                 trigger OnAfterGetRecord()
                 begin
                     LineAmountText := Format("Line Amount");
-                    TransHeaderAmount += PrevLineAmount;
-                    PrevLineAmount := "Line Amount";
                     TotalDue += "Amount Including VAT";
                     TotalSubTotal += "Amount Including VAT";
                     TotalInvDiscAmount -= "Inv. Discount Amount";
-                    TotalAmount += Amount;
                     TotalAmountVAT += "Amount Including VAT" - Amount;
                     TotalAmountInclVAT += "Amount Including VAT";
-                    TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
-
                 end;
             }
             dataitem(Totals; System.Utilities.Integer)
@@ -169,11 +148,8 @@ report 50104 InvoiceTemplate
                 { }
                 column("TotalDue"; Format(TotalDue, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, SalesHeader."Currency Code")))
                 { }
-
             }
         }
-
-
     }
     requestpage
     {
@@ -203,35 +179,21 @@ report 50104 InvoiceTemplate
             Summary = 'The SalesInvoiceTemplate (Word) provides a simple layout that is also relatively easy for an end-user to modify.';
         }
     }
-
     trigger OnInitReport()
     begin
-        if not CompanyInfo.Get() then begin
-            Error('Company Information not found.');
-        end else begin
-            // CompanyAddress := CompanyInfo.City + ', ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code";
-            CompanyInfo.CalcFields(Picture);
-        end;
+        if not CompanyInfo.Get() then
+            Error('Company Information not found.')
+        else
+            CompanyInfo.CalcFields(Picture)
     end;
 
     var
-        //  AutoFormat: Codeunit "Auto Format";
-        //TotalAmountText: array[2] of Text[80];
-
-
         CompanyInfo: Record "Company Information";
         AutoFormat: Codeunit "Auto Format";
         LineAmountText: Text;
-        TransHeaderAmount: Decimal;
-        PrevLineAmount: Decimal;
         TotalDue: Decimal;
         TotalSubTotal: Decimal;
         TotalInvDiscAmount: Decimal;
-        TotalAmount: Decimal;
         TotalAmountVAT: Decimal;
         TotalAmountInclVAT: Decimal;
-        TotalPaymentDiscOnVAT: Decimal;
-
-
-    // SalesLine: Record "Sales Line";
 }

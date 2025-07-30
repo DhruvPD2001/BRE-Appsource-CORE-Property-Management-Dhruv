@@ -40,7 +40,6 @@ report 50103 AbuDhabi_Contract
             column(Base_Unit_of_Measure; "Base Unit of Measure")
             {
             }
-
         }
     }
     requestpage
@@ -73,12 +72,10 @@ report 50103 AbuDhabi_Contract
     }
     trigger OnInitReport()
     begin
-        if not CompanyInfo.Get() then begin
-            Error('Company Information not found.');
-        end else begin
-            // CompanyAddress := CompanyInfo.City + ', ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code";
-            CompanyInfo.CalcFields(Picture);
-        end;
+        if not CompanyInfo.Get() then
+            Error('Company Information not found.')
+        else
+            CompanyInfo.CalcFields(Picture)
     end;
 
     var

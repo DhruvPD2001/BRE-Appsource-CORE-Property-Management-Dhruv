@@ -49,7 +49,7 @@ report 50108 "Contract Renewal"
             column(CompanyName; CompanyInfo.Name)
             {
             }
-            column(CurrentDate; Format(CurrentDateTime, 0, '<Day,2>/<Month,2>/<Year4>'))  // Add a column to hold the current date
+            column(CurrentDate; Format(CurrentDateTime, 0, '<Day,2>/<Month,2>/<Year4>'))
             {
             }
         }
@@ -72,7 +72,6 @@ report 50108 "Contract Renewal"
             }
         }
     }
-
     rendering
     {
         layout("ContractRenewalTemplate.docx")
@@ -83,20 +82,13 @@ report 50108 "Contract Renewal"
             Summary = 'The ContractRenewalTemplate (Word) provides a simple layout that is also relatively easy for an end-user to modify.';
         }
     }
-
     trigger OnInitReport()
     var
-        CurrentDate: Date;
     begin
-        if not CompanyInfo.Get() then begin
-            Error('Company Information not found.');
-        end else begin
-            // CompanyAddress := CompanyInfo.City + ', ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code";
+        if not CompanyInfo.Get() then
+            Error('Company Information not found.')
+        else
             CompanyInfo.CalcFields(Picture);
-        end;
-
-        CurrentDate := Today;
-
     end;
 
     var

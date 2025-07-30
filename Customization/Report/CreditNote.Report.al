@@ -3,17 +3,17 @@ using Microsoft.Foundation.Company;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Customer;
 using System.Text;
-report 50117 "Terminated Credit Note"
+report 50116 "Credit Note"
 {
     ApplicationArea = All;
-    Caption = 'Terminated Credit Note';
+    Caption = 'Credit Note';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = "TerminatedCreditNote.docx";
+    DefaultRenderingLayout = "CreditNote.docx";
     dataset
     {
-        dataitem(CreditNote; "Credit Note")
+        dataitem("Sales Header"; "Sales Header")
         {
-            column(CurrentDate; Format(CurrentDateTime, 0, '<Day,2>/<Month,2>/<Year4>'))  // Add a column to hold the current date
+            column(CurrentDate; Format(CurrentDateTime, 0, '<Day,2>/<Month,2>/<Year4>'))
             {
             }
             column(CompanyPicture; CompanyInfo.Picture)
@@ -61,58 +61,56 @@ report 50117 "Terminated Credit Note"
             column(Contract_ID; "Contract ID")
             {
             }
-            column(Contract_Start_Date; "Contract Start Date")
+            column(Applies_to_Doc__No_; "Applies-to Doc. No.")
             {
             }
-            column(Contract_End_Date; "Contract End Date")
+            column(No_; "No.")
             {
             }
-            column(Credit_Note_No_; "Credit Note No.")
+            dataitem("Sales Line"; "Sales Line")
             {
-            }
-            dataitem("Billing Calculation CN"; "Billing Calculation CN")
-            {
-                DataItemLink = "Contract ID" = field("Contract ID");
+                DataItemLink = "Document No." = field("No.");
+                DataItemTableView = where("Document Type" = const("Credit Memo"));
                 column(Serial_No; SerialNo)
                 {
                 }
-                column(Item; Item)
+                column(Description; Description)
                 {
                 }
-                column(Amount; Amount)
+                column(Line_Amount; "Line Amount")
                 {
                 }
-                column(VAT_Amount; "VAT Amount")
+                column(VAT__; "VAT %")
                 {
                 }
-                column(AInVAT; "Amount Including VAT")
+                column(A_I_V; "Amount Including VAT")
+                {
+                }
+                column(VAT_Amount; VATAmount)
                 {
                 }
                 trigger OnAfterGetRecord()
                 begin
-                    // Increment the Serial No. for each record
                     SerialNo := SerialNo + 1;
-                    // Calculate VAT Amount
+                    VATAmount := ("Line Amount" * "VAT %") / 100;
                     TotalAmountInclVAT += "Amount Including VAT";
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    // Initialize Serial No. at the start of the dataitem
                     SerialNo := 0;
                 end;
             }
             dataitem(Totals; System.Utilities.Integer)
             {
                 DataItemTableView = sorting(Number) where(Number = const(1));
-                column(TAInclVAT; Format(TotalAmountInclVAT, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, "Billing Calculation CN".SystemId)))
+                column(TAInclVAT; Format(TotalAmountInclVAT, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, "Sales Header"."Currency Code")))
                 { }
                 column(AmountInWords; AmountInWordsText)
                 {
                 }
                 trigger OnAfterGetRecord()
                 begin
-                    // Convert amount to words and store in variable
                     AmountToWords(TotalAmountInclVAT);
                 end;
             }
@@ -125,13 +123,19 @@ report 50117 "Terminated Credit Note"
                 column(unit_Name; "Unit Name")
                 {
                 }
+                column(Contract_Start_Date; "Contract Start Date")
+                {
+                }
+                column(Contract_End_Date; "Contract End Date")
+                {
+                }
                 column(Contract_Tenor; "Contract Tenor")
                 {
                 }
             }
             dataitem(Customer; Customer)
             {
-                DataItemLink = "No." = field("Tenant ID");
+                DataItemLink = "No." = field("Sell-to Customer No.");
                 column(Name; Name)
                 {
                 }
@@ -170,31 +174,31 @@ report 50117 "Terminated Credit Note"
     }
     rendering
     {
-        layout("TerminatedCreditNote.docx")
+        layout("CreditNote.docx")
         {
             Type = Word;
-            LayoutFile = './TerminatedCreditNote.docx';
-            Caption = 'TerminatedCreditNote (Word)';
-            Summary = 'The TerminatedCreditNote (Word) provides a simple layout that is also relatively easy for an end-user to modify.';
+            LayoutFile = './CreditNote.docx';
+            Caption = 'CreditNote (Word)';
+            Summary = 'The CreditNote (Word) provides a simple layout that is also relatively easy for an end-user to modify.';
         }
     }
     trigger OnInitReport()
     begin
-        if not CompanyInfo.Get() then begin
-            Error('Company Information not found.');
-        end else begin
-            // CompanyAddress := CompanyInfo.City + ', ' + CompanyInfo.County + ' ' + CompanyInfo."Post Code";
-            CompanyInfo.CalcFields(Picture);
-        end;
+        if not CompanyInfo.Get() then
+            Error('Company Information not found.')
+        else
+            CompanyInfo.CalcFields(Picture)
     end;
+
 
     var
         CompanyInfo: Record "Company Information";
+        AutoFormat: Codeunit "Auto Format";
+        VATAmount: Decimal;
         SerialNo: Integer;
         TotalAmountInclVAT: Decimal;
-        AutoFormat: Codeunit "Auto Format";
+
         AmountInWordsText: Text;
-        NoText: array[2] of Text[80];
 
     procedure AmountToWords(Amount: Decimal)
     var
@@ -209,10 +213,8 @@ report 50117 "Terminated Credit Note"
         ExponentVal: Integer;
         Hundreds: Integer;
         TensOnes: Integer;
-        DecimalText: Text;
         FinalText: Text;
     begin
-        // Initialize the arrays with text representations (Changed to Title Case)
         Ones[1] := 'One';
         Ones[2] := 'Two';
         Ones[3] := 'Three';
@@ -232,7 +234,6 @@ report 50117 "Terminated Credit Note"
         Ones[17] := 'Seventeen';
         Ones[18] := 'Eighteen';
         Ones[19] := 'Nineteen';
-
         Tens[2] := 'Twenty';
         Tens[3] := 'Thirty';
         Tens[4] := 'Forty';
@@ -241,153 +242,104 @@ report 50117 "Terminated Credit Note"
         Tens[7] := 'Seventy';
         Tens[8] := 'Eighty';
         Tens[9] := 'Ninety';
-
         Thousands[1] := '';
         Thousands[2] := 'Thousand';
         Thousands[3] := 'Million';
         Thousands[4] := 'Billion';
-
-        // Handle zero amount
         if Amount = 0 then begin
             AmountInWordsText := 'Zero AED Only';
             exit;
         end;
-
         AmtInWords := '';
-
-        // Split into integer and decimal parts
         IntegerPart := Round(Amount, 1, '<');
         DecimalPart := Round((Amount - IntegerPart) * 100, 1);
-
-        // Process billions
         if IntegerPart >= 1000000000 then begin
             ExponentVal := IntegerPart div 1000000000;
             IntegerPart := IntegerPart mod 1000000000;
-
-            // Get hundreds
             Hundreds := ExponentVal div 100;
             ExponentVal := ExponentVal mod 100;
-
             if Hundreds > 0 then
                 AmtInWords += Ones[Hundreds] + ' Hundred ';
-
-            if ExponentVal > 0 then begin
+            if ExponentVal > 0 then
                 if ExponentVal < 20 then
                     AmtInWords += Ones[ExponentVal] + ' '
                 else begin
                     TensValue := ExponentVal div 10;
                     OnesValue := ExponentVal mod 10;
-
                     AmtInWords += Tens[TensValue];
                     if OnesValue > 0 then
                         AmtInWords += ' ' + Ones[OnesValue];
                     AmtInWords += ' ';
                 end;
-            end;
-
             AmtInWords += 'Billion ';
         end;
-
-        // Process millions
         if IntegerPart >= 1000000 then begin
             ExponentVal := IntegerPart div 1000000;
             IntegerPart := IntegerPart mod 1000000;
-
-            // Get hundreds
             Hundreds := ExponentVal div 100;
             ExponentVal := ExponentVal mod 100;
-
             if Hundreds > 0 then
                 AmtInWords += Ones[Hundreds] + ' Hundred ';
-
-            if ExponentVal > 0 then begin
+            if ExponentVal > 0 then
                 if ExponentVal < 20 then
                     AmtInWords += Ones[ExponentVal] + ' '
                 else begin
                     TensValue := ExponentVal div 10;
                     OnesValue := ExponentVal mod 10;
-
                     AmtInWords += Tens[TensValue];
                     if OnesValue > 0 then
                         AmtInWords += ' ' + Ones[OnesValue];
                     AmtInWords += ' ';
                 end;
-            end;
-
             AmtInWords += 'Million ';
         end;
-
-        // Process thousands
         if IntegerPart >= 1000 then begin
             ExponentVal := IntegerPart div 1000;
             IntegerPart := IntegerPart mod 1000;
-
-            // Get hundreds
             Hundreds := ExponentVal div 100;
             ExponentVal := ExponentVal mod 100;
-
             if Hundreds > 0 then
                 AmtInWords += Ones[Hundreds] + ' Hundred ';
-
-            if ExponentVal > 0 then begin
+            if ExponentVal > 0 then
                 if ExponentVal < 20 then
                     AmtInWords += Ones[ExponentVal] + ' '
                 else begin
                     TensValue := ExponentVal div 10;
                     OnesValue := ExponentVal mod 10;
-
                     AmtInWords += Tens[TensValue];
                     if OnesValue > 0 then
                         AmtInWords += ' ' + Ones[OnesValue];
                     AmtInWords += ' ';
                 end;
-            end;
-
             AmtInWords += 'Thousand ';
         end;
-
-        // Process hundreds
         Hundreds := IntegerPart div 100;
         TensOnes := IntegerPart mod 100;
-
         if Hundreds > 0 then
             AmtInWords += Ones[Hundreds] + ' Hundred ';
-
-        // Process tens and ones
-        if TensOnes > 0 then begin
+        if TensOnes > 0 then
             if TensOnes < 20 then
                 AmtInWords += Ones[TensOnes] + ' '
             else begin
                 TensValue := TensOnes div 10;
                 OnesValue := TensOnes mod 10;
-
                 AmtInWords += Tens[TensValue];
                 if OnesValue > 0 then
                     AmtInWords += ' ' + Ones[OnesValue];
                 AmtInWords += ' ';
             end;
-        end;
-
-        // Format the final text - ensure there's no trailing space
         FinalText := DelChr(AmtInWords, '>', ' ');
-
-        // Add decimal part if any, using the word "Fils" instead of fractions
-        // Adding a space before "and"
-        if DecimalPart > 0 then begin
+        if DecimalPart > 0 then
             if DecimalPart < 20 then
                 FinalText += ' and ' + Ones[DecimalPart] + ' Fils'
             else begin
                 TensValue := DecimalPart div 10;
                 OnesValue := DecimalPart mod 10;
-
                 FinalText += ' and ' + Tens[TensValue];
                 if OnesValue > 0 then
                     FinalText += ' ' + Ones[OnesValue];
                 FinalText += ' Fils';
             end;
-        end;
-
-        // Finalize the text
         AmountInWordsText := FinalText + ' Only';
     end;
 }
