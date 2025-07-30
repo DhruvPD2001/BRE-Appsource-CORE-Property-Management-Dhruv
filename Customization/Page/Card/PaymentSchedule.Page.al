@@ -1,0 +1,276 @@
+page 50915 "Payment Schedule"
+{
+    PageType = ListPart;
+    ApplicationArea = All;
+    DeleteAllowed = true;
+    SourceTable = "Revenue Structure Subpage";
+    Caption = 'Payment Schedule';
+    layout
+    {
+        area(Content)
+        {
+            repeater(Group)
+            {
+                field("Year"; Rec."Year")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Year';
+                    ToolTip = 'Enter the Year.';
+                }
+                field("Period Start Date"; Rec."Period Start Date")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Start Date';
+                    ToolTip = 'Enter the Start Date.';
+                }
+                field("Period End Date"; Rec."Period End Date")
+                {
+                    ApplicationArea = All;
+                    Caption = 'End Date';
+                    ToolTip = 'Enter the End Date.';
+                }
+                field("Number of Days"; Rec."Number of Days")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Number of Days';
+                    ToolTip = 'Enter the Number of Days.';
+                }
+                field("Final Annual Amount"; Rec."Final Annual Amount")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Final Annual Amount';
+                    Editable = true;
+                    ShowMandatory = true;
+                    NotBlank = true;
+                    ToolTip = 'Enter the Final Annual Amount.';
+                }
+                field("Yearly No. of Installment"; Rec."Yearly No. of Installment")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Yearly No. of Instalment';
+                    Editable = true;
+                    ShowMandatory = true;
+                    NotBlank = true;
+                    ToolTip = 'Enter the Yearly Number of Installments.';
+                    trigger OnValidate()
+                    var
+                        calculateinstallmentstotal: Codeunit CalculateNumberOfInstallments;
+                    begin
+                        calculateinstallmentstotal.CalculateInstallments(Rec);
+                    end;
+                }
+                field("Tenant ID"; Rec."Tenant ID")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    Lookup = true;
+                    Visible = false;
+                    ToolTip = 'The Tenant ID is used to identify the tenant associated with this record.';
+                }
+                field("Contract ID"; Rec."Contract ID")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    Lookup = true;
+                    Visible = false;
+                    ToolTip = 'The Contract ID is used to identify the contract associated with this record.';
+                }
+                field("VAT %"; Rec."VAT %")
+                {
+                    ApplicationArea = All;
+                    Caption = 'VAT %';
+                    ToolTip = 'Enter the VAT %.';
+                    Editable = false;
+                }
+            }
+            group(" ")
+            {
+                field("Total Amount"; Rec."Total Amount")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Total Amount';
+                    ToolTip = 'Enter the Total Amount.';
+                }
+                field("VAT Amount"; Rec."VAT Amount")
+                {
+                    ApplicationArea = All;
+                    Caption = 'VAT Amount';
+                    ToolTip = 'Enter the VAT Amount.';
+                    Visible = false;
+                    Editable = false;
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Amount Including VAT';
+                    ToolTip = 'Enter the Amount Including VAT.';
+                    Visible = false;
+                    Editable = false;
+                }
+                field("Secondary Item Type"; Rec."Secondary Item Type")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Secondary Item Type';
+                    ToolTip = 'Enter the Secondary Item Type.';
+                    Visible = false;
+                    Editable = false;
+                }
+                field("Link"; Rec."Link")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Link';
+                    ToolTip = 'Enter the Link.';
+                    Editable = false;
+                    DrillDown = true;
+                    trigger OnDrillDown()
+                    var
+                        TargetRecord: Record "Revenue Structure";
+                        RevenueStructure1: Record "Revenue Structure";
+                        RevenueStructure: Record "Revenue Structure Subpage";
+                        InstallmentStructure: Record "Revenue Structure Subpage1";
+                        TargetPageID: Integer;
+                        InstallmentAmount: Decimal;
+                        InstallmentNumber: Integer;
+                        TotalYears: Integer;
+                        Installment: Integer;
+                        VATPer: Integer;
+                        TotalCalculatedAmount: Decimal;
+                        LastInstallmentAmount: Decimal;
+                        InstallmentAmount2: Decimal;
+                    begin
+                        RevenueStructure1.SetRange("RS ID", Rec."RS ID");
+                        if RevenueStructure1.FindFirst() then
+                            if RevenueStructure1.Amount <> Rec."Total Amount" then
+                                Error('Total Amount (%1) must match the Amount field (%2). Please correct the values.', Rec."Total Amount", RevenueStructure1.Amount)
+                            else begin
+                                InstallmentStructure.SetRange("RS ID", Rec."RS ID");
+                                if InstallmentStructure.FindSet() then
+                                    InstallmentStructure.DeleteAll();
+                                RevenueStructure.SetRange("Tenant ID", Rec."Tenant ID");
+                                RevenueStructure.SetRange("Contract ID", Rec."Contract ID");
+                                RevenueStructure.SetRange("RS ID", Rec."RS ID");
+                                TargetRecord.SetRange("Contract ID", Rec."Contract ID");
+                                TargetRecord.SetRange("Tenant ID", Rec."Tenant ID");
+                                TargetRecord.SetRange("RS ID", Rec."RS ID");
+                                if RevenueStructure.FindSet() then begin
+                                    repeat
+
+                                        VATPer := RevenueStructure."VAT %";
+                                        TotalYears := RevenueStructure."Year";
+                                        TargetPageID := RevenueStructure."RS ID";
+                                        if TargetRecord.FindSet() then
+                                            Installment := TargetRecord."Number of Installments";
+                                        InstallmentAmount := ROUND(RevenueStructure."Final Annual Amount" / RevenueStructure."Yearly No. of Installment", 0.01);
+                                        TotalCalculatedAmount := InstallmentAmount * RevenueStructure."Yearly No. of Installment";
+                                        LastInstallmentAmount := TotalCalculatedAmount - RevenueStructure."Final Annual Amount";
+                                        InstallmentAmount2 := InstallmentAmount - LastInstallmentAmount;
+                                        for InstallmentNumber := 1 to RevenueStructure."Yearly No. of Installment" do begin
+                                            InstallmentStructure.SetRange("RS ID", TargetPageID);
+                                            InstallmentStructure.SetRange("Year", TotalYears);
+                                            InstallmentStructure.SetRange("Installment No.", InstallmentNumber);
+                                            if InstallmentStructure.FindFirst() then begin
+                                                if InstallmentNumber = 1 then begin
+                                                    InstallmentStructure.Amount := InstallmentAmount2;
+                                                    InstallmentStructure."Installment Start Date" := RevenueStructure."Period Start Date";
+                                                    InstallmentStructure."Installment End Date" := RevenueStructure."Period Start Date" + ROUND(RevenueStructure."Number of Days" / RevenueStructure."Yearly No. of Installment", 1, '<') - 1;
+                                                end else begin
+                                                    InstallmentStructure.Amount := InstallmentAmount;
+                                                    InstallmentStructure."Installment Start Date" := RevenueStructure."Period Start Date" + (InstallmentNumber - 1) * ROUND(RevenueStructure."Number of Days" / RevenueStructure."Yearly No. of Installment", 1, '<');
+                                                    InstallmentStructure."Installment End Date" := RevenueStructure."Period Start Date" + InstallmentNumber * ROUND(RevenueStructure."Number of Days" / RevenueStructure."Yearly No. of Installment", 1, '<');
+                                                end;
+                                                InstallmentStructure.Modify();
+                                                Message('Date Update Successfully!');
+                                            end else begin
+                                                InstallmentStructure.Init();
+                                                InstallmentStructure."RS ID" := TargetPageID;
+                                                InstallmentStructure."Tenant ID" := RevenueStructure."Tenant ID";
+                                                InstallmentStructure."Contract ID" := RevenueStructure."Contract ID";
+                                                InstallmentStructure."VAT %" := VATPer;
+                                                InstallmentStructure."Secondary Item Type" := RevenueStructure."Secondary Item Type";
+                                                InstallmentStructure."Year" := TotalYears;
+                                                InstallmentStructure."Installment No." := InstallmentNumber;
+                                                if InstallmentNumber = RevenueStructure."Yearly No. of Installment" then
+                                                    InstallmentStructure.Amount := InstallmentAmount2
+                                                else
+                                                    InstallmentStructure.Amount := InstallmentAmount;
+
+                                                if InstallmentStructure."VAT %" = 1 then
+                                                    InstallmentStructure."VAT %" := 5
+                                                else
+                                                    InstallmentStructure."VAT %" := 0;
+                                                InstallmentStructure."VAT Amount" := InstallmentStructure.Amount * (InstallmentStructure."VAT %" / 100);
+                                                InstallmentStructure."Amount Including VAT" := InstallmentStructure.Amount + InstallmentStructure."VAT Amount";
+                                                IF InstallmentNumber = 1 THEN BEGIN
+                                                    InstallmentStructure."Installment Start Date" := RevenueStructure."Period Start Date";
+                                                    InstallmentStructure."Installment End Date" :=
+                                                        RevenueStructure."Period Start Date" +
+                                                        ROUND(RevenueStructure."Number of Days" / RevenueStructure."Yearly No. of Installment", 1, '<') - 1;
+                                                END ELSE BEGIN
+                                                    InstallmentStructure."Installment Start Date" :=
+                                                        RevenueStructure."Period Start Date" +
+                                                        (InstallmentNumber - 1) * ROUND(RevenueStructure."Number of Days" / RevenueStructure."Yearly No. of Installment", 1, '<');
+                                                    InstallmentStructure."Installment End Date" :=
+                                                        RevenueStructure."Period Start Date" +
+                                                        InstallmentNumber * ROUND(RevenueStructure."Number of Days" / RevenueStructure."Yearly No. of Installment", 1, '<') - 1;
+                                                END;
+                                                IF InstallmentNumber = RevenueStructure."Yearly No. of Installment" THEN
+                                                    InstallmentStructure."Installment End Date" := RevenueStructure."Period End Date";
+                                                InstallmentStructure."Due Date" := InstallmentStructure."Installment Start Date";
+                                                InstallmentStructure.Insert();
+                                            end;
+                                            TargetRecord.SetRange("Contract ID", Rec."Contract ID");
+                                            TargetRecord.SetRange("RS ID", RevenueStructure."RS ID");
+                                            TargetRecord.SetRange("Secondary Item Type", RevenueStructure."Secondary Item Type");
+                                            if TargetRecord.FindSet() then
+                                                repeat
+                                                    Installment := TargetRecord."Number of Installments";
+                                                    TargetRecord."Number of Installments" := Installment;
+                                                    TargetRecord.Modify();
+                                                until TargetRecord.Next() = 0
+                                            else begin
+                                                TargetRecord.Init();
+                                                TargetRecord."Contract ID" := RevenueStructure."Contract ID";
+                                                TargetRecord."RS ID" := RevenueStructure."RS ID";
+                                                TargetRecord."Secondary Item Type" := RevenueStructure."Secondary Item Type";
+                                                TargetRecord."Number of Installments" := Installment;
+                                                TargetRecord.Insert();
+                                                Clear(TargetRecord);
+                                            end;
+                                            Clear(InstallmentStructure);
+                                        end;
+                                    until RevenueStructure.Next() = 0;
+                                    Message('Date Create Successfully!');
+                                end else
+                                    Error('No records found in the Revenue Structure.');
+                            end
+                    end;
+                }
+            }
+        }
+    }
+    procedure SetContractID(pContractID: Integer)
+    begin
+        ContractID := pContractID;
+    end;
+
+    procedure SetProposalID(pProposalID: Integer)
+    begin
+
+    end;
+
+    procedure SetTenantID(pTenantID: Code[20])
+    begin
+        tenantID := pTenantID;
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        Rec."Contract ID" := ContractID;
+        Rec."Tenant ID" := tenantID;
+    end;
+
+    var
+        ContractID: Integer;
+
+        tenantID: Code[20];
+}

@@ -1,0 +1,754 @@
+page 50928 "Payment Mode Card2"
+{
+    PageType = ListPart;
+    SourceTable = "Payment Mode2";
+    ApplicationArea = All;
+    Caption = 'Payment Details';
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Group)
+            {
+                field("Payment Series"; Rec."Payment Series")
+                {
+                    ApplicationArea = All;
+                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'The Payment Series is a unique identifier for the payment mode.';
+                }
+
+                field("Amount"; Rec."Amount")
+                {
+                    ApplicationArea = All;
+                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'The Amount is the total amount for the payment mode.';
+                }
+
+
+                field("VAT Amount"; Rec."VAT Amount")
+                {
+                    ApplicationArea = All;
+                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'The VAT Amount is the value-added tax applied to the payment mode.';
+                }
+
+
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'The Amount Including VAT is the total amount after adding VAT.';
+                }
+
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved;  // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'The Due Date is the date by which the payment should be made.';
+                }
+
+                field("Payment Mode"; Rec."Payment Mode")
+                {
+                    ApplicationArea = All;
+                    Lookup = true;
+                    Editable = IsApproved AND (Rec."Payment Status" <> Rec."Payment Status"::Cancelled); // Makes the field editable unless Payment Status is "Cancelled"
+                    ToolTip = 'The Payment Mode indicates the method of payment, such as Cash, Cheque, or Bank Transfer.';
+                }
+
+                field("Cheque Number"; Rec."Cheque Number")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved AND (Rec."Payment Mode" = 'Cheque') and (Rec."Payment Status" <> Rec."Payment Status"::Cancelled);  // The ID is not editable since it's auto-incrementing
+                                                                                                                                              //Editable = (Rec."Payment Mode" = 'Cheque'); // Editable only if Payment Mode is 'Cheque'
+                                                                                                                                              //Editable = not ((Rec."Payment Mode" = 'Cheque') and (Rec."Payment Status" = Rec."Payment Status"::Cancelled));
+                    ToolTip = 'The Cheque Number is the unique identifier for the cheque payment.';
+
+                }
+
+                field("Deposit Bank"; Rec."Deposit Bank")
+                {
+                    ApplicationArea = All;
+                    Lookup = true;
+                    Editable = IsApproved AND (Rec."Payment Mode" <> 'Cash');
+                    ToolTip = 'The Deposit Bank indicates the bank where the payment is being made.';
+                }
+
+                field("Deposit Status"; Rec."Deposit Status")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'The Deposit Status indicates the status of the deposit.';
+                }
+
+                field("Payment Status"; Rec."Payment Status")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved;
+                    ToolTip = 'The Payment Status indicates the current status of the payment, such as Due, Overdue, or Paid.';
+
+                }
+
+                field("Cheque Status"; Rec."Cheque Status")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved;
+                    ToolTip = 'The Cheque Status indicates the status of the cheque payment, such as Cheque Received or Cheque Cleared.';
+                }
+
+                field("Invoice #"; Rec."Invoice #")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved AND (Rec."Payment Status" <> Rec."Payment Status"::Cancelled); // Makes the field editable unless Payment Status is "Cancelled"
+                    ToolTip = 'The Invoice # is the unique identifier for the invoice associated with the payment.';
+                }
+
+                field("Receipt #"; Rec."Receipt #")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved AND (Rec."Payment Status" <> Rec."Payment Status"::Cancelled); // Makes the field editable unless Payment Status is "Cancelled"
+                    ToolTip = 'The Receipt # is the unique identifier for the receipt associated with the payment.';
+                }
+
+                field("Old Cheque #"; Rec."Old Cheque #")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved AND (Rec."Payment Mode" = 'Cheque') and (Rec."Payment Status" <> Rec."Payment Status"::Cancelled);
+                    ToolTip = 'The Old Cheque # is the previous cheque number if the payment mode was changed from Cheque to another mode.';
+
+                    trigger OnValidate()
+                    begin
+                        if Rec."Payment Mode" <> 'Cheque' then
+                            Error('Cheque number can only be entered when Payment Mode is set to Cheque.');
+                    end;
+
+                }
+
+                field("Upload Cheque"; Rec."Upload Cheque")
+                {
+                    ApplicationArea = All;
+                    DrillDown = true;
+                    Editable = false;
+                    ToolTip = 'The Upload Cheque field allows you to upload a cheque document for the payment mode.';
+
+                    trigger OnDrillDown()
+                    var
+                        azureBlobUploader: Codeunit "Azure AD Blob Storage";
+                        fileName: Text;
+                        uploadResult: Text;
+                        folderName: Text;
+                    begin
+
+                        if Rec."Payment Status" = Rec."Payment Status"::Cancelled then begin
+                            Message('Upload Cheque cannot be accessed because Payment Status is Cancelled');
+                            exit; // Stop execution here
+                        end;
+                        // Check if the Payment Mode is 'Cheque'
+                        if Rec."Payment Mode" <> 'Cheque' then
+                            Error('Cheque upload is only allowed when Payment Mode is "Cheque".');
+
+                        folderName := 'PropertyDocuments';
+                        fileName := azureBlobUploader.ValidateDocument(uploadResult, folderName);
+                        if fileName <> '' then begin
+                            Rec."Upload Cheque" := CopyStr(fileName, 1, StrLen(fileName));
+                            Rec."View Document URL" := CopyStr(uploadResult, 1, StrLen(uploadResult));
+                            Rec.Modify();
+                            Message('File uploaded successfully: %1', fileName);
+                        end;
+                    end;
+                }
+
+                field("View"; Rec."View")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    DrillDown = true;
+                    ToolTip = 'The View field allows you to view the uploaded cheque document.';
+
+                    trigger OnValidate()
+                    begin
+                        if Rec."Payment Mode" <> 'Cheque' then
+                            Error('Cheque number can only be entered when Payment Mode is set to Cheque.');
+                    end;
+
+                    trigger OnDrillDown()
+                    var
+                        FileURL: Text;
+                    begin
+
+                        if Rec."Payment Status" = Rec."Payment Status"::Cancelled then begin
+                            Message('View cannot be accessed because Payment Status is Cancelled');
+                            exit; // Stop execution here
+                        end;
+                        // Check if the Payment Mode is 'Cheque'
+                        if Rec."Payment Mode" <> 'Cheque' then
+                            Error('Cheque upload is only allowed when Payment Mode is "Cheque".');
+
+                        // Get the URL of the uploaded document
+                        FileURL := Rec."View Document URL";
+
+                        // Check if the file URL is not empty
+                        if FileURL = '' then
+                            Error('No document is available to view.');
+
+                        // Open the file URL in the browser (new tab)
+                        OpenFileInBrowser(FileURL);
+
+                    end;
+                }
+
+                field("View Revenue Details"; Rec."View Revenue Details")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    DrillDown = true;
+                    ToolTip = 'The View Revenue Details field allows you to view the revenue details associated with the payment mode.';
+
+                    trigger OnDrillDown()
+                    var
+
+                        PaymentScheduleRec: Record "Payment Schedule2";
+                        FilteredSchedulePage: Page "Payment Schedule Card2"; // Replace with your actual page name
+                    begin
+                        if Rec."Payment Status" = Rec."Payment Status"::Cancelled then begin
+                            Message('View Revenue Details cannot be accessed because Payment Status is Cancelled');
+                            exit; // Stop execution here
+                        end;
+                        PaymentScheduleRec.SetRange("Contract ID", Rec."Contract ID");
+                        // PaymentScheduleRec.SetRange("Proposal ID", Rec."Proposal ID");
+                        PaymentScheduleRec.SetRange("Tenant ID", Rec."Tenant ID");
+                        PaymentScheduleRec.SetRange("Due Date", Rec."Due Date");
+                        PaymentScheduleRec.SetRange("Payment Series", Rec."Payment Series");
+
+                        // Hide other data and show the filtered records
+                        if PaymentScheduleRec.FindFirst() then
+                            FilteredSchedulePage.SetTableView(PaymentScheduleRec);
+
+                        // Open the filtered page
+                        PAGE.Run(PAGE::"Payment Schedule Card2", PaymentScheduleRec);
+
+                    end;
+
+                }
+
+                field("Tenant ID"; Rec."Tenant ID")
+                {
+                    ApplicationArea = All;
+                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    Visible = false;
+                    ToolTip = 'The Tenant ID is the unique identifier for the tenant associated with the payment mode.';
+                }
+
+                field("Contract ID"; Rec."Contract ID")
+                {
+                    ApplicationArea = All;
+                    Editable = false;// The ID is not editable since it's auto-incrementing
+                    Visible = false;
+                    ToolTip = 'The Contract ID is the unique identifier for the contract associated with the payment mode.';
+                }
+
+                field("ID"; Rec."ID")
+                {
+                    ApplicationArea = All;
+                    Editable = false;// The ID is not editable since it's auto-incrementing
+                    Visible = false;
+                    ToolTip = 'The ID is the unique identifier for the payment mode.';
+                }
+
+                field("Approval Status"; Rec."Approval Status")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved AND IsFinanceManager;
+                    ToolTip = 'The Approval Status indicates the approval status of the payment mode, such as Approved, Pending, or Declined.';
+                }
+                field(Reason; Rec.Reason)
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved;
+                    ToolTip = 'The Reason field allows you to provide a reason for the approval or decline of the payment mode.';
+                }
+                field(IsUpdated; Rec.IsUpdated)
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved;
+                    Visible = false;
+                    ToolTip = 'The IsUpdated field indicates whether the payment mode has been updated.';
+                }
+                field("Approve/Decline Status"; Rec."Approve/Decline Status")
+                {
+                    ApplicationArea = All;
+                    Editable = IsApproved;
+                    Visible = false;
+                    ToolTip = 'The Approve/Decline Status indicates the status of the approval or decline action for the payment mode.';
+                }
+
+                field("Tenant Name"; Rec."Tenant Name")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    Visible = false;
+                    ToolTip = 'The Tenant Name is the name of the tenant associated with the payment mode.';
+                }
+
+                field("Tenant Email"; Rec."Tenant Email")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    Visible = false;
+                    ToolTip = 'The Tenant Email is the email address of the tenant associated with the payment mode.';
+                }
+
+                field("Payment Received Date"; Rec."Payment Received Date")
+                {
+                    Caption = 'Payment Received Date';
+                    Editable = false;
+                    ToolTip = 'The Payment Received Date indicates the date when the payment was received.';
+                }
+
+                field("View Invoice"; Rec."View Invoice")
+                {
+                    ApplicationArea = All;
+                    Caption = 'View Receipt Document';
+                    ToolTip = 'The View Receipt Document field allows you to view the receipt document associated with the payment mode.';
+                    DrillDown = true;
+                    trigger OnDrillDown()
+                    var
+                        FileURL: Text;
+                    begin
+
+                        FileURL := Rec."View Reciept document URL";
+
+                        if FileURL = '' then
+                            Error('No document is available to view.');
+
+                        OpenFileInBrowser1(FileURL);
+                    end;
+
+                }
+                field("View Reciept document URL"; Rec."View Reciept document URL")
+                {
+                    ApplicationArea = All;
+                    Caption = 'View Reciept document URL';
+                    ToolTip = 'The View Receipt Document URL field contains the URL of the receipt document associated with the payment mode.';
+                }
+                field("Payment Reminder"; rec."Payment Reminder")
+                {
+                    ApplicationArea = All;
+                    Editable = true;
+                    Visible = false;
+                    ToolTip = 'The Payment Reminder field allows you to set a reminder for the payment mode.';
+                }
+
+                field("Credit Note Amount"; Rec."Credit Note Amount")
+                {
+                    ApplicationArea = All;
+                    Caption = '"Credit Note Amount"';
+                    ToolTip = 'The Credit Note Amount is the amount of credit note applied to the payment mode.';
+                }
+
+                field("Final Rent Amount"; Rec."Final Rent Amount")
+                {
+                    ApplicationArea = All;
+                    Caption = '"Final Rent Amount"';
+                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'The Final Rent Amount is the total rent amount after applying any credit notes.';
+                }
+                field("Credit Note No."; Rec."Credit Note No.")
+                {
+                    ApplicationArea = All;
+                    Caption = '"Credit Note No."';
+                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    ToolTip = 'The Credit Note No. is the unique identifier for the credit note applied to the payment mode.';
+                }
+                field(FinalRentAmountIncludingVAT; Rec.FinalRentAmountIncludingVAT)
+                {
+                    ApplicationArea = All;
+                    Caption = '"Final Rent Amount Including VAT"';
+                    Editable = false;
+                    ToolTip = 'The Final Rent Amount Including VAT is the total rent amount after applying any credit notes and adding VAT.';
+                }
+            }
+
+            group(TotalAmountCalculation)
+            {
+                field("Total Amount"; Rec."Total Amount")
+                {
+                    Caption = 'Total Amount';
+                    Editable = false;
+                    ToolTip = 'The Total Amount is the total amount for the payment mode, including any adjustments.';
+                }
+                field("Total VAT Amount"; Rec."Total VAT Amount")
+                {
+                    Caption = 'Total VAT Amount';
+                    Editable = false;
+                    ToolTip = 'The Total VAT Amount is the total value-added tax applied to the payment mode.';
+                }
+                field("Total Amount Including VAT"; Rec."Total Amount Including VAT")
+                {
+                    Caption = 'Total Amount Including VAT';
+                    Editable = false;
+                    ToolTip = 'The Total Amount Including VAT is the total amount for the payment mode, including any adjustments and value-added tax.';
+                }
+
+            }
+        }
+    }
+
+    actions
+    {
+        area(processing)
+        {
+            action(InsertData)
+            {
+                ToolTip = 'Insert Data';
+                ApplicationArea = All;
+                Caption = 'Insert Data';
+                Image = NewDocument;
+                Visible = IsLeaseManager AND IsApproved;
+
+                trigger OnAction()
+                var
+
+                    PaymentModeRec: Record "Payment Mode2";
+                    PrePDCTransRec: Record "PDC Transaction";
+                    PDCTransRec: Record "PDC Transaction";
+                    paymentRec: Record "Payment Mode";
+                    approvalflow: Codeunit 50510;
+                    Isupdate: Boolean;
+                begin
+                    Isupdate := false;
+
+                    // Update Approval Status in the grid
+                    PaymentModeRec.SetRange("Contract ID", Rec."Contract ID"); // Filter by Contract ID
+                    if PaymentModeRec.FindSet() then
+                        repeat
+                            PaymentModeRec."Approval Status" := PaymentModeRec."Approval Status"::Pending; // Set Approval Status to Pending
+
+                            PaymentModeRec.Modify();
+                        until PaymentModeRec.Next() = 0;
+
+                    paymentRec.SetRange("Contract ID", Rec."Contract ID");
+                    paymentRec.SetRange("Tenant Id", Rec."Tenant Id");
+                    if paymentRec.FindSet() then begin
+                        paymentRec."Approval Status" := paymentRec."Approval Status"::Pending;
+                        paymentRec."On-hold" := paymentRec."On-hold"::"True";
+                        paymentRec.Modify();
+                    end;
+
+                    // Insert records into PDC Transaction for Payment Modes with "Cheque"
+                    PaymentModeRec.SetRange("Contract ID", Rec."Contract ID"); // Filter by Contract ID
+                    PaymentModeRec.SetRange("Tenant Id", Rec."Tenant Id"); // Filter by Tenant ID
+                    PaymentModeRec.SetRange("Payment Mode", 'Cheque'); // Filter by Payment Mode = Cheque
+
+                    if PaymentModeRec.FindSet() then begin
+                        repeat
+                            //  **Validation: Check if Cheque Number is blank**
+                            if DelChr(PaymentModeRec."Cheque Number", '=', ' ') = '' then
+                                Error('Cheque Number cannot be blank when Payment Mode is Cheque.');
+                            // Check for duplicate PDC Transaction record
+                            PrePDCTransRec.SetRange("Tenant Id", PaymentModeRec."Tenant Id");
+                            PrePDCTransRec.SetRange("Contract ID", PaymentModeRec."Contract ID");
+                            PrePDCTransRec.SetRange("payment Series", PaymentModeRec."Payment Series");
+
+                            if not PrePDCTransRec.FindFirst() then begin
+                                // Insert record into PDC Transaction
+                                PDCTransRec.Init();
+                                PDCTransRec."Cheque Number" := PaymentModeRec."Cheque Number";
+                                PDCTransRec."Bank Name" := PaymentModeRec."Deposit Bank";
+                                PDCTransRec."Cheque Date" := PaymentModeRec."Due Date";
+                                PDCTransRec.Amount := PaymentModeRec."Amount Including VAT";
+                                PDCTransRec."Tenant Id" := PaymentModeRec."Tenant Id";
+                                PDCTransRec."Contract ID" := PaymentModeRec."Contract ID";
+                                PDCTransRec."Cheque Status" := PDCTransRec."Cheque Status"::"Cheque Received";
+                                PDCTransRec."Approval Status" := PDCTransRec."Approval Status"::Pending;
+                                PDCTransRec."View Document URL" := PaymentModeRec."View Document URL";
+                                PDCTransRec."payment Series" := PaymentModeRec."Payment Series";
+                                PDCTransRec.Insert(true);
+                                Clear(PDCTransRec);
+                            end;
+
+                        until PaymentModeRec.Next() = 0;
+                        // CreateChequeEntry();
+                        Message('PDC Transaction records successfully created for Cheque payment modes.');
+                    end else
+                        Message('No payment modes with "Cheque" found for the given Contract ID and Tenant ID.');
+
+                    approvalflow.SendPaymentModeApprovalToFinanceManger(Format(Rec."Contract ID"), Rec."Tenant Id", Rec."Contract ID", Isupdate);
+
+                end;
+            }
+
+            action(UpdateData)
+            {
+                ApplicationArea = All;
+                Caption = 'Update Data';
+                Image = NewDocument;
+                Visible = IsLeaseManager;
+                ToolTip = 'Update Data';
+
+                trigger OnAction()
+                var
+                    PDCTransRec: Record "PDC Transaction";
+                    PrePDCTransRec: Record "PDC Transaction";
+                    PaymentModeRec: Record "Payment Mode2";
+                    approvalflow: Codeunit 50510;
+                    Isupdate: Boolean;
+                    approvalEnum: Enum "Approval Status Enum";
+                begin
+                    Isupdate := true;
+                    approvalflow.SendPaymentModeApprovalToFinanceManger(Format(Rec."Contract ID"), Rec."Tenant Id", Rec."Contract ID", Isupdate);
+
+                    PaymentModeRec.Reset();
+                    PaymentModeRec.SetRange("Approval Status", approvalEnum::Pending);
+                    if PaymentModeRec.FindSet() then begin
+                        repeat
+                            PaymentModeRec."Approval Status" := approvalEnum::Pending;
+                            PaymentModeRec.Modify();
+                        until PaymentModeRec.Next() = 0;
+                        Message('Approval Status updated successfully.');
+                    end;
+
+                    PaymentModeRec.Reset();
+                    PaymentModeRec.SetRange("Contract ID", Rec."Contract ID");
+                    PaymentModeRec.SetRange("Tenant Id", Rec."Tenant Id");
+                    PaymentModeRec.SetRange("Payment Mode", 'Cheque');
+
+                    if PaymentModeRec.FindSet() then begin
+                        repeat
+                            PrePDCTransRec.SetRange("Tenant Id", PaymentModeRec."Tenant Id");
+                            PrePDCTransRec.SetRange("Contract ID", PaymentModeRec."Contract ID");
+                            PrePDCTransRec.SetRange("payment Series", PaymentModeRec."Payment Series");
+
+                            if not PrePDCTransRec.FindFirst() then begin
+                                PDCTransRec.Init();
+                                PDCTransRec."Cheque Number" := PaymentModeRec."Cheque Number";
+                                PDCTransRec."Bank Name" := PaymentModeRec."Deposit Bank";
+                                PDCTransRec."Cheque Date" := PaymentModeRec."Due Date";
+                                PDCTransRec.Amount := PaymentModeRec."Amount Including VAT";
+                                PDCTransRec."Tenant Id" := PaymentModeRec."Tenant Id";
+                                PDCTransRec."Contract ID" := PaymentModeRec."Contract ID";
+                                PDCTransRec."Cheque Status" := PaymentModeRec."Cheque Status";
+                                PDCTransRec."Approval Status" := PaymentModeRec."Approval Status";
+                                PDCTransRec."View Document URL" := PaymentModeRec."View Document URL";
+                                PDCTransRec."payment Series" := PaymentModeRec."Payment Series";
+                                PDCTransRec.Insert(true);
+                                Clear(PDCTransRec);
+                            end;
+                        until PaymentModeRec.Next() = 0;
+                        Message('PDC Transaction Updated successfully.');
+                    end
+                    else
+                        Message('No new cheque payments found.');
+                end;
+            }
+        }
+    }
+
+
+
+    trigger OnAfterGetRecord()
+    var
+        paymentschedul2grid: Record "Payment Schedule2";
+        paymentTypeRec: Record "Payment Type";
+        paymentschedulegrid1: Record "Payment Schedule2"; // Record variable for Payment Type
+    begin
+        IsApproved := (Rec."Approval Status" <> Rec."Approval Status"::Approved);
+        // If the field is blank, assign '-'
+        if Rec."Cheque Number" = '' then
+            Rec."Cheque Number" := '-';
+
+        if Rec."Old Cheque #" = '' then
+            Rec."Old Cheque #" := '-';
+
+        if Rec."Receipt #" = '' then
+            Rec."Receipt #" := '-';
+
+        if Rec."Invoice #" = '' then
+            Rec."Invoice #" := '-';
+
+
+        if Rec."Payment mode" = '' then
+            if paymentTypeRec.FindFirst() then
+                Rec."Payment mode" := paymentTypeRec."Payment Method"; // Set the first Payment Method as default
+
+
+        paymentschedul2grid.SetRange("Contract ID", Rec."Contract ID");
+        paymentschedul2grid.SetRange("Payment Series", Rec."Payment Series");
+        paymentschedul2grid.SetRange(Invoiced, true);
+        if paymentschedul2grid.FindSet() then
+            repeat
+                Rec."Invoice #" := paymentschedul2grid."Invoice ID";
+                Rec.Modify();
+            until paymentschedul2grid.Next() = 0;
+
+        Rec."Final Rent Amount" := Rec."Amount" - Rec."Credit Note Amount";
+        Rec.FinalRentAmountIncludingVAT := 0;
+        paymentschedulegrid1.SetRange("Contract ID", Rec."Contract ID");
+        paymentschedulegrid1.SetRange("Payment Series", Rec."Payment Series");
+        if paymentschedulegrid1.FindSet() then
+            repeat
+                Rec.FinalRentAmountIncludingVAT += paymentschedulegrid1."Final RentAmountIncludingVAT";
+            until paymentschedulegrid1.Next() = 0;
+        Rec.Modify();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        paymentschedul2grid: Record "Payment Schedule2";
+    begin
+        paymentschedul2grid.SetRange("Contract ID", Rec."Contract ID");
+        paymentschedul2grid.SetRange("Payment Series", Rec."Payment Series");
+        paymentschedul2grid.SetRange(Invoiced, true);
+        if paymentschedul2grid.FindSet() then
+            repeat
+                Rec."Invoice #" := paymentschedul2grid."Invoice ID";
+                Rec.Modify();
+            until paymentschedul2grid.Next() = 0;
+    end;
+
+    procedure SetProposalID(pProposalID: Integer)
+    begin
+
+    end;
+
+    procedure SetTenantID(pTenantID: Code[20])
+    begin
+        tenantID := pTenantID;
+
+    end;
+
+    procedure SetContractID(pContractID: Integer)
+    begin
+        ContractID := pContractID;
+
+    end;
+
+    procedure OpenFileInBrowser(URL: Text)
+    begin
+        // Use the Hyperlink method to open the file in the browser
+        if URL <> '' then
+            Hyperlink(URL)
+        else
+            Error('The file URL is invalid.');
+    end;
+
+
+    procedure OpenFileInBrowser1(URL: Text)
+    begin
+        // Use the Hyperlink method to open the file in the browser
+        if URL <> '' then
+            Hyperlink(URL)
+        else
+            Error('The file URL is invalid.');
+    end;
+
+    procedure SetDetails(pTenantName: Text[100]; pTenantEmail: Text[80])
+    begin
+        tenantName := pTenantName;
+        tenantEmail := pTenantEmail;
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+
+        Rec."Tenant ID" := tenantID;
+        Rec."Contract ID" := ContractID;
+        Rec."Tenant Name" := tenantName;
+        Rec."Tenant Email" := tenantEmail;
+
+    end;
+
+    var
+        tenantID: Code[20];
+        tenantName: Text[100];
+        tenantEmail: Text[80];
+        ContractID: Integer;
+        IsApproved: Boolean;
+        IsLeaseManager: Boolean;
+        IsFinanceManager: Boolean;
+
+    trigger OnOpenPage()
+    var
+        PermissionSet: Record "User Personalization";
+
+    begin
+        // Check if the current user has the 'LEASE_MANAGER' permission set
+        IsLeaseManager := false;
+        IsFinanceManager := false;
+        PermissionSet.SetRange("User ID", UserId());
+
+        if PermissionSet.FindFirst() then begin
+            if PermissionSet."Profile ID" = 'LEASE_MANAGER' then
+                IsLeaseManager := true;
+            if PermissionSet."Profile ID" = 'FINANCE MANAGER' then
+                IsFinanceManager := true;
+        end;
+
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        IsApproved := (Rec."Approval Status" <> Rec."Approval Status"::Approved);
+    end;
+
+    procedure CreateChequeEntry()
+    var
+
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        GenJournalAccountType: Enum "Gen. Journal Account Type";
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+        ChequeStatus: Enum "PDC Status Type Enum";
+        NextEntryNo: Integer;
+    begin
+        // Filter all records with Cheque Status = 'Cheque Received'
+        Rec.SetRange("Cheque Status", ChequeStatus::"Cheque Received");
+
+        if Rec.FindSet() then
+            repeat
+                // Get next line number for journal
+                GenJournalLine.Reset();
+                GenJournalLine.SetRange("Journal Template Name", 'CASH RECE');
+                GenJournalLine.SetRange("Journal Batch Name", 'DEFAULT');
+
+                if GenJournalLine.FindLast() then
+                    NextEntryNo := GenJournalLine."Line No." + 1
+                else
+                    NextEntryNo := 1;
+
+                Clear(GenJournalLine);
+                GenJournalLine.Init();
+                GenJournalLine."Journal Template Name" := 'CASH RECE';
+                GenJournalLine."Journal Batch Name" := 'DEFAULT';
+                GenJournalLine."Line No." := NextEntryNo;
+                GenJournalLine."Posting Date" := Today;
+                GenJournalLine."Document Type" := GenJournalDocumentType::Payment;
+                GenJournalLine."Document No." := CopyStr(Rec."Cheque Number", 1, StrLen(Rec."Cheque Number"));
+                GenJournalLine."Account Type" := GenJournalAccountType::Customer;
+                GenJournalLine."Account No." := Rec."Tenant Id";
+                GenJournalLine."Description" := Rec."Tenant Name";
+                GenJournalLine.Amount := -Rec."Amount Including VAT";
+                GenJournalLine."Amount (LCY)" := GenJournalLine.Amount;
+                GenJournalLine."Bal. Account Type" := GenJournalAccountType::"G/L Account";
+                GenJournalLine."Bal. Account No." := '2001';
+                GenJournalLine.Insert(true);
+
+                // Optional: Post line
+                GenJnlPostLine.RunWithCheck(GenJournalLine);
+            until Rec.Next() = 0;
+
+        // Optional: Delete all posted lines in the batch
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Template Name", 'CASH RECE');
+        GenJournalLine.SetRange("Journal Batch Name", 'DEFAULT');
+        if GenJournalLine.FindSet() then
+            GenJournalLine.DeleteAll();
+
+        Message('Cash Receipt journal entries created successfully for all cheques received.');
+        Rec.SetRange("Cheque Status");
+
+        // Refresh the page so all records are visible again
+        CurrPage.Update(false);
+    end;
+
+}
