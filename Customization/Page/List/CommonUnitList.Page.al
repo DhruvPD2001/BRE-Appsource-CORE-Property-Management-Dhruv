@@ -1,18 +1,14 @@
-page 50104 "Selected Unit List"
+page 50106 "Common Unit List"
 {
     PageType = List;
-    SourceTable = Item;
+    SourceTable = item;
     ApplicationArea = All;
-    Caption = 'Selected Unit List';
+    Caption = 'Common Unit List';
     UsageCategory = Lists;
-    // CardPageId = 30;
-
-    SourceTableView = where("Unit Status" = const(Selected));
-
+    SourceTableView = where("Usage Type" = const('Common'));
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = false;
-
     layout
     {
         area(content)
@@ -23,75 +19,48 @@ page 50104 "Selected Unit List"
                 {
                     ApplicationArea = All;
                     Caption = 'No.';
+                    ToolTip = 'Specifies the unique number of the unit.';
                 }
                 field("Property Name"; Rec."Property Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Property Name';
+                    ToolTip = 'Specifies the name of the property where the unit is located.';
                 }
                 field(UnitID; Rec.UnitID)
                 {
                     ApplicationArea = All;
                     Caption = 'Unit ID';
+                    ToolTip = 'Specifies the unique identifier for the unit.';
                 }
                 field("Unit Name"; Rec."Unit Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Unit Name';
+                    ToolTip = 'Specifies the name assigned to the unit.';
                 }
                 field("Unit Number"; Rec."Unit Number")
                 {
                     ApplicationArea = All;
                     Caption = 'Unit Number';
+                    ToolTip = 'Specifies the number assigned to the unit.';
                 }
                 field("Floor Number"; Rec."Floor Number")
                 {
                     ApplicationArea = All;
                     Caption = 'Floor Number';
+                    ToolTip = 'Specifies the floor on which the unit is located.';
                 }
                 field("Usage Type"; Rec."Usage Type")
                 {
                     ApplicationArea = All;
-                }
-                field(Status; Rec."Unit Status")
-                {
-                    ApplicationArea = All;
+                    ToolTip = 'Specifies the usage type of the unit (e.g., Common, Residential, Commercial).';
                 }
             }
         }
     }
-
-    // trigger OnOpenPage();
-    // begin
-    //     Rec.SetRange("Unit Status", 'Selected'); // Filter for only vacant properties
-    // end;
-
-
     trigger OnOpenPage();
     begin
-        Rec.SetRange("Unit Status", Rec."Unit Status"::Selected); // ✅ Filters for "Selected" units
+        Rec.SetRange("Usage Type", 'Common');
     end;
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
