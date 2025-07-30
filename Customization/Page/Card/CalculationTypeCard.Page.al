@@ -1,10 +1,10 @@
-page 50955 "Vendor Category Card"
+page 50959 "Calculation Type Card"
 {
     PageType = Card;
-    SourceTable = "Vendor Category";
+    SourceTable = "Calculation Type";
     ApplicationArea = All;
-    Caption = 'Vendor Category Card';
-    // UsageCategory = Administration;
+    Caption = 'Calculation Type Card';
+    UsageCategory = None;
 
     layout
     {
@@ -12,16 +12,17 @@ page 50955 "Vendor Category Card"
         {
             group(Group)
             {
-                Caption = 'Vendor Category Details';
+                Caption = 'Calculation Type Details';
                 field("ID"; Rec."ID")
                 {
+                    ToolTip = 'The unique identifier for the calculation type.';
                     ApplicationArea = All;
                     Editable = false; // The ID is not editable since it's auto-incrementing
                 }
-                field("Vendor Category Type"; Rec."Vendor Category Type")
+                field("Calculation Type"; Rec."Calculation Type")
                 {
                     ApplicationArea = All;
-                    Caption = 'Vendor Category Name';
+                    Caption = 'Calculation Type';
                     ToolTip = 'Enter the Vendor Categoryname.';
                     ShowMandatory = true;
                     NotBlank = true;

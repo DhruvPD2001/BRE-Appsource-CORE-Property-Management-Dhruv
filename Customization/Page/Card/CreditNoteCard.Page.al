@@ -4,8 +4,6 @@ page 50966 "Credit Note Card"
     SourceTable = "Credit Note";
     ApplicationArea = All;
     Caption = 'Credit Note Card';
-    // UsageCategory = Administration;
-
     layout
     {
         area(content)
@@ -19,26 +17,20 @@ page 50966 "Credit Note Card"
                     ToolTip = 'Enter the Credit Note Type.';
                     Editable = false;
                 }
-                // field("TerminationCreditNoteType"; Rec."TerminationCreditNoteType")
-                // {
-                //     ApplicationArea = All;
-                //     Caption = 'Credit Note Type';
-                //     ToolTip = 'Enter the Credit Note Type.';
-                //     Editable = false;
-                //     Visible = ShowTermination;
-                // }
-
                 field("ID"; Rec."ID")
                 {
+                    ToolTip = 'The unique identifier for the credit note.';
                     ApplicationArea = All;
                     Visible = false;
                 }
                 field("Credit Note No."; Rec."Credit Note No.")
                 {
+                    ToolTip = 'The unique number assigned to the credit note.';
                     ApplicationArea = All;
                 }
                 field("FC ID"; Rec."FC ID")
                 {
+                    ToolTip = 'The unique identifier for the final calculation associated with the credit note.';
                     ApplicationArea = All;
                     Editable = false;
                 }
@@ -47,75 +39,64 @@ page 50966 "Credit Note Card"
                     ApplicationArea = All;
                     Lookup = true;
                     TableRelation = "Final Calculation"."Contract ID";
-
-
+                    ToolTip = 'The unique identifier for the contract associated with the credit note.';
                     trigger OnValidate()
                     var
                         finalcalculation: Record "Final Calculation";
                         creditnote: Record "Credit Note";
-
                     begin
                         creditnote.Reset();
                         creditnote.SetRange("Contract ID", Rec."Contract ID");
-                        if creditnote.FindFirst() then
+                        if not creditnote.IsEmpty() then
                             Error('This Contract ID %1 is already used in another record.', Rec."Contract ID");
-
                         finalcalculation.SetRange("Contract ID", Rec."Contract ID");
-                        if finalcalculation.FindSet() then begin
+                        if finalcalculation.FindFirst() then begin
                             Rec."Credit Note Type" := Rec."Credit Note Type"::"Termination Credit Note";
                             Rec."Contract Start Date" := finalcalculation."Contract Start Date";
-                            Rec."Contract End Date" := finalcalculation."Contract End Date"; // Convert Integer to Text
+                            Rec."Contract End Date" := finalcalculation."Contract End Date";
                             Rec."Unit Type" := finalcalculation."Unit Type";
                             Rec."Contract Amount" := finalcalculation."Contract Amount";
                             Rec."Tenant ID" := finalcalculation."Tenant ID";
                             Rec."Tenant Name" := finalcalculation."Tenant Name";
-                            Rec."Tenant Email" := finalcalculation."Tenant Email"; // Convert Integer to Text
+                            Rec."Tenant Email" := finalcalculation."Tenant Email";
                             Rec."FC ID" := finalcalculation."FC ID";
                             BillingCalculationSub();
-
-                        end else begin // Clear the fields if no record is found
+                        end else begin
                             Rec."Credit Note Type" := Rec."Credit Note Type"::"Termination Credit Note";
                             Rec."Contract Start Date" := 0D;
-                            Rec."Contract End Date" := 0D; // Convert Integer to Text
+                            Rec."Contract End Date" := 0D;
                             Rec."Unit Type" := '';
                             Rec."Contract Amount" := 0;
                             Rec."Tenant ID" := '';
                             Rec."Tenant Name" := '';
-                            Rec."Tenant Email" := ''; // Convert Integer to Text
+                            Rec."Tenant Email" := '';
                             Rec."FC ID" := 0;
                         end;
-
                     end;
                 }
-
                 field("Credit Note Document"; Rec."Credit Note Document")
                 {
+                    ToolTip = 'The document associated with the credit note.';
                     ApplicationArea = All;
                     Caption = 'Credit Note Document';
                     DrillDown = true;
                     Editable = false;
-
                     trigger OnDrillDown()
                     var
                         FileURL: Text;
                     begin
-                        // Get the URL of the uploaded document
                         FileURL := Rec."Credit Note URL";
-
-                        // Check if the file URL is not empty
                         if FileURL = '' then
                             Error('No document is available to view.');
-
-                        // Open the file URL in the browser (new tab)
                         OpenFileInBrowser(FileURL);
-
                     end;
                 }
-
                 field("Credit Note URL"; Rec."Credit Note URL")
                 {
+                    ToolTip = 'The URL of the credit note document.';
                     ApplicationArea = All;
                     Editable = false;
+                    Visible = false;
                 }
                 field("Contract Start Date"; Rec."Contract Start Date")
                 {
@@ -147,27 +128,30 @@ page 50966 "Credit Note Card"
                 }
                 field("Status"; Rec."Status")
                 {
+                    ToolTip = 'The status of the credit note.';
                     ApplicationArea = All;
                     Editable = false;
                 }
-
             }
             group("Customer Details")
             {
                 field("Tenant ID"; Rec."Tenant ID")
                 {
+                    ToolTip = 'The unique identifier for the tenant associated with the credit note.';
                     ApplicationArea = All;
                     Caption = 'Tenant ID';
                     Editable = false;
                 }
                 field("Tenant Email"; Rec."Tenant Email")
                 {
+                    ToolTip = 'The email address of the tenant associated with the credit note.';
                     ApplicationArea = All;
                     Caption = 'Tenant Email';
                     Editable = false;
                 }
                 field("Tenant Name"; Rec."Tenant Name")
                 {
+                    ToolTip = 'The name of the tenant associated with the credit note.';
                     ApplicationArea = All;
                     Caption = 'Tenant Name';
                     Editable = false;
@@ -175,6 +159,7 @@ page 50966 "Credit Note Card"
             }
             field("Reason for Rejection"; Rec."Reason for Rejection")
             {
+                ToolTip = 'The reason for rejection of the credit note.';
                 Caption = 'Reason for Rejection';
                 Editable = false;
             }
@@ -182,56 +167,19 @@ page 50966 "Credit Note Card"
             {
                 part("Billing-Calculations"; "Billing Calculation CN Card")
                 {
-                    SubPageLink = "Contract ID" = FIELD("Contract ID"); // Link to filter attachments for this owner only
+                    SubPageLink = "Contract ID" = FIELD("Contract ID");
                     ApplicationArea = All;
-                    // Visible = isVisible;
                 }
-
             }
-            // group("Invoice Details")
-            // {
-            //     // Visible = IsStandardCreditNoteType;
-            //     field("Invoice ID"; Rec."Invoice ID")
-            //     {
-            //         ApplicationArea = All;
-            //         Caption = 'Invoice ID';
-            //     }
-            //     field("Amount"; Rec."Amount")
-            //     {
-            //         ApplicationArea = All;
-            //         Caption = 'Credit Note Amount';
-            //     }
-            // }
-            // group("Credit-Note Details")
-            // {
-            //     // Visible = IsStandardCreditNoteType;
-            //     part("Invoice-CreditNote"; "Invoice-Credit Note Card")
-            //     {
-            //         SubPageLink = "ID" = FIELD("ID"); // Link to filter attachments for this owner only
-            //         ApplicationArea = All;
-            //         // Visible = isVisible;
-            //     }
-            // }
-            // group("Generate Credit-Note Details")
-            // {
-            //     // Visible = IsStandardCreditNoteType;
-            //     part("Final Invoice-CreditNote"; "Filtered Invoice Detail Card")
-            //     {
-            //         SubPageLink = "ID" = FIELD("ID"); // Link to filter attachments for this owner only
-            //         ApplicationArea = All;
-            //         // Visible = isVisible;
-            //     }
-            // }
         }
     }
-
-
     actions
     {
         area(Processing)
         {
             action(CreditNote)
             {
+                ToolTip = 'Create a credit note for the selected contract.';
                 ApplicationArea = All;
                 Caption = 'Credit Note Approval';
                 Image = PostDocument;
@@ -239,8 +187,6 @@ page 50966 "Credit Note Card"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 Enabled = Rec.Status = Rec.Status::Pending;
-
-
                 trigger OnAction()
                 var
                     ApprovalCreditNote: Record "Credit Note Approval";
@@ -248,18 +194,12 @@ page 50966 "Credit Note Card"
                     billingcalculation: Record "Billing Calculation CN";
                     creditnoteamount: Decimal;
                 begin
-                    // Validate required fields
                     if Rec."Contract ID" = 0 then
                         Error('Contract ID must be specified');
-
-                    // Get the actual Credit Note record
                     if not CreditNote.Get(Rec."ID") then
                         Error('Credit Note record not found.');
-
                     ApprovalCreditNote.SetRange("Contract ID", Rec."Contract ID");
-
                     if ApprovalCreditNote.FindSet() then begin
-                        // Modify existing approval record
                         ApprovalCreditNote."ID" := CreditNote."ID";
                         ApprovalCreditNote."FC ID" := CreditNote."FC ID";
                         ApprovalCreditNote."Contract ID" := CreditNote."Contract ID";
@@ -268,22 +208,18 @@ page 50966 "Credit Note Card"
                         ApprovalCreditNote."Contract Start Date" := CreditNote."Contract Start Date";
                         ApprovalCreditNote."Contract End Date" := CreditNote."Contract End Date";
                         ApprovalCreditNote."Tenant Name" := CreditNote."Tenant Name";
-                        ApprovalCreditNote."Credit Note Type" := CreditNote."Credit Note Type";
+                        ApprovalCreditNote."Credit Note Type" := CreditNote."Credit Note Type"::"Termination Credit Note";
                         ApprovalCreditNote.Modify();
-
                         billingcalculation.SetRange("Contract ID", Rec."Contract ID");
                         if billingcalculation.FindSet() then begin
-                            // Modify existing approval record
                             repeat
                                 creditnoteamount += billingcalculation."Amount Including VAT";
                             until billingcalculation.Next() = 0;
-
                             ApprovalCreditNote."Credit Note Amount" := creditnoteamount;
                             ApprovalCreditNote.Modify();
                         end;
                         Message('Approval Request Modified successfully!');
                     end else begin
-                        // Insert new approval record
                         ApprovalCreditNote.Init();
                         ApprovalCreditNote."ID" := CreditNote."ID";
                         ApprovalCreditNote."FC ID" := CreditNote."FC ID";
@@ -293,121 +229,74 @@ page 50966 "Credit Note Card"
                         ApprovalCreditNote."Contract Start Date" := CreditNote."Contract Start Date";
                         ApprovalCreditNote."Contract End Date" := CreditNote."Contract End Date";
                         ApprovalCreditNote."Tenant Name" := CreditNote."Tenant Name";
-                        ApprovalCreditNote."Credit Note Type" := CreditNote."Credit Note Type";
+                        ApprovalCreditNote."Credit Note Type" := CreditNote."Credit Note Type"::"Termination Credit Note";
                         ApprovalCreditNote.Insert(true);
-                        //  Message('Approval Request Sent successfully!');
-
                         billingcalculation.SetRange("Contract ID", Rec."Contract ID");
                         if billingcalculation.FindSet() then begin
-                            // Modify existing approval record
                             repeat
                                 creditnoteamount += billingcalculation."Amount Including VAT";
                             until billingcalculation.Next() = 0;
-
                             ApprovalCreditNote."Credit Note Amount" := creditnoteamount;
                             ApprovalCreditNote.Modify();
                         end;
                         Message('Approval Request Sent successfully!');
                     end;
                 end;
-
             }
-
             action("Create Credit Note")
             {
+                ToolTip = 'Create a credit note document for the selected billing calculation.';
                 Caption = 'Credit Note Document';
                 ApplicationArea = All;
-                Image = NewDocument; // Use an appropriate icon for the action
-                Promoted = true; // Make the action visible in the header
-                PromotedCategory = Process; // Place it in the "Process" category
-                PromotedIsBig = true; // Make it a prominent action
-
+                Image = NewDocument;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
                 trigger OnAction()
                 var
-                    CreditNotetable: Record "Credit Note";
-                    CreditNote: Report "Terminated Credit Note";
                     FinalCalculation: Record "Final Calculation";
-                    // AzureBlobUploader: Codeunit "Azure Blob Management";
                     Billingcalculationgrid: Record "Final Billing Calculation Grid";
-                    InStream: InStream;
-                    FileName: Text;
-                    SASUrlBase: Text;
-                    SASUrlWithFileName: Text;
-                    UploadResult: Text;
-                    TempBlob: Codeunit "Temp Blob";
-                    ValidFormats: List of [Text];
-                    FileExtension: Text[10];
-                    FileSize: Decimal;
-                    ConfigRecord: Record AzureConfiguration;
-                    ReportID: Integer; // Your report ID
-                    RecRef: RecordRef;
-                    FieldRef1: FieldRef;
-                    FieldRef2: FieldRef;
-                    OutStream: OutStream;
-                    documentattachment: Codeunit UploadAttachment;
                     creditmemo: Record "Credit Note";
+                    azureBlobUploader: Codeunit "Azure AD Blob Storage";
+                    TempBlob: Codeunit "Temp Blob";
+                    RecRef: RecordRef;
+                    fileName: Text;
+                    uploadResult: Text;
+                    folderName: Text;
+                    inStream: InStream;
+                    ReportID: Integer;
+                    OutStream: OutStream;
                 begin
-                    // 1. Preview report
-                    // CreditNotetable.SetRange("Contract ID", Rec."Contract ID");
-                    //  CreditNote.SetTableView(CreditNotetable);
-                    //CreditNote.RunModal();
-
-                    if not ConfigRecord.FindFirst() then
-                        Error('Azure configuration is missing. Please set up the SAS URL in the Azure Configuration table.');
-                    ValidFormats.Add('.png');
-                    ValidFormats.Add('.jpg');
-                    ValidFormats.Add('.jpeg');
-
-                    SASUrlBase := ConfigRecord."SAS URL";
-                    FileExtension := '.pdf';
                     ReportID := 50117;
-                    //  RecRef.Open(DATABASE::"Sales Header"); // Open the table reference
-                    // RecRef.GetTable(Rec);
                     creditmemo.Reset();
                     creditmemo.SetRange("Contract ID", Rec."Contract ID");
                     creditmemo.SetRange("FC ID", Rec."FC ID");
-                    // if not Rec.FindFirst() then
-                    //     Error('Sales Credit memo record not found.');
-
-                    // Open the correct record in RecRef
                     RecRef.GetTable(creditmemo);
-                    // RecRef.GetTable(Rec);
+                    RecRef.GetTable(Rec);
                     TempBlob.CreateOutStream(OutStream);
                     Report.SaveAs(ReportID, '', ReportFormat::Pdf, OutStream, RecRef);
-
                     TempBlob.CreateInStream(InStream);
-                    FileName := 'CreditNote' + Format(Rec."ID") + FileExtension;
-                    SASUrlWithFileName := StrSubstNo('%1/%2?%3', CopyStr(SASUrlBase, 1, StrPos(SASUrlBase, '?') - 1), FileName, CopyStr(SASUrlBase, StrPos(SASUrlBase, '?') + 1));
-                    UploadResult := documentattachment.UploadDocumentToBlobStorage(SASUrlWithFileName, FileName, InStream);
-                    Rec."Credit Note Document" := FileName;
-                    Rec."Credit Note URL" := UploadResult;
+                    FileName := 'CreditNote' + Format(Rec."ID") + '.pdf';
+                    folderName := 'Payment Receipt';
+                    uploadResult := azureBlobUploader.UploadDocumentToBlob(inStream, fileName, folderName);
+                    if fileName <> '' then begin
+                        Rec."Credit Note Document" := CopyStr(fileName, 1, StrLen(fileName));
+                        Rec."Credit Note URL" := CopyStr(uploadResult, 1, StrLen(uploadResult));
+                        Rec.Modify();
+                        Message('File uploaded successfully: %1', fileName);
+                    end;
                     Rec.Modify();
-
                     Billingcalculationgrid.SetRange("Contract ID", Rec."Contract ID");
                     if Billingcalculationgrid.FindSet() then begin
-                        Billingcalculationgrid."Credit Note Document" := Rec."Credit Note Document";
-                        Billingcalculationgrid."Credit Note Document URL" := Rec."Credit Note URL";
+                        Billingcalculationgrid."Credit Note Document" := CopyStr(Rec."Credit Note Document", 1, StrLen(Rec."Credit Note Document"));
+                        Billingcalculationgrid."Credit Note Document URL" := CopyStr(Rec."Credit Note URL", 1, StrLen(Rec."Credit Note URL"));
                         Billingcalculationgrid.Modify(true);
                     end else
                         Error('No Final Calculation record found for Contract ID %1', FinalCalculation."Contract ID");
-
                 end;
             }
         }
     }
-
-    // var
-    //     IsStandardCreditNoteType: Boolean;
-
-    // trigger OnAfterGetRecord()
-    // begin
-    //     if Rec."Credit Note Type" = Rec."Credit Note Type"::"Standard Credit Note" then begin
-    //         IsStandardCreditNoteType := true;
-    //     end else begin
-    //         IsStandardCreditNoteType := false;
-    //     end;
-    // end;
-
     trigger OnNewRecord(BelowxRec: Boolean)
     var
         CreditNoteRec: Record "Credit Note";
@@ -418,28 +307,21 @@ page 50966 "Credit Note Card"
                 NextID := CreditNoteRec.ID + 1
             else
                 NextID := 1;
-
             Rec.ID := NextID;
             Rec."Credit Note No." := 'CN_' + CopyStr('00000' + Format(NextID), StrLen('00000' + Format(NextID)) - 4, 5);
         end;
     end;
-
 
     procedure BillingCalculationSub()
     var
         BillingCalculationSubCN: Record "Billing Calculation CN";
         BillingCalculationSubFC: Record "Final Billing Calculation Grid";
     begin
-
-
         BillingCalculationSubCN.SetRange("Contract ID", Rec."Contract ID");
-        if BillingCalculationSubCN.FindSet() then begin
+        if BillingCalculationSubCN.FindSet() then
             BillingCalculationSubCN.DeleteAll();
-        end;
-
-        // TenancyContractLine.Reset();
         BillingCalculationSubFC.SetRange("Contract ID", Rec."Contract ID");
-        if BillingCalculationSubFC.FindSet() then begin
+        if BillingCalculationSubFC.FindSet() then
             repeat
                 if BillingCalculationSubFC."DifferenceAmount" > 0 then begin
                     BillingCalculationSubCN.Init();
@@ -454,8 +336,6 @@ page 50966 "Credit Note Card"
                     Clear(BillingCalculationSubCN);
                 end;
             until BillingCalculationSubFC.Next() = 0;
-        end;
-
     end;
 
     procedure ShowCreditNoteInBillingCalculationGrid()
@@ -465,8 +345,6 @@ page 50966 "Credit Note Card"
         Billingcalculationgrid.SetRange("Contract ID", Rec."Contract ID");
         if Billingcalculationgrid.FindSet() then begin
             Billingcalculationgrid."Credit Note ID" := Rec."Credit Note No.";
-            // Billingcalculationgrid."Credit Note Document" := Rec."Credit Note Document";
-            // Billingcalculationgrid."Credit Note Document URL" := Rec."Credit Note URL";
             Billingcalculationgrid.Modify();
         end;
     end;
@@ -476,18 +354,15 @@ page 50966 "Credit Note Card"
         Billingcalculationgrid: Record "Billing Calculation CN";
     begin
         Billingcalculationgrid.SetRange("Contract ID", Rec."Contract ID");
-        if Billingcalculationgrid.FindSet() then begin
+        if Billingcalculationgrid.FindSet() then
             repeat
                 Billingcalculationgrid."Credit Note ID" := Rec.ID;
                 Billingcalculationgrid.Modify();
             until Billingcalculationgrid.Next() = 0;
-
-        end;
     end;
 
     procedure OpenFileInBrowser(URL: Text)
     begin
-        // Use the Hyperlink method to open the file in the browser
         if URL <> '' then
             Hyperlink(URL)
         else
@@ -501,6 +376,3 @@ page 50966 "Credit Note Card"
         ShowCreditNoteInBillingCalculationSubGrid();
     end;
 }
-
-
-

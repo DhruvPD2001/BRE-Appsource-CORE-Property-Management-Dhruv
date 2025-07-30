@@ -4,8 +4,7 @@ page 50980 "Request Credit Note Card"
     SourceTable = "Request Credit Note";
     ApplicationArea = All;
     Caption = 'Request Credit Note Card';
-    // UsageCategory = Administration;
-
+    UsageCategory = Administration;
     layout
     {
         area(content)
@@ -14,12 +13,14 @@ page 50980 "Request Credit Note Card"
             {
                 field("Request No."; Rec."Request No.")
                 {
+                    ToolTip = 'The unique identifier for the request credit note.';
                     ApplicationArea = All;
                     Caption = 'Request No.';
-                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    Editable = false;
                 }
                 field("Contract ID"; Rec."Contract ID")
                 {
+                    ToolTip = 'The unique identifier for the contract associated with the request credit note.';
                     ApplicationArea = All;
                     Caption = 'Contract ID';
                     TableRelation = "Tenancy Contract";
@@ -34,8 +35,7 @@ page 50980 "Request Credit Note Card"
                             Rec."Customer Name" := TenancyContract."Customer Name";
                             Rec."Payment Frequency" := Format(TenancyContract."Payment Frequency");
                             Rec."Property Name" := TenancyContract."Property Name";
-                            Rec."Property Classification" := TenancyContract."Property Classification";
-
+                            Rec."Property Classification" := COPYSTR(TenancyContract."Property Classification", 1, StrLen(TenancyContract."Property Classification"));
                         end else begin
                             Rec."Tenant No." := '';
                             Rec."Customer Name" := '';
@@ -44,58 +44,60 @@ page 50980 "Request Credit Note Card"
                             Rec."Property Classification" := '';
                         end;
                     end;
-                    // The ID is not editable since it's auto-incrementing
                 }
                 field("Property Name"; Rec."Property Name")
                 {
+                    ToolTip = 'The name of the property associated with the request credit note.';
                     ApplicationArea = All;
                     Caption = 'Property Name';
-                    Editable = false; // The name is not editable
+                    Editable = false;
                 }
                 field("Tenant No."; Rec."Tenant No.")
                 {
+                    ToolTip = 'The unique identifier for the tenant associated with the request credit note.';
                     ApplicationArea = All;
                     Caption = 'Tenant No.';
-                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    Editable = false;
                 }
                 field("Customer Name"; Rec."Customer Name")
                 {
+                    ToolTip = 'The name of the customer associated with the request credit note.';
                     ApplicationArea = All;
                     Caption = 'Tenant Name';
-                    Editable = false; // The name is not editable
+                    Editable = false;
                 }
                 field("Request Date"; Rec."Request Date")
                 {
+                    ToolTip = 'The date when the request credit note was created.';
                     ApplicationArea = All;
                     Caption = 'Request Date';
-                    // The date is not editable
                 }
                 field(Reason; Rec.Reason)
-
                 {
+                    ToolTip = 'The reason for the request credit note.';
                     ApplicationArea = All;
                     Caption = 'Reason';
-                    // Allow editing for the reason
                 }
                 field("Request Source"; Rec."Request Source")
                 {
+                    ToolTip = 'The source of the request credit note.';
                     ApplicationArea = All;
                     Caption = 'Request Source';
-                    // Allow editing for the request source
                 }
                 field(Status; Rec.Status)
                 {
+                    ToolTip = 'The status of the request credit note.';
                     ApplicationArea = All;
                     Caption = 'Status';
                     Editable = IsFinanceManager;
                 }
                 field(Remark; Rec."Reason for Rejection")
                 {
+                    ToolTip = 'The reason for rejection of the request credit note.';
                     ApplicationArea = All;
                     Caption = 'Reason for Rejection';
                     MultiLine = true;
-                    Editable = false; // Allow editing for the remark
-                    // Allow editing for the remark
+                    Editable = false;
                 }
             }
             part("Request Credit Note Lines"; "Request CreditNote Grid")
@@ -106,17 +108,16 @@ page 50980 "Request Credit Note Card"
             }
         }
     }
-
     actions
     {
         area(Processing)
         {
             action("Submit for Approval")
             {
+                toolTip = 'Submit the request credit note for approval.';
                 ApplicationArea = All;
                 Caption = 'Submit for Approval';
                 Visible = CanSubmitForApproval;
-
                 trigger OnAction()
                 var
                     RequestCreditnoteapproval: Codeunit "Approval Request Crdit note ";
@@ -126,35 +127,23 @@ page 50980 "Request Credit Note Card"
                     Dialog.Message('Your request has been submitted successfully.');
                 end;
             }
-
         }
         area(Promoted)
         {
             actionref(submitforapproval; "Submit for Approval")
             {
-
             }
         }
     }
-
-
-
-
-
-
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
     begin
-
         CurrPage."Request Credit Note Lines".Page.SetContractID(Rec."Contract ID");
     end;
-
-
 
     trigger OnAfterGetRecord()
     var
     begin
-
         CurrPage."Request Credit Note Lines".Page.SetContractID(Rec."Contract ID");
         IsFinanceManager := CheckUserRole();
         CanSubmitForApproval := (Rec.Status in [Rec.Status::" ", Rec.Status::Rejected]);
@@ -170,19 +159,17 @@ page 50980 "Request Credit Note Card"
     var
         UserPersonalization: Record "User Personalization";
     begin
-        if UserPersonalization.Get(UserSecurityId()) then begin
+        if UserPersonalization.Get(UserSecurityId()) then
             case UserPersonalization."Profile ID" of
                 'FINANCE MANAGER':
-                    exit(true);  // Only property managers can approve/reject
+                    exit(true);
                 else
                     exit(false);
             end;
-        end;
         exit(false);
     end;
 
     var
         CanSubmitForApproval: Boolean;
         IsFinanceManager: Boolean;
-
 }
