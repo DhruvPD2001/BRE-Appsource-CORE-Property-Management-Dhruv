@@ -167,12 +167,6 @@ page 50335 "Contract Renewal Card"
                     Caption = 'Unit Category';
                     Editable = false;
                     ToolTip = 'Specifies the unique identifier for the unit.';
-
-                    trigger OnValidate()
-                    begin
-                        UpdateUnitEnableState();
-                    end;
-
                 }
                 field("Unit Name"; rec."Unit Name")
                 {
@@ -745,11 +739,6 @@ page 50335 "Contract Renewal Card"
         }
     }
 
-
-    var
-        EnableSingleUnit: Boolean;
-        EnableMergeUnit: Boolean;
-
     // Update the enable logic based on "Proposal Type Selected"
     trigger OnAfterGetRecord()
     begin
@@ -780,28 +769,6 @@ page 50335 "Contract Renewal Card"
         CurrPage."ContractRenewal".Page.SetStartEndDate(Rec."Contract Start Date", Rec."Contract End Date");
         CurrPage."ContractRenewal".Page.SetTenantID(Rec."Tenant ID");
 
-    end;
-
-
-    // Function to update enabled state of Unit fields
-    local procedure UpdateUnitEnableState()
-    begin
-        case Rec."Praposal Type Selected" of
-            Rec."Praposal Type Selected"::"Single Unit":
-                begin
-                    EnableSingleUnit := true;
-                    EnableMergeUnit := false;
-                end;
-            Rec."Praposal Type Selected"::"Merge Unit":
-                begin
-                    EnableSingleUnit := false;
-                    EnableMergeUnit := true;
-                end;
-            else
-                EnableSingleUnit := false; // Keep Single Unit enabled by default
-                EnableMergeUnit := false;
-        end;
-        CurrPage.Update(); // Refresh the page to apply changes
     end;
 
     var

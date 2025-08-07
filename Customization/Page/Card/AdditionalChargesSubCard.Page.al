@@ -307,11 +307,9 @@ page 50906 "Additional Charges Sub Card"
 
     end;
 
-    procedure SetUnitType(punittype: Text[20])
-
+    procedure SetUnitType(punittype: Text[100])
     begin
         unittype := punittype;
-
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -321,8 +319,7 @@ page 50906 "Additional Charges Sub Card"
 
         Rec."Start Date" := startDate;
         Rec."End Date" := endDate;
-        Rec."Unit Type" := unittype;
-
+        Rec."Unit Type" := CopyStr(unittype, 1, StrLen(unittype));
     end;
 
 
@@ -332,6 +329,6 @@ page 50906 "Additional Charges Sub Card"
         startDate: Date;
         endDate: Date;
 
-        unittype: Text[20];
+        unittype: Text[100];
 
 }

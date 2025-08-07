@@ -297,7 +297,7 @@ page 50118 "Merge SameSqure SubPage"
                                     PerDayRevnue."Proposal ID" := MergeSameSquareRec."Proposal ID";
                                     PerDayRevnue."Year" := MergeSameSquareRec."MS_Year"; // From Merge SameSqure SubPage
                                     PerDayRevnue."Sq.Ft" := SubLeaseMergeRec."Unit Size"; // From Sub Lease Merged Units
-                                    PerDayRevnue."Unit ID" := SubLeaseMergeRec."Single Unit Name"; // From Sub Lease Merged Units
+                                    PerDayRevnue."Unit ID" := CopyStr(SubLeaseMergeRec."Single Unit Name", 1, StrLen(SubLeaseMergeRec."Single Unit Name")); // From Sub Lease Merged Units
 
                                     // Calculate Per Day Revenue using the updated formula
                                     if MergeSameSquareRec."MS_Unit Sq Ft" = 0 then
@@ -336,44 +336,32 @@ page 50118 "Merge SameSqure SubPage"
     local procedure RecalculateTotals()
     var
         LeaseProposalRec: Record "Lease Proposal Details"; // Replace with your actual Lease Proposal table name
-        TotalAnnualAmount: Decimal;
-        TotalRoundOff: Decimal;
-        TotalFinalAmount: Decimal;
+        MergeSameSquareSubPage: Record "Merge SameSqure SubPage";
+        lTotalFinalAmount: Decimal;
         FirstYearAnnualAmount: Decimal; // Variable for the first year's annual amount
-        TempRecord: Record "Merge SameSqure SubPage";
         vatPer: Integer;
     begin
-        TotalAnnualAmount := 0;
-        TotalRoundOff := 0;
-        TotalFinalAmount := 0;
+        lTotalFinalAmount := 0;
         FirstYearAnnualAmount := 0; // Initialize to 0
 
         // Filter records by the current Proposal ID
-        TempRecord.SetRange("Proposal ID", Rec."Proposal ID");
+        MergeSameSquareSubPage.SetRange("Proposal ID", Rec."Proposal ID");
 
         // Sum up the values for the filtered records
-        if TempRecord.FindSet() then
+        if MergeSameSquareSubPage.FindSet() then
             repeat
-                TotalAnnualAmount += TempRecord."MS_Annual Amount";
-                TotalRoundOff += TempRecord."MS_Round off";
-                TotalFinalAmount += TempRecord."MS_Final Annual Amount";
+                lTotalFinalAmount += MergeSameSquareSubPage."MS_Final Annual Amount";
 
                 // Check for the first year and assign its Final Annual Amount
-                if TempRecord.MS_Year = 1 then
-                    FirstYearAnnualAmount := TempRecord."MS_Final Annual Amount";
-            until TempRecord.Next() = 0;
-
-        // // Assign the calculated totals to the respective fields
-        // Rec.TotalAnnualAmount := TotalAnnualAmount;
-        // Rec.TotalRoundOff := TotalRoundOff;
-        // Rec.TotalFinalAmount := TotalFinalAmount;
-        // Rec.TotalFirstAnnualAmount := FirstYearAnnualAmount;
+                if MergeSameSquareSubPage.MS_Year = 1 then
+                    FirstYearAnnualAmount := MergeSameSquareSubPage."MS_Final Annual Amount";
+            until MergeSameSquareSubPage.Next() = 0;
 
         // Update Lease Proposal Details with calculated totals
         LeaseProposalRec.SetRange("Proposal ID", Rec."Proposal ID");
         if LeaseProposalRec.FindSet() then begin
             LeaseProposalRec."Rent Amount" := FirstYearAnnualAmount; // Update Rent Amount with the first year's Final Annual Amount
-            LeaseProposalRec."Annual Rent Amount" := TotalFinalAmount; // Update Annual Rent Amount with the Total Final Amount
+            LeaseProposalRec."Annual Rent Amount" := lTotalFinalAmount; // Update Annual Rent Amount with the Total Final Amount
 
             if LeaseProposalRec."Rent Amount VAT %" = LeaseProposalRec."Rent Amount VAT %"::"5%" then
                 vatPer := 5
