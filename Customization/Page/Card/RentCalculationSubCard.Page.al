@@ -3,19 +3,15 @@ page 50946 "Rent Calculation SubCard"
     PageType = ListPart;
     ApplicationArea = All;
     DeleteAllowed = true;
-    // UsageCategory = Administration;
     SourceTable = "Rent Calculation Subpage";
     Caption = 'Rent Calculation';
-
 
     layout
     {
         area(Content)
         {
             repeater(Group)
-
             {
-
                 field("Year"; Rec."Year")
                 {
                     ApplicationArea = All;
@@ -28,6 +24,7 @@ page 50946 "Rent Calculation SubCard"
                     ApplicationArea = All;
                     Caption = 'Start Date';
                     Editable = false;
+                    ToolTip = 'Enter the Period Start Date.';
                 }
 
                 field("Period End Date"; Rec."Period End Date")
@@ -35,7 +32,7 @@ page 50946 "Rent Calculation SubCard"
                     ApplicationArea = All;
                     Caption = 'End Date';
                     Editable = false;
-
+                    ToolTip = 'Enter the Period End Date.';
                 }
 
                 field("Number of Days"; Rec."Number of Days")
@@ -43,8 +40,7 @@ page 50946 "Rent Calculation SubCard"
                     ApplicationArea = All;
                     Caption = 'Number of Days';
                     Editable = false;
-
-
+                    ToolTip = 'Enter the Number of Days in the period.';
                 }
 
                 field("Final Annual Amount"; Rec."Final Annual Amount")
@@ -52,8 +48,7 @@ page 50946 "Rent Calculation SubCard"
                     ApplicationArea = All;
                     Caption = 'Final Annual Amount';
                     Editable = false;
-
-
+                    ToolTip = 'Enter the Final Annual Amount for the rent calculation.';
                 }
 
                 field("Yearly No. of Installment"; Rec."Yearly No. of Installment")
@@ -61,22 +56,25 @@ page 50946 "Rent Calculation SubCard"
                     ApplicationArea = All;
                     Caption = 'Yearly No. of Instalment';
                     Editable = false;
+                    ToolTip = 'Enter the Yearly No. of Installment for the rent calculation.';
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
-                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    Editable = false;
                     Lookup = true;
                     Visible = false;
+                    ToolTip = 'The unique identifier for the tenant associated with this rent calculation.';
                 }
 
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
-                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    Editable = false;
                     Lookup = true;
                     Visible = false;
+                    ToolTip = 'The unique identifier for the contract associated with this rent calculation.';
                 }
 
 
@@ -102,13 +100,9 @@ page 50946 "Rent Calculation SubCard"
                     Editable = false;
                     Caption = 'Property Classification';
                     Visible = false;
+                    ToolTip = 'The classification of the property associated with this rent calculation.';
                 }
-
-
             }
-
-
-
 
             group(" ")
             {
@@ -118,7 +112,6 @@ page 50946 "Rent Calculation SubCard"
                     Caption = 'Total Amount';
                     ToolTip = 'Enter the Total Amount.';
                     Editable = false;
-
                 }
                 field("VAT Amount"; Rec."VAT Amount")
                 {
@@ -147,11 +140,6 @@ page 50946 "Rent Calculation SubCard"
                     Editable = false;
                 }
 
-
-
-
-
-
                 field("Link"; Rec."Link")
                 {
                     ApplicationArea = All;
@@ -162,77 +150,43 @@ page 50946 "Rent Calculation SubCard"
 
                     trigger OnDrillDown()
                     var
-                        TargetPageID: Integer;
                         TargetRecord: Record "Rent Calculation";
-                        RevenueStructure: Record "Rent Calculation Subpage"; // Main table
-                        InstallmentStructure: Record "Rent Calculation Subpage2"; // Second subgrid table
-                        StartDate: Date;
-                        EndDate: Date;
-                        AnnualAmount: Decimal;
-                        NumInstallments: Integer;
+                        RevenueStructure: Record "Rent Calculation Subpage";
+                        InstallmentStructure: Record "Rent Calculation Subpage2";
                         InstallmentAmount: Decimal;
-                        InstallmentStartDate: Date;
-                        InstallmentEndDate: Date;
-                        DueDate: Date;
-                        DaysPerInstallment: Integer;
                         InstallmentNumber: Integer;
-                        DaysInYear: Integer;
-                        IsLeapYear: Boolean;
-                        YearCounter: Integer;
                         TotalYears: Integer;
-                        VATAmount: Decimal;
-                        AmountandVAT: Decimal;
-                        Totalamount: Integer;
                         Installment: Integer;
                         VATPer: Integer;
-                        VATAmount2: Decimal;
                         TotalCalculatedAmount: Decimal;
                         LastInstallmentAmount: Decimal;
                         InstallmentAmount2: Decimal;
+                        TargetPageID: Integer;
 
                     begin
 
                         InstallmentStructure.SetRange("RC ID", Rec."RC ID");
-                        if InstallmentStructure.FindSet() then begin
+                        if InstallmentStructure.FindSet() then
                             InstallmentStructure.DeleteAll();
-                        end;
+
                         // Set filters to fetch related records
-                        // RevenueStructure.SetRange("Proposal ID", Rec."Proposal ID");
                         RevenueStructure.SetRange("Tenant ID", Rec."Tenant ID");
                         RevenueStructure.SetRange("Contract ID", Rec."Contract ID");
                         RevenueStructure.SetRange("RC ID", Rec."RC ID");
-                        //TargetRecord.SetRange("Proposal ID", Rec."Proposal ID");
                         TargetRecord.SetRange("Contract ID", Rec."Contract ID");
                         TargetRecord.SetRange("Tenant ID", Rec."Tenant ID");
                         TargetRecord.SetRange("RC ID", Rec."RC ID");
 
-
                         if RevenueStructure.FindSet() then begin
                             // Loop through Revenue Structure to calculate and populate or update Installment Structure
                             repeat
-
-                                NumInstallments := RevenueStructure."Yearly No. of Installment";
-
-                                AnnualAmount := RevenueStructure."Final Annual Amount";
-                                StartDate := RevenueStructure."Period Start Date";
-                                EndDate := RevenueStructure."Period End Date";
-                                //VATAmount := RevenueStructure."VAT Amount";
                                 VATPer := RevenueStructure."VAT %";
                                 TotalYears := RevenueStructure."Year";
                                 TargetPageID := RevenueStructure."RC ID";
-                                if TargetRecord.FindSet() then begin
+                                if TargetRecord.FindSet() then
                                     Installment := TargetRecord."Number of Installments";
 
-                                end;
-
-
-
-
-
-                                //  InstallmentAmount := RevenueStructure."Final Annual Amount" / RevenueStructure."Yearly No. of Installment";
-
                                 InstallmentAmount := ROUND(RevenueStructure."Final Annual Amount" / RevenueStructure."Yearly No. of Installment", 0.01);
-
                                 TotalCalculatedAmount := InstallmentAmount * RevenueStructure."Yearly No. of Installment";  // 1666.67*3 = 5000.01
                                 LastInstallmentAmount := TotalCalculatedAmount - RevenueStructure."Final Annual Amount"; // 5000.01 - 5000 = 0.01
                                 InstallmentAmount2 := InstallmentAmount - LastInstallmentAmount;   // 1666.67 - 0.01 = 1666.66
@@ -243,7 +197,6 @@ page 50946 "Rent Calculation SubCard"
                                     InstallmentStructure.SetRange("Installment No.", InstallmentNumber);
 
                                     if InstallmentStructure.FindFirst() then begin
-                                        // Update existing record
 
                                         if InstallmentNumber = 1 then begin
                                             InstallmentStructure.Amount := InstallmentAmount2;
@@ -262,21 +215,19 @@ page 50946 "Rent Calculation SubCard"
                                         // Insert new record
                                         InstallmentStructure.Init();
                                         InstallmentStructure."RC ID" := TargetPageID;
-                                        // InstallmentStructure."Proposal ID" := RevenueStructure."Proposal ID";
                                         InstallmentStructure."Tenant ID" := RevenueStructure."Tenant ID";
                                         InstallmentStructure."Contract ID" := RevenueStructure."Contract ID";
                                         InstallmentStructure."Primary Classification" := RevenueStructure."Propety Classification";
-                                        // InstallmentStructure."VAT Amount" := VATAmount2;
                                         InstallmentStructure."VAT %" := VATPer;
                                         InstallmentStructure."Secondary Item Type" := RevenueStructure."Secondary Item Type";
                                         InstallmentStructure."Year" := TotalYears;
                                         InstallmentStructure."Installment No." := InstallmentNumber;
-                                        // InstallmentStructure.Amount := InstallmentAmount;
-                                        if InstallmentNumber = RevenueStructure."Yearly No. of Installment" then begin
-                                            InstallmentStructure.Amount := InstallmentAmount2;
-                                        end else begin
+
+                                        if InstallmentNumber = RevenueStructure."Yearly No. of Installment" then
+                                            InstallmentStructure.Amount := InstallmentAmount2
+                                        else
                                             InstallmentStructure.Amount := InstallmentAmount;
-                                        end;
+
                                         if InstallmentStructure."VAT %" = 1 then
                                             InstallmentStructure."VAT %" := 5
                                         else
@@ -284,8 +235,6 @@ page 50946 "Rent Calculation SubCard"
 
                                         InstallmentStructure."VAT Amount" := InstallmentStructure.Amount * (InstallmentStructure."VAT %" / 100);
                                         InstallmentStructure."Amount Including VAT" := InstallmentStructure.Amount + InstallmentStructure."VAT Amount";
-
-
 
                                         IF InstallmentNumber = 1 THEN BEGIN
                                             InstallmentStructure."Installment Start Date" := RevenueStructure."Period Start Date";
@@ -311,60 +260,38 @@ page 50946 "Rent Calculation SubCard"
 
                                     end;
 
-
                                     TargetRecord.SetRange("Contract ID", Rec."Contract ID");
-                                    // TargetRecord.SetRange("Proposal ID", RevenueStructure."Proposal ID");
                                     TargetRecord.SetRange("RC ID", RevenueStructure."RC ID");
                                     TargetRecord.SetRange("Secondary Item Type", RevenueStructure."Secondary Item Type");
 
-
-
-                                    if TargetRecord.FindSet() then begin
+                                    if TargetRecord.FindSet() then
                                         repeat
-                                            // Calculate or retrieve the Installment value
-
                                             Installment := TargetRecord."Number of Installments";
-                                            // Update the existing record
                                             TargetRecord."Number of Installments" := Installment;
                                             TargetRecord.Modify();
-                                        until TargetRecord.Next() = 0;
-                                    end else begin
-                                        // If no records exist, insert a new record
+                                        until TargetRecord.Next() = 0
+                                    else begin
                                         TargetRecord.Init();
-                                        // TargetRecord."Proposal ID" := RevenueStructure."Proposal ID";
                                         TargetRecord."Contract ID" := RevenueStructure."Contract ID";
                                         TargetRecord."RC ID" := RevenueStructure."RC ID";
                                         TargetRecord."Secondary Item Type" := RevenueStructure."Secondary Item Type";
-                                        TargetRecord."Number of Installments" := Installment; // Ensure Installment is correctly initialized or calculated
+                                        TargetRecord."Number of Installments" := Installment;
                                         TargetRecord.Insert();
                                         Clear(TargetRecord);
                                     end;
 
                                     Clear(InstallmentStructure);
-
-
                                 end;
-
 
                             until RevenueStructure.Next() = 0;
                             Message('Date Create Successfully!');
                         end else
                             Error('No records found in the Revenue Structure.');
                     end;
-
                 }
             }
-
         }
-
-
     }
-
-
-
-
-
-
 
     procedure SetContractID(pContractID: Integer)
     begin
@@ -373,14 +300,13 @@ page 50946 "Rent Calculation SubCard"
 
     procedure SetProposalID(pProposalID: Integer)
     begin
-        proposalID := pProposalID;
+
     end;
 
     procedure SetTenantID(pTenantID: Code[20])
     begin
         tenantID := pTenantID;
     end;
-
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
@@ -391,21 +317,5 @@ page 50946 "Rent Calculation SubCard"
 
     var
         ContractID: Integer;
-        proposalID: Integer;
         tenantID: Code[20];
-
-
-
-
-
-
 }
-
-
-
-
-
-
-
-
-

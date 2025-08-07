@@ -4,7 +4,6 @@ page 50945 "Rent Calculation Card"
     SourceTable = "Rent Calculation";
     ApplicationArea = All;
     Caption = 'Rent Calculation Card';
-    // UsageCategory = Administration;
 
     layout
     {
@@ -12,26 +11,19 @@ page 50945 "Rent Calculation Card"
         {
             group(Group)
             {
-
-
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
-                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    Editable = false;
                     Lookup = true;
+                    ToolTip = 'The unique identifier for the contract associated with this rent calculation.';
                 }
-
-                // field("Proposal ID"; Rec."Proposal ID")
-                // {
-                //     ApplicationArea = All;
-                //     Editable = false; // The ID is not editable since it's auto-incrementing
-                //     Lookup = true;
-                // }
 
                 field("RC ID"; Rec."RC ID")
                 {
                     ApplicationArea = All;
-                    Editable = false; // The ID is not editable since it's auto-incrementing
+                    Editable = false;
+                    ToolTip = 'The unique identifier for the rent calculation.';
                 }
 
                 field("Secondary Item Type"; Rec."Secondary Item Type")
@@ -73,7 +65,6 @@ page 50945 "Rent Calculation Card"
                     ApplicationArea = All;
                     Caption = 'VAT Amount';
                     ToolTip = 'Enter the VAT Amount.';
-                    // Visible = false;
                 }
 
                 field("Amount Including VAT"; Rec."Amount Including VAT")
@@ -81,7 +72,6 @@ page 50945 "Rent Calculation Card"
                     ApplicationArea = All;
                     Caption = 'Amount Including VAT';
                     ToolTip = 'Enter the Amount Including VAT.';
-                    // Visible = false;
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
@@ -90,7 +80,7 @@ page 50945 "Rent Calculation Card"
                     Caption = 'Tenant ID';
                     Lookup = true;
                     Visible = false;
-
+                    ToolTip = 'The unique identifier for the tenant associated with this rent calculation.';
                 }
                 field("Rent Calculation Type"; Rec."Rent Calculation Type")
                 {
@@ -111,19 +101,16 @@ page 50945 "Rent Calculation Card"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'The classification of the property associated with this rent calculation.';
                 }
-
-
             }
-
 
             group("Payment Schedule")
             {
                 part("Rent Calculation"; "Rent Calculation SubCard")
                 {
-                    SubPageLink = "RC ID" = FIELD("RC ID"); // Link to filter attachments for this owner only
+                    SubPageLink = "RC ID" = FIELD("RC ID");
                     ApplicationArea = All;
-                    // Visible = isVisible;
                 }
             }
             group("Rent Payment Schedule")
@@ -131,54 +118,10 @@ page 50945 "Rent Calculation Card"
                 part("Rent Calculation2";
                 "Rent Calculation SubCard2")
                 {
-                    SubPageLink = "RC ID" = FIELD("RC ID"); // Link to filter attachments for this owner only
+                    SubPageLink = "RC ID" = FIELD("RC ID");
                     ApplicationArea = All;
-                    // Visible = isVisible;
                 }
             }
         }
     }
-
-
-    // trigger OnInsertRecord(BelowxRec: Boolean): Boolean
-    // begin
-    //     CalculateAndSetTotalAmount();
-    // end;
-
-
-
-    // local procedure CalculateTotals()
-    // var
-    //     RevenueStructureRec: Record "Revenue Structure Subpage"; // Ensure this matches the actual subpage table name
-    //     TotalAmount: Integer;
-    // begin
-    //     // Initialize totals to zero
-    //     TotalAmount := 0;
-    //     // TotalAnnualAmount := 0;
-    //     // TotalRoundOff := 0;
-
-    //     // Filter records by Proposal ID
-    //     RevenueStructureRec.SetRange("Proposal ID", Rec."Proposal ID");
-
-    //     // Calculate totals for filtered records
-    //     if RevenueStructureRec.FindSet() then
-    //         repeat
-    //             TotalAmount += RevenueStructureRec."Final Annual Amount"; // Replace with correct field names
-    //                                                                       // TotalAnnualAmount += SingleUnitRentRec."Annual Amount";
-    //                                                                       // TotalRoundOff += SingleUnitRentRec."Round Off";
-    //         until RevenueStructureRec.Next() = 0;
-
-    //     // Update the current record fields
-    //     Rec."Total Amount" := TotalAmount;
-    //     // Rec.TotalAnnualAmount := TotalAnnualAmount;
-    //     // Rec.TotalRoundOff := TotalRoundOff;
-
-    //     // Save changes
-    //     Rec.Modify(false);
-    // end;
-
-
-
-
-
 }

@@ -2,7 +2,6 @@ page 50941 "Contract Renewal SubPage Card"
 {
     PageType = ListPart;
     ApplicationArea = All;
-    // UsageCategory = Administration;
     SourceTable = "Contract Renewal Subpage";
     Caption = 'Other Payments';
 
@@ -12,7 +11,6 @@ page 50941 "Contract Renewal SubPage Card"
         {
             repeater(Group)
             {
-
                 field("Secondary Item Type"; Rec."Secondary Item Type")
                 {
                     ApplicationArea = All;
@@ -20,7 +18,6 @@ page 50941 "Contract Renewal SubPage Card"
                     ToolTip = 'Enter the Secondary Item Type.';
                     ShowMandatory = true;
                     NotBlank = true;
-
                 }
                 field("Amount"; Rec.Amount)
                 {
@@ -28,39 +25,36 @@ page 50941 "Contract Renewal SubPage Card"
                     Caption = 'Amount';
                     ShowMandatory = true;
                     NotBlank = true;
+                    ToolTip = 'Enter the Amount.';
 
                     trigger OnValidate()
                     begin
                         UpdateLeaseProposalAmount();
                     end;
-
                 }
 
                 field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Enter the VAT percentage.';
                     trigger OnValidate()
                     begin
                         CurrPage.Update(); // Refresh the page to apply changes immediately
                     end;
-
                 }
 
                 field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = All;
                     Caption = 'VAT Amount';
+                    ToolTip = 'Enter the VAT Amount.';
                 }
 
                 field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = All;
                     Caption = 'Amount Including VAT';
-
-                    // trigger OnValidate()
-                    // begin
-                    //     UpdateLeaseProposalAmount();
-                    // end;
+                    ToolTip = 'Enter the Amount Including VAT.';
                 }
 
                 field("Start Date"; Rec."Start Date")
@@ -68,6 +62,7 @@ page 50941 "Contract Renewal SubPage Card"
                     ApplicationArea = All;
                     Caption = 'Start Date';
                     Lookup = true;
+                    ToolTip = 'Enter the Start Date.';
                 }
 
                 field("End Date"; Rec."End Date")
@@ -75,6 +70,7 @@ page 50941 "Contract Renewal SubPage Card"
                     ApplicationArea = All;
                     Caption = 'End Date';
                     Lookup = true;
+                    ToolTip = 'Enter the End Date.';
                 }
 
                 field("Payment Type"; Rec."Payment Type")
@@ -82,24 +78,7 @@ page 50941 "Contract Renewal SubPage Card"
                     ApplicationArea = All;
                     Caption = 'Payment Type';
                     ToolTip = 'Enter the Payment Type.';
-
-                    // trigger OnValidate()
-                    // begin
-                    //     if Rec."Payment Type" = Rec."Payment Type"::Installment then
-                    //         isvisible := true
-                    //     else
-                    //         isvisible := false
-                    // end;
-
-
                 }
-
-
-                // field("No. of Installments"; Rec."No. of Installments")
-                // {
-                //     ApplicationArea = All;
-                //     Caption = 'No. of Installments';
-                // }
 
                 field("Generate Payment Schedule"; Rec."Generate Payment Schedule")
                 {
@@ -107,62 +86,29 @@ page 50941 "Contract Renewal SubPage Card"
                     Editable = false;
                     DrillDown = true;
                     Visible = false;
-                    //Visible = isvisible;
-
-                    // trigger OnValidate()
-                    // begin
-                    //     CurrPage.Update(true); // Refresh the page to apply visibility changes
-                    // end;
-
-
-
-
+                    ToolTip = 'Click to generate the payment schedule for installment payments.';
                     trigger OnDrillDown()
                     var
-                        TargetPageID: Integer;
-                        TargetRecord: Record "Revenue Structure"; // Replace with the actual table name
+                        RevenueStructure: Record "Revenue Structure Subpage";
+                        TargetRecord: Record "Revenue Structure";
                         StartDate: Date;
                         EndDate: Date;
                         AnnualAmount: Decimal;
-                        NumInstallments: Integer;
                         PeriodStartDate: Date;
                         PeriodEndDate: Date;
                         YearCounter: Integer;
                         NumDays: Integer;
-                        RevenueStructure: Record "Revenue Structure Subpage";
-                        InstallmentStructure: Record "Revenue Structure Subpage1"; // Second Table
-                        InstallmentStartDate, InstallmentEndDate, InstallmentDueDate : Date;
-                        PaymentMode: Option;
-                        InstallmentNumber: Integer;
-                        InstallmentYearcounter: Integer;
-                        InstallmentAmount: Decimal;
-                        DaysInPeriod, DaysPerInstallment : Integer;
-                        CurrentStartDate: Date;
-                        CurrentEndDate: Date;
-                        InstallmentAnnualAmount: Decimal;
-                        i: Integer;
-                        DaysInYear: Integer;
-                        IsLeapYear: Boolean;
-                        Year: Integer;
-                        RemainingInstallments: Integer;
-                        InsertedInstallments: Integer;
-                        VATAmount: Decimal;
-                        VATandAmount: Decimal;
                         IsLeapYearInRange: Boolean;
                         CurrentYear: Integer;
                         StartYear: Integer;
                         EndYear: Integer;
                         LeapDate: Date;
                         Revenuestructureid: Integer;
-                    //LeaseRecord: Record "Lease Proposal Details";
-
 
                     begin
 
                         if Rec."Payment Type" = Rec."Payment Type"::Installment then begin
 
-
-                            //TargetRecord.SetRange("Proposal ID", Rec."ProposalID");
                             TargetRecord.SetRange("Secondary Item Type", Rec."Secondary Item Type");
                             TargetRecord.SetRange("Tenant ID", Rec."TenantID");
 
@@ -170,38 +116,25 @@ page 50941 "Contract Renewal SubPage Card"
                                 TargetRecord."Contract Start Date" := Rec."Start Date";
                                 TargetRecord."Contract End Date" := Rec."End Date";
                                 TargetRecord."Amount" := Rec."Amount";
-                                // TargetRecord."Number of Installments" := Rec."No. of Installments";
                                 TargetRecord."VAT Amount" := Rec."VAT Amount";
                                 TargetRecord."Amount Including VAT" := Rec."Amount Including VAT";
                                 TargetRecord."VAT %" := Rec."VAT %";
                                 TargetRecord.Modify();
                             end else begin
                                 TargetRecord.Init();
-                                //TargetRecord."Proposal ID" := Rec."ProposalID";
                                 TargetRecord."Tenant ID" := Rec."TenantID";
                                 TargetRecord."Secondary Item Type" := Rec."Secondary Item Type";
                                 TargetRecord."Contract Start Date" := Rec."Start Date";
                                 TargetRecord."Contract End Date" := Rec."End Date";
                                 TargetRecord."Amount" := Rec."Amount";
-                                // TargetRecord."Number of Installments" := Rec."No. of Installments";
                                 TargetRecord."VAT Amount" := Rec."VAT Amount";
                                 TargetRecord."Amount Including VAT" := Rec."Amount Including VAT";
                                 TargetRecord."VAT %" := Rec."VAT %";
                                 TargetRecord.Insert();
 
-
                                 StartDate := TargetRecord."Contract Start Date";
                                 EndDate := TargetRecord."Contract End Date";
                                 AnnualAmount := TargetRecord."Amount";
-                                //NumInstallments := TargetRecord."Number of Installments";
-                                // VATAmount := TargetRecord."VAT Amount";
-                                // VATandAmount := TargetRecord."Amount Including VAT";
-
-                                //TargetRecord.Modify();
-
-
-
-
 
                                 if (StartDate = 0D) or (EndDate = 0D) or (AnnualAmount = 0) then
                                     Error('Start Date, End Date, and Amount must be populated.');
@@ -209,22 +142,16 @@ page 50941 "Contract Renewal SubPage Card"
                                 YearCounter := 1;
                                 PeriodStartDate := StartDate;
 
-
-
-
                                 while PeriodStartDate <= EndDate do begin
                                     RevenueStructure.Init();
                                     RevenueStructure."RS ID" := TargetRecord."RS ID";
-                                    // RevenueStructure."Proposal Id" := TargetRecord."Proposal ID";
                                     RevenueStructure."Tenant Id" := TargetRecord."Tenant ID";
                                     RevenueStructure."Year" := YearCounter;
                                     RevenueStructure."Period Start Date" := PeriodStartDate;
-
                                     RevenueStructure."VAT Amount" := TargetRecord."VAT Amount";
                                     RevenueStructure."Amount Including VAT" := TargetRecord."Amount Including VAT";
                                     RevenueStructure."Secondary Item Type" := TargetRecord."Secondary Item Type";
                                     RevenueStructure."VAT %" := TargetRecord."VAT %";
-
 
                                     if PeriodStartDate + 365 > EndDate then
                                         PeriodEndDate := EndDate
@@ -241,7 +168,7 @@ page 50941 "Contract Renewal SubPage Card"
 
                                     IsLeapYearInRange := false;
 
-                                    for CurrentYear := StartYear to EndYear do begin
+                                    for CurrentYear := StartYear to EndYear do
                                         if IsLeapYear(CurrentYear) then begin
                                             LeapDate := DMY2Date(29, 2, CurrentYear); // Generate February 29 date
                                             if (LeapDate >= PeriodStartDate) and (LeapDate <= PeriodEndDate) then begin
@@ -249,43 +176,24 @@ page 50941 "Contract Renewal SubPage Card"
                                                 break; // No need to check further if a leap year is found in range
                                             end;
                                         end;
-                                    end;
 
                                     // Adjust the number of days if a leap year is in range
                                     if IsLeapYearInRange then
                                         NumDays := NumDays + 1;
 
 
-                                    // RevenueStructure."Number of Days" := NumDays;
-
-                                    // RevenueStructure."Final Annual Amount" := Round(AnnualAmount / (EndDate - StartDate + 1) * 365, 2);
-                                    // RevenueStructure."Yearly No. of Installment" := Round(NumInstallments / (EndDate - StartDate + 1) * 365, 2);
-
-
-                                    // RevenueStructure.Insert();
-                                    // // Clear(RevenueStructure);
-
-
-                                    // PeriodStartDate := PeriodEndDate + 1;
-                                    // YearCounter += 1;
-
-
-                                    // NumDays := PeriodEndDate - PeriodStartDate + 1;
                                     RevenueStructure."Number of Days" := NumDays;
 
                                     RevenueStructure.Insert();
                                     RevenueStructure.Modify();
                                     Clear(RevenueStructure);
 
-                                    //  InsertedInstallments += RevenueStructure."Yearly No. of Installment";
-
                                     PeriodStartDate := PeriodEndDate + 1;
                                     YearCounter += 1;
 
-                                    if TargetRecord.FindLast() then begin
-                                        // If found, get the latest RS ID
-                                        Revenuestructureid := TargetRecord."RS ID";
-                                    end else begin
+                                    if TargetRecord.FindLast() then
+                                        Revenuestructureid := TargetRecord."RS ID"
+                                    else begin
                                         // If no record is found, create a new Revenue Structure record
                                         TargetRecord.Init();
                                         TargetRecord.Insert(true);
@@ -297,25 +205,19 @@ page 50941 "Contract Renewal SubPage Card"
 
                                     Rec."Link" := Revenuestructureid;
 
-                                    // Clear(InstallmentStructure);
                                 end;
-                                // Clear(RevenueStructure);
 
 
                             end;
 
-
-                            //end;
                             Message('Record are updated in Revenue Structure.Click on the respective link to View the details');
-                            // PAGE.RUN(Page::"Revenue Structure List");
+
 
                         end
                         else
                             Message('Installment cannot be set for One-Time payment');
 
                     end;
-
-
                 }
 
                 field("Link"; Rec."Link")
@@ -324,34 +226,14 @@ page 50941 "Contract Renewal SubPage Card"
                     Caption = 'Link';
                     DrillDown = true;
                     Visible = false;
-
+                    ToolTip = 'Click to navigate to the Revenue Structure Card page.';
 
                     trigger OnDrillDown()
                     var
                         RevenueStructureRec: Record "Revenue Structure";
-                        Revenuestructureid: Integer;
                     begin
                         if Rec."Payment Type" = Rec."Payment Type"::Installment then begin
 
-                            //     if Rec."Link" = 0 then begin
-                            //         if RevenueStructureRec.FindLast() then begin
-                            //             // If found, get the latest RS ID
-                            //             Revenuestructureid := RevenueStructureRec."RS ID";
-                            //         end else begin
-                            //             // If no record is found, create a new Revenue Structure record
-                            //             RevenueStructureRec.Init();
-                            //             RevenueStructureRec.Insert(true);  // Insert the new record and generate the RS ID
-
-                            //             // Get the newly created RS ID
-                            //             Revenuestructureid := RevenueStructureRec."RS ID";
-                            //         end;
-
-                            //         Rec."Link" := Revenuestructureid;
-
-                            //         exit;
-                            //     end;
-
-                            // Navigate to the Revenue Structure Card page
                             if RevenueStructureRec.Get(Rec."Link") then
                                 PAGE.RUN(PAGE::"Revenue Structure Card", RevenueStructureRec)
                             else
@@ -366,18 +248,12 @@ page 50941 "Contract Renewal SubPage Card"
         }
     }
 
-
-
     local procedure IsLeapYear(Year: Integer): Boolean
     begin
         if (Year mod 4 = 0) and ((Year mod 100 <> 0) or (Year mod 400 = 0)) then
             exit(true);
         exit(false);
     end;
-
-
-
-
 
     procedure SetId(pId: Integer)
     begin
@@ -388,7 +264,6 @@ page 50941 "Contract Renewal SubPage Card"
     begin
         tenantID := pTenantID;
     end;
-
 
     procedure SetStartEndDate(pStartDate: Date; pEndDate: Date)
     begin
@@ -408,51 +283,23 @@ page 50941 "Contract Renewal SubPage Card"
 
     var
         Id: Integer;
-
         tenantID: Code[20];
         startDate: Date;
         endDate: Date;
 
-        isvisible: Boolean;
-
-
-
-
-
-    // procedure UpdateLeaseProposalAmount()
-    // var
-    //     LeaseProposal: Record "Contract Renewal";
-    // // Replace with your actual Lease Proposal table name
-    // begin
-    //     // Apply a filter on the ProposalID to find matching Lease Proposal records
-    //     if rec."Secondary Item Type" = 'Security Deposit Amount' then begin
-
-    //         LeaseProposal.SetRange("ID", Rec.ID); // Adjust the field names to your table schema
-
-    //         if LeaseProposal.FindSet() then begin
-    //             // Loop through all matching records if there are multiple
-
-
-    //             LeaseProposal."Security Deposit Amount" := Rec.Amount;
-    //             LeaseProposal.Modify(); // Save the changes
-
-    //         end;
-    //     end;
-    // end;
-
     procedure UpdateLeaseProposalAmount()
     var
-        LeaseProposal: Record "Contract Renewal"; // Replace with your actual Lease Proposal table name
+        LeaseProposal: Record "Contract Renewal";
     begin
-        // Apply a filter on the ProposalID to find matching Lease Proposal records
+
         if (Rec."Secondary Item Type" = 'Security Deposit Amount') or
            (Rec."Secondary Item Type" = 'Rera Fees') or
            (Rec."Secondary Item Type" = 'Ejari Processing Fees') or
            (Rec."Secondary Item Type" = 'Renewal Amount') then begin
-            LeaseProposal.SetRange("ID", Rec."ID"); // Adjust the field names to your table schema
+            LeaseProposal.SetRange("ID", Rec."ID");
 
             if LeaseProposal.FindSet() then begin
-                // Update the respective fields based on "Secondary Item Type"
+
                 case Rec."Secondary Item Type" of
                     'Security Deposit Amount':
                         LeaseProposal."Security Deposit Amount" := Rec."Amount Including VAT";
@@ -464,13 +311,8 @@ page 50941 "Contract Renewal SubPage Card"
                         LeaseProposal."Renewal Charges" := Rec."Amount Including VAT";
                 end;
 
-                LeaseProposal.Modify(); // Save the changes
+                LeaseProposal.Modify();
             end;
         end;
     end;
-
-
 }
-
-
-

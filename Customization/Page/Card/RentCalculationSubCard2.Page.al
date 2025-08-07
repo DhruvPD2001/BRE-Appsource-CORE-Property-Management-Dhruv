@@ -2,7 +2,6 @@ page 50947 "Rent Calculation SubCard2"
 {
     PageType = ListPart;
     ApplicationArea = All;
-    // UsageCategory = Administration;
     SourceTable = "Rent Calculation Subpage2";
     Caption = 'Rent Calculation Card';
 
@@ -12,7 +11,6 @@ page 50947 "Rent Calculation SubCard2"
         {
             repeater(Group)
             {
-
                 field("Year"; Rec."Year")
                 {
                     ApplicationArea = All;
@@ -25,6 +23,7 @@ page 50947 "Rent Calculation SubCard2"
                     ApplicationArea = All;
                     Caption = 'Instalment No.';
                     Editable = false;
+                    ToolTip = 'Enter the Instalment No.';
                 }
 
                 field("Installment Start Date"; Rec."Installment Start Date")
@@ -32,8 +31,7 @@ page 50947 "Rent Calculation SubCard2"
                     ApplicationArea = All;
                     Caption = 'Instalment Start Date';
                     Editable = false;
-
-
+                    ToolTip = 'Enter the Instalment Start Date.';
                 }
 
                 field("Installment End Date"; Rec."Installment End Date")
@@ -41,6 +39,7 @@ page 50947 "Rent Calculation SubCard2"
                     ApplicationArea = All;
                     Caption = 'Instalment End Date';
                     Editable = false;
+                    ToolTip = 'Enter the Instalment End Date.';
                 }
 
                 field("Due Date"; Rec."Due Date")
@@ -48,6 +47,7 @@ page 50947 "Rent Calculation SubCard2"
                     ApplicationArea = All;
                     Caption = 'Due Date';
                     Editable = false;
+                    ToolTip = 'Enter the Due Date.';
                 }
 
                 field("Amount"; Rec."Amount")
@@ -55,7 +55,7 @@ page 50947 "Rent Calculation SubCard2"
                     ApplicationArea = All;
                     Caption = 'Amount';
                     Editable = false;
-
+                    ToolTip = 'Enter the Amount.';
                 }
 
                 field("VAT Amount"; Rec."VAT Amount")
@@ -64,7 +64,7 @@ page 50947 "Rent Calculation SubCard2"
                     Caption = 'VAT Amount';
                     Visible = false;
                     Editable = false;
-
+                    ToolTip = 'Enter the VAT Amount.';
                 }
 
                 field("Amount Including VAT"; Rec."Amount Including VAT")
@@ -73,7 +73,7 @@ page 50947 "Rent Calculation SubCard2"
                     Caption = 'Amount Including VAT';
                     Visible = false;
                     Editable = false;
-
+                    ToolTip = 'Enter the Amount Including VAT.';
                 }
 
                 field("Secondary Item Type"; Rec."Secondary Item Type")
@@ -82,7 +82,7 @@ page 50947 "Rent Calculation SubCard2"
                     Caption = 'Secondary Item Type';
                     Visible = false;
                     Editable = false;
-
+                    ToolTip = 'Enter the Secondary Item Type.';
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
@@ -91,6 +91,7 @@ page 50947 "Rent Calculation SubCard2"
                     Editable = false; // The ID is not editable since it's auto-incrementing
                     Lookup = true;
                     Visible = false;
+                    ToolTip = 'The Tenant ID is auto-generated and not editable.';
                 }
 
                 field("Contract ID"; Rec."Contract ID")
@@ -99,6 +100,7 @@ page 50947 "Rent Calculation SubCard2"
                     Editable = false; // The ID is not editable since it's auto-incrementing
                     Lookup = true;
                     Visible = false;
+                    ToolTip = 'The Contract ID is auto-generated and not editable.';
                 }
 
 
@@ -116,6 +118,7 @@ page 50947 "Rent Calculation SubCard2"
                     Caption = 'Primary Classification';
                     Editable = false;
                     Visible = false;
+                    ToolTip = 'The classification of the property associated with this rent calculation.';
                 }
 
 
@@ -127,7 +130,7 @@ page 50947 "Rent Calculation SubCard2"
                     ApplicationArea = All;
                     Editable = false;
                     Caption = 'Total Amount';
-
+                    ToolTip = 'Enter the Total Amount.';
                 }
             }
         }
@@ -140,7 +143,7 @@ page 50947 "Rent Calculation SubCard2"
 
     procedure SetProposalID(pProposalID: Integer)
     begin
-        proposalID := pProposalID;
+
     end;
 
     procedure SetTenantID(pTenantID: Code[20])
@@ -157,11 +160,5 @@ page 50947 "Rent Calculation SubCard2"
 
     var
         ContractID: Integer;
-        proposalID: Integer;
         tenantID: Code[20];
-
-
-
 }
-
-

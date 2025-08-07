@@ -15,18 +15,21 @@ page 50950 "Final Revenue Calculation Grid"
                 {
                     ApplicationArea = All;
                     Caption = 'Revenue Description';
+                    ToolTip = 'Specifies the description of the revenue item';
                 }
                 field("Contract ID"; Rec."Contract ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Contract ID';
                     Editable = false;
+                    ToolTip = 'The Contract ID is auto-generated and not editable.';
                 }
                 field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Entry No.';
                     Editable = false;
+                    ToolTip = 'The unique entry number for the final revenue calculation entry.';
                 }
                 field("Original Amount"; Rec."Original Amount")
                 {
@@ -96,30 +99,34 @@ page 50950 "Final Revenue Calculation Grid"
                     ApplicationArea = All;
                     Caption = 'Actual Contract Tenure';
                     Editable = false;
-
+                    ToolTip = 'Actual Contract Tenure';
                 }
                 field("Per Day Rent"; Rec."Per Day Rent")
                 {
                     ApplicationArea = All;
                     Caption = 'Per Day Rent';
                     Editable = false;
+                    ToolTip = 'Per Day Rent';
                 }
                 field("Revised VAT %"; Rec."Revised VAT %")
                 {
                     ApplicationArea = All;
                     Caption = 'Reviseed VAT %';
                     Editable = false;
+                    ToolTip = 'Revised VAT %';
                 }
                 field("ContractYear(Termination Date)"; Rec."ContractYear(Termination Date)")
                 {
                     ApplicationArea = All;
                     Caption = 'Contract Year On Termination Date';
+                    ToolTip = 'Enter the ContractYear(Termination Date).';
                 }
                 field("Annual Rent Amount TermiYear"; Rec."Annual Rent Amount TermiYear")
                 {
                     ApplicationArea = All;
                     Caption = 'Annual Rent Amount of Termination Year';
                     Editable = false;
+                    ToolTip = 'Annual Rent Amount of Termination Year';
                 }
                 field("Total No. Of Days"; Rec."Total No. Of Days")
                 {
@@ -133,7 +140,7 @@ page 50950 "Final Revenue Calculation Grid"
                     ApplicationArea = All;
                     Caption = 'Payment Type';
                     Editable = false;
-
+                    ToolTip = 'Payment Type';
                 }
 
             }
@@ -149,12 +156,14 @@ page 50950 "Final Revenue Calculation Grid"
                             ApplicationArea = All;
                             Caption = 'Total Original Amount';
                             Editable = false;
+                            ToolTip = 'Total Original Amount';
                         }
                         field("Total Original VAT"; Rec."Total Original VAT")
                         {
                             ApplicationArea = All;
                             Caption = 'Total Original VAT';
                             Editable = false;
+                            ToolTip = 'Total Original VAT';
                         }
 
                         field("Total Orgininal AmountIncl.VAT"; Rec."Total Orgininal AmountIncl.VAT")
@@ -162,7 +171,7 @@ page 50950 "Final Revenue Calculation Grid"
                             ApplicationArea = All;
                             Caption = 'Total Orgininal Amount Incl. VAT';
                             Editable = false;
-
+                            ToolTip = 'Total Orgininal Amount Incl. VAT';
                         }
                     }
                     group("Revised Values")
@@ -172,20 +181,21 @@ page 50950 "Final Revenue Calculation Grid"
                             ApplicationArea = All;
                             Caption = 'Total Revised Amount';
                             Editable = false;
-
+                            ToolTip = 'Total Revised Amount';
                         }
                         field("Total Revised VAT"; Rec."Total Revised VAT")
                         {
                             ApplicationArea = All;
                             Caption = 'Total Revised VAT';
                             Editable = false;
-
+                            ToolTip = 'Total Revised VAT';
                         }
                         field("Total Revised AmountIncl.VAT"; Rec."Total Revised AmountIncl.VAT")
                         {
                             ApplicationArea = All;
                             Caption = 'Total Revised Amount Incl. VAT';
                             Editable = false;
+                            ToolTip = 'Total Revised Amount Incl. VAT';
                         }
                     }
                     group("Difference Values")
@@ -195,24 +205,24 @@ page 50950 "Final Revenue Calculation Grid"
                             ApplicationArea = All;
                             Caption = 'Total Difference Amount';
                             Editable = false;
+                            ToolTip = 'Total Difference Amount';
                         }
                         field("Total Difference VAT"; Rec."Total Difference VAT")
                         {
                             ApplicationArea = All;
                             Caption = 'Total Differnece VAT';
                             Editable = false;
+                            ToolTip = 'Total Difference VAT';
                         }
                         field("Total DifferenceAmountIncl.VAT"; Rec."Total DifferenceAmountIncl.VAT")
                         {
                             ApplicationArea = All;
                             Caption = 'Total Difference Amount Incl. VAT';
                             Editable = false;
+                            ToolTip = 'Total Difference Amount Incl. VAT';
                         }
                     }
                 }
-
-
-
             }
         }
     }
@@ -276,7 +286,7 @@ page 50950 "Final Revenue Calculation Grid"
     procedure OneTimePaymentTypeRevisedRecalculatedAmount()
     var
         TenancyContractsubpage: Record "Tenancy Contract Subpage";
-        FinalRevenueCalculation: Record "Final Revenue Calculation Grid";
+
     begin
         TenancyContractsubpage.SetRange(ContractID, Rec."Contract ID");
         TenancyContractsubpage.SetRange("Payment Type", 1);
@@ -292,7 +302,7 @@ page 50950 "Final Revenue Calculation Grid"
                 Rec."Revised VAT" := TenancyContractsubpage."VAT Amount";
                 Rec."Revised Amount Incl." := TenancyContractsubpage."Amount Including VAT";
                 Rec.Modify();
-            //  Clear(FinalRevenueCalculation);
+
             until TenancyContractsubpage.Next() = 0;
 
     end;
@@ -302,8 +312,8 @@ page 50950 "Final Revenue Calculation Grid"
     procedure GetRentAmountFromRentCalculation()
     var
         RentCalculation: Record "Rent Calculation Subpage";
-        Totalamount: Decimal;
         RentCalculation1: Record "Rent Calculation Subpage";
+        Totalamount: Decimal;
         TotalVATAmount: Decimal;
         calculateteminationamount: Decimal;
         FinalReviseAmount: Decimal;
@@ -314,19 +324,18 @@ page 50950 "Final Revenue Calculation Grid"
         RentCalculation.SetRange("Contract ID", Rec."Contract ID");
         RentCalculation.SetFilter(Year, '1..%1', Rec."ContractYear(Termination Date)");
 
-        if RentCalculation.FindSet() then begin
+        if RentCalculation.FindSet() then
             repeat
-                // Sum up Final Annual Amount values
                 TotalAmount += RentCalculation."Final Annual Amount";
                 TotalVATAmount += RentCalculation."VAT Amount"
             until RentCalculation.Next() = 0;
-        end;
+
         RentCalculation1.SetRange("Contract ID", Rec."Contract ID");
         RentCalculation1.SetRange("Secondary Item Type", Rec."Revenue Description");
         if RentCalculation1.FindSet() then
             repeat
                 FinalReviseAmount := Totalamount - Rec."Annual Rent Amount TermiYear";
-                calculateteminationamount := Rec."Per Day Rent" * Rec."Total No. Of Days"; // 3rd year 365 days - termination 71 days = 294 so calculate 294 * per day rent 122.67 = FinalReviseAmount variable 
+                calculateteminationamount := Rec."Per Day Rent" * Rec."Total No. Of Days";
                 Rec."Revised Amount" := FinalReviseAmount + calculateteminationamount;
                 Rec."Revised VAT %" := RentCalculation1."VAT %";
 
@@ -334,8 +343,7 @@ page 50950 "Final Revenue Calculation Grid"
                     Rec."Revised VAT %" := 5
                 else
                     Rec."Revised VAT %" := 0;
-                // TotalVATAmount := Rec."Revised Amount" - (Rec."Revised Amount" / (1 + (Rec."Revised VAT %" / 100)));
-                // TotalVATAmount := Round(TotalVATAmount, 0.01);
+
                 TotalVATAmount := (Rec."Revised Amount" * Rec."Revised VAT %") / 100;
 
                 Rec."Revised VAT" := TotalVATAmount;
@@ -349,18 +357,14 @@ page 50950 "Final Revenue Calculation Grid"
 
 
     //////////// 5 : GET REVISED AMOUNT FOR CHARGES ITEM FROM REVENUE STRUCTURE SUBPAGE ///////////
-
-
-
     procedure GetRevisedAmountcalculatrefromRevenueStructuresubpage()
     var
         RevenueStructureSubpage1: Record "Revenue Structure Subpage";
-        ChargesItemTotalamount: Decimal;
         RevenueStructureSubpage2: Record "Revenue Structure Subpage";
+        ChargesItemTotalamount: Decimal;
         ChargesItemTotalVATAmount: Decimal;
         calculateteminationamount1: Decimal;
         FinalReviseAmount: Decimal;
-
     begin
         ChargesItemTotalamount := 0;
         RevenueStructureSubpage1.Reset();
@@ -368,14 +372,12 @@ page 50950 "Final Revenue Calculation Grid"
         RevenueStructureSubpage1.SetRange("Secondary Item Type", Rec."Revenue Description");
         RevenueStructureSubpage1.SetFilter(Year, '1..%1', Rec."ContractYear(Termination Date)");
 
-
-        if RevenueStructureSubpage1.FindSet() then begin
+        if RevenueStructureSubpage1.FindSet() then
             repeat
-                // Sum up Final Annual Amount values
                 ChargesItemTotalamount += RevenueStructureSubpage1."Final Annual Amount";
                 ChargesItemTotalVATAmount += RevenueStructureSubpage1."VAT Amount"
             until RevenueStructureSubpage1.Next() = 0;
-        end;
+
         RevenueStructureSubpage2.SetRange("Contract ID", Rec."Contract ID");
         RevenueStructureSubpage2.SetRange("Secondary Item Type", Rec."Revenue Description");
         if RevenueStructureSubpage2.FindSet() then
@@ -389,8 +391,6 @@ page 50950 "Final Revenue Calculation Grid"
                 else
                     Rec."Revised VAT %" := 0;
 
-                // ChargesItemTotalVATAmount := Rec."Revised Amount" - (Rec."Revised Amount" / (1 + (Rec."Revised VAT %" / 100)));
-                // ChargesItemTotalVATAmount := Round(ChargesItemTotalVATAmount, 0.01);
                 ChargesItemTotalVATAmount := (Rec."Revised Amount" * Rec."Revised VAT %") / 100;
 
                 Rec."Revised VAT" := ChargesItemTotalVATAmount;
@@ -399,9 +399,6 @@ page 50950 "Final Revenue Calculation Grid"
 
             until RevenueStructureSubpage2.Next() = 0;
     end;
-
-
-
     /////////////// END 5 /////////////////////////
 
     /////////////// 6 : DIFFERENCE CALCULATION FOR ORIGINAL AMOUNT AND REVISED AMOUNT ///////////
