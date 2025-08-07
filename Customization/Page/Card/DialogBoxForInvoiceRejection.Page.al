@@ -25,12 +25,11 @@ page 50949 DialogBoxForInvoiceRejection
 
 
         // Validate only when OK is clicked
-        if CloseAction = Action::OK then begin
+        if CloseAction = Action::OK then
             if reasonvalue = '' then begin
                 Message('Please enter a reason for rejection before proceeding.');
                 exit(false); // Prevents closing the dialog
             end;
-        end;
 
         exit(true); // Allows closing if validation passes or Cancel is clicked
     end;

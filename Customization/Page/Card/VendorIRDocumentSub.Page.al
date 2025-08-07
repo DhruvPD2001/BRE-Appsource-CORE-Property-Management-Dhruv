@@ -11,26 +11,29 @@ page 50943 "Vendor I/R DocumentSub"
         {
             repeater("Documents")
             {
-
                 field("Vendor ID"; Rec."Vendor ID")
                 {
                     ApplicationArea = All;
                     Visible = false;
+                    ToolTip = 'The ID of the vendor associated with this document.';
                 }
 
                 field("Amount"; Rec."Amount")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The amount associated with the vendor document.';
                 }
 
                 field("Payment Status"; Rec."Payment Status")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The payment status of the vendor document.';
                 }
 
                 field("Invoice ID"; Rec."Invoice ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The unique identifier for the vendor invoice.';
                 }
 
                 field("Invoice Document Upload"; Rec."Invoice Document Upload")
@@ -38,6 +41,7 @@ page 50943 "Vendor I/R DocumentSub"
                     ApplicationArea = All;
                     DrillDown = true;
                     Editable = false;
+                    ToolTip = 'Upload the invoice document for the vendor.';
 
                     trigger OnDrillDown()
                     var
@@ -50,8 +54,8 @@ page 50943 "Vendor I/R DocumentSub"
                         folderName := 'PropertyDocuments';
                         fileName := azureBlobUploader.ValidateDocument(uploadResult, folderName);
                         if fileName <> '' then begin
-                            Rec."Invoice Document Upload" := fileName;
-                            Rec."Invoice Document URL" := uploadResult;
+                            Rec."Invoice Document Upload" := CopyStr(fileName, 1, StrLen(fileName));
+                            Rec."Invoice Document URL" := CopyStr(uploadResult, 1, StrLen(uploadResult));
                             Rec.Modify();
                             Message('File uploaded successfully: %1', fileName);
                         end;
@@ -63,6 +67,7 @@ page 50943 "Vendor I/R DocumentSub"
                     ApplicationArea = All;
                     Editable = false;
                     DrillDown = true;
+                    ToolTip = 'View the uploaded invoice document for the vendor.';
 
                     trigger OnDrillDown()
                     var
@@ -86,11 +91,13 @@ page 50943 "Vendor I/R DocumentSub"
                     ApplicationArea = All;
                     Editable = false;
                     Visible = false;
+                    ToolTip = 'The URL of the uploaded invoice document.';
                 }
 
                 field("Receipt ID"; Rec."Receipt ID")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'The unique identifier for the vendor receipt.';
                 }
 
                 field("Receipt Document Upload"; Rec."Receipt Document Upload")
@@ -98,6 +105,7 @@ page 50943 "Vendor I/R DocumentSub"
                     ApplicationArea = All;
                     DrillDown = true;
                     Editable = false;
+                    ToolTip = 'Upload the receipt document for the vendor.';
 
                     trigger OnDrillDown()
                     var
@@ -109,8 +117,8 @@ page 50943 "Vendor I/R DocumentSub"
                         folderName := 'PropertyDocuments';
                         fileName := azureBlobUploader.ValidateDocument(uploadResult, folderName);
                         if fileName <> '' then begin
-                            Rec."Receipt Document Upload" := fileName;
-                            Rec."Receipt Document URL" := uploadResult;
+                            Rec."Receipt Document Upload" := CopyStr(fileName, 1, StrLen(fileName));
+                            Rec."Receipt Document URL" := CopyStr(uploadResult, 1, StrLen(uploadResult));
                             Rec.Modify();
                             Message('File uploaded successfully: %1', fileName);
                         end;
@@ -122,6 +130,7 @@ page 50943 "Vendor I/R DocumentSub"
                     ApplicationArea = All;
                     Editable = false;
                     DrillDown = true;
+                    ToolTip = 'View the uploaded receipt document for the vendor.';
 
                     trigger OnDrillDown()
                     var
@@ -145,12 +154,14 @@ page 50943 "Vendor I/R DocumentSub"
                     ApplicationArea = All;
                     Editable = false;
                     Visible = false;
+                    ToolTip = 'The URL of the uploaded receipt document.';
                 }
 
                 field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = All;
                     Visible = false;
+                    ToolTip = 'The unique entry number for the vendor document.';
                 }
             }
         }
@@ -158,19 +169,16 @@ page 50943 "Vendor I/R DocumentSub"
 
     procedure OpenFileInBrowser(URL: Text)
     begin
-        // Use the Hyperlink method to open the file in the browser
         if URL <> '' then
             Hyperlink(URL)
         else
             Error('The file URL is invalid.');
     end;
 
-
     procedure SetVendorID(pVendorID: Code[20])
     begin
         VendorID := pVendorID;
     end;
-
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
@@ -180,10 +188,10 @@ page 50943 "Vendor I/R DocumentSub"
         Rec."Vendor ID" := VendorID;
 
         vendor.SetRange("vendor ID", Rec."vendor ID");
-        if vendor.FindSet() then begin
+        if not vendor.IsEmpty() then
             if Rec."Payment Status" = PaymentStatus::" " then
                 Rec."Payment Status" := PaymentStatus::Scheduled;
-        end;
+
     end;
 
     var
@@ -195,10 +203,10 @@ page 50943 "Vendor I/R DocumentSub"
         PaymentStatus: Enum "Payment Status";
     begin
         vendor.SetRange("vendor ID", Rec."vendor ID");
-        if vendor.FindSet() then begin
+        if not vendor.IsEmpty() then
             if Rec."Payment Status" = PaymentStatus::" " then
                 Rec."Payment Status" := PaymentStatus::Scheduled;
-        end;
+
     end;
 
 }
