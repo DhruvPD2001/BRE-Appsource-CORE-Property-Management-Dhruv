@@ -63,7 +63,7 @@ page 50929 "Split Payment Change Card"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         PaymentSchedule2Rec: Record "Payment Schedule2";
-                        Selection: Page "Payment Schedule2 List";
+                        Selection: Page "Payment Schedule Grid";
                         SelectedPaymentSeries: Text[250];
                         TotalAmount: Decimal;
                         TotalVATAmount: Decimal;

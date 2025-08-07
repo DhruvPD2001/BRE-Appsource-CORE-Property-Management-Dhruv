@@ -279,6 +279,7 @@ page 50349 "TC Merge DifferentSq SubPage"
                 trigger OnAction()
                 var
                     MergeDiffSquareRec: Record "CR Merge DifferentSq SubPage";
+                    MergeDiffSquareRecFromPerDayRevenue: Record "CR Merge DifferentSq SubPage";
                     SubLeaseMergeRec: Record "CR Sub Lease Merged Units";
                     PerDayRevnue: Record "CR Per Day Rent for Revenue";
                     YearList: List of [Integer];
@@ -316,10 +317,10 @@ page 50349 "TC Merge DifferentSq SubPage"
                                         PerDayRevnue."Sq.Ft" := SubLeaseMergeRec."Unit Size"; // From Sub Lease Merged Units
                                         PerDayRevnue."Unit ID" := CopyStr(SubLeaseMergeRec."Single Unit Name", 1, strlen(SubLeaseMergeRec."Single Unit Name")); // From Sub Lease Merged Units
 
-                                        MergeDiffSquareRec.SetRange("MD_Unit ID", PerDayRevnue."Unit ID");
-                                        if MergeDiffSquareRec.FindFirst() then
+                                        MergeDiffSquareRecFromPerDayRevenue.SetRange("MD_Unit ID", PerDayRevnue."Unit ID");
+                                        if MergeDiffSquareRecFromPerDayRevenue.FindFirst() then
                                             // Directly assign the Per Day Rent value from MergeDiffSquareRec table to PerDayRevnue
-                                            PerDayRevnue."Per Day Rent Per Unit" := MergeDiffSquareRec."MD_Per Day Rent";
+                                            PerDayRevnue."Per Day Rent Per Unit" := MergeDiffSquareRecFromPerDayRevenue."MD_Per Day Rent";
 
                                         // Check if the record already exists to prevent duplicates
                                         PerDayRevnue.SetRange(Year, PerDayRevnue.Year);

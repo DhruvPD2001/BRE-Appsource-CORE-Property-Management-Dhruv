@@ -118,43 +118,37 @@ page 50509 "PDC Transaction"
                             oldStatus::Deposited:
                                 if (Rec."Cheque Status" = Rec."Cheque Status"::"Cheque Received") OR (Rec."Cheque Status" = Rec."Cheque Status"::Retrieved) OR
                                     (Rec."Cheque Status" = Rec."Cheque Status"::"Replaced & Received") then begin
-                                    Error('Cannot change Deposited status to %1.', Rec."Cheque Status");
                                     Rec."Cheque Status" := oldStatus;
-                                    exit;
+                                    Error('Cannot change Deposited status to %1.', Rec."Cheque Status");
                                 end;
 
                             oldStatus::"Due cheque not deposited":
                                 if (Rec."Cheque Status" = Rec."Cheque Status"::Cleared) OR (Rec."Cheque Status" = Rec."Cheque Status"::Returned) OR
                                 (Rec."Cheque Status" = Rec."Cheque Status"::"Replaced & Received") then begin
-                                    Error('Cannot change Due, Cheque Not Deposited status to %1.', Rec."Cheque Status");
                                     Rec."Cheque Status" := oldStatus;
-                                    exit;
+                                    Error('Cannot change Due, Cheque Not Deposited status to %1.', Rec."Cheque Status");
                                 end;
                             oldStatus::Retrieved:
                                 if (Rec."Cheque Status" = Rec."Cheque Status"::Cleared) OR
                                    (Rec."Cheque Status" = Rec."Cheque Status"::Deposited) OR
                                    (Rec."Cheque Status" = Rec."Cheque Status"::Returned) OR
                                    (Rec."Cheque Status" = Rec."Cheque Status"::Deferred) then begin
-                                    Error('Cannot change Retrieved status to %1.', Rec."Cheque Status");
                                     Rec."Cheque Status" := oldStatus;
-                                    exit;
+                                    Error('Cannot change Retrieved status to %1.', Rec."Cheque Status");
                                 end;
 
                             oldStatus::Returned:
                                 if (Rec."Cheque Status" = Rec."Cheque Status"::Cleared) OR
                                    (Rec."Cheque Status" = Rec."Cheque Status"::Deposited) OR
                                    (Rec."Cheque Status" = Rec."Cheque Status"::Retrieved) then begin
-
-                                    Error('Cannot change Returned status to %1.', Rec."Cheque Status");
                                     Rec."Cheque Status" := oldStatus;
-                                    exit;
+                                    Error('Cannot change Returned status to %1.', Rec."Cheque Status");
                                 end;
 
                             oldStatus::"Replaced & Received":
                                 if Rec."Cheque Status" = Rec."Cheque Status"::Cleared then begin
-                                    Error('Cannot change Replaced & Received status to Cleared.');
                                     Rec."Cheque Status" := oldStatus;
-                                    exit;
+                                    Error('Cannot change Replaced & Received status to Cleared.');
                                 end;
 
                             oldStatus::Deferred:
@@ -162,9 +156,8 @@ page 50509 "PDC Transaction"
                                    (Rec."Cheque Status" = Rec."Cheque Status"::Retrieved) OR
                                    (Rec."Cheque Status" = Rec."Cheque Status"::Returned) OR
                                    (Rec."Cheque Status" = Rec."Cheque Status"::"Replaced & Received") then begin
-                                    Error('Cannot change Deferred status to %1.', Rec."Cheque Status");
                                     Rec."Cheque Status" := oldStatus;
-                                    exit;
+                                    Error('Cannot change Deferred status to %1.', Rec."Cheque Status");
                                 end;
                         end;
 
@@ -242,7 +235,7 @@ page 50509 "PDC Transaction"
                                         PaymentSeriesRec."Old Cheque #" := PaymentSeriesRec."Cheque Number";
                                         PaymentSeriesRec."Cheque Number" := '';
                                         PaymentSeriesRec.Modify();
-                                        Rec."Old Cheque#" := Rec."Cheque Number";
+                                        Rec."Old Cheque#" := CopyStr(Rec."Cheque Number", 1, StrLen(Rec."Cheque Number"));
                                         Rec."Cheque Number" := '';
                                         Rec.Modify();
                                     end else
@@ -260,7 +253,7 @@ page 50509 "PDC Transaction"
                                         PaymentSeriesRec."Old Cheque #" := PaymentSeriesRec."Cheque Number";
                                         PaymentSeriesRec."Cheque Number" := '';
                                         PaymentSeriesRec.Modify();
-                                        Rec."Old Cheque#" := Rec."Cheque Number";
+                                        Rec."Old Cheque#" := CopyStr(Rec."Cheque Number", 1, StrLen(Rec."Cheque Number"));
                                         Rec."Cheque Number" := '';
                                         Rec.Modify();
                                     end else

@@ -74,7 +74,7 @@ page 50903 "Final Calculation Card"
                     begin
                         FinalCalculation.SetRange("FC ID", Rec."FC ID");
                         FinalCalculation.SetRange("Contract ID", Rec."Contract ID");
-                        if FinalCalculation.FindFirst() then begin
+                        if not FinalCalculation.IsEmpty() then begin
 
                             StartDate := Rec."Contract Start Date";
                             TerminateDate := Rec."Termination Date";
@@ -525,7 +525,6 @@ page 50903 "Final Calculation Card"
                             // If no record is found, create a new Revenue Structure record
                             FinalCalculation.Init();
                             FinalCalculation.Insert(true);
-                            FinalCalculation.Modify(true);  // Insert the new record and generate the RS ID
 
                             // Get the newly created RS ID
                             FinalCalculationid := ApprovalFinalCalculation."FC ID";
@@ -560,10 +559,8 @@ page 50903 "Final Calculation Card"
     //////////////////  START Final Revenue Calculation Grid ////////////////////
     procedure PopulateRevenueCalculationGrid()
     var
-        FinalCalcHeader: Record "Final Calculation";
         FinalRevCalcGrid: Record "Final Revenue Calculation Grid";
         RentCalc: Record "Rent Calculation";
-        TenancyContractLine: Record "Tenancy Contract Subpage";
     begin
         // Clear existing lines in Final Revenue Calculation Grid for this contract
         FinalRevCalcGrid.SetRange("Contract ID", Rec."Contract ID");
@@ -627,19 +624,9 @@ page 50903 "Final Calculation Card"
 
     procedure GetContractTerminationYear()
     var
-        ContractStartDate: Date;
-        ContractEndDate: Date;
-        YearStartDate: Date;
-        YearEndDate: Date;
-        YearNumber: Integer;
-        StartYear: Integer;
-        UserYear: Integer;
-        FinalCalculation: Record "Final Calculation";
-        RentCalculation: Record "Rent Calculation";
         RentCalculationSub: Record "Rent Calculation Subpage";
+        UserYear: Integer;
         Terminationdate: Date;
-        Perdayrent: Decimal;
-
     begin
         UserYear := 0;
         Terminationdate := Rec."Termination Date";
@@ -675,12 +662,12 @@ page 50903 "Final Calculation Card"
     procedure RentCalculate()
     var
         RentCalculationSub: Record "Rent Calculation Subpage";
-        RentCalculate: Record "Rent Calculate Sub";
+        lRentCalculate: Record "Rent Calculate Sub";
     begin
 
-        RentCalculate.SetRange("Contract ID", Rec."Contract ID");
-        if RentCalculate.FindSet() then
-            RentCalculate.DeleteAll();
+        lRentCalculate.SetRange("Contract ID", Rec."Contract ID");
+        if lRentCalculate.FindSet() then
+            lRentCalculate.DeleteAll();
 
 
         // TenancyContractLine.Reset();
@@ -688,18 +675,18 @@ page 50903 "Final Calculation Card"
         RentCalculationSub.SetRange("Tenant ID", Rec."Tenant ID");
         if RentCalculationSub.FindSet() then
             repeat
-                RentCalculate.Init();
-                RentCalculate."Contract ID" := Rec."Contract ID";
-                RentCalculate."Tenant ID" := Rec."Tenant ID";
+                lRentCalculate.Init();
+                lRentCalculate."Contract ID" := Rec."Contract ID";
+                lRentCalculate."Tenant ID" := Rec."Tenant ID";
                 // Calculate VAT amount based on percentage
-                RentCalculate."Year" := RentCalculationSub."Year";
-                RentCalculate."Period Start Date" := RentCalculationSub."Period Start Date";
-                RentCalculate."Period End Date" := RentCalculationSub."Period End Date";
-                RentCalculate."Number Of Days" := RentCalculationSub."Number Of Days";
-                RentCalculate."Final Annual Amount" := RentCalculationSub."Final Annual Amount";
-                RentCalculate."Per Day Rent" := RentCalculationSub."Per Day Rent";
-                RentCalculate.Insert();
-                Clear(RentCalculate);
+                lRentCalculate."Year" := RentCalculationSub."Year";
+                lRentCalculate."Period Start Date" := RentCalculationSub."Period Start Date";
+                lRentCalculate."Period End Date" := RentCalculationSub."Period End Date";
+                lRentCalculate."Number Of Days" := RentCalculationSub."Number Of Days";
+                lRentCalculate."Final Annual Amount" := RentCalculationSub."Final Annual Amount";
+                lRentCalculate."Per Day Rent" := RentCalculationSub."Per Day Rent";
+                lRentCalculate.Insert();
+                Clear(lRentCalculate);
             until RentCalculationSub.Next() = 0;
 
     end;
@@ -735,14 +722,12 @@ page 50903 "Final Calculation Card"
     procedure RevenueCalculateOneTime()
     var
         TenancyContractSub: Record "Tenancy Contract Subpage";
-        //PaymentSchedule2: Record "Payment Schedule2";
-        RevenueCalculate: Record "Revenue Calculate Sub";
-
+        lRevenueCalculate: Record "Revenue Calculate Sub";
     begin
 
-        RevenueCalculate.SetRange("Contract ID", Rec."Contract ID");
-        if RevenueCalculate.FindSet() then
-            RevenueCalculate.DeleteAll();
+        lRevenueCalculate.SetRange("Contract ID", Rec."Contract ID");
+        if lRevenueCalculate.FindSet() then
+            lRevenueCalculate.DeleteAll();
 
         TenancyContractSub.SetRange("ContractID", Rec."Contract ID");
         TenancyContractSub.SetRange("TenantID", Rec."Tenant ID");
@@ -750,17 +735,17 @@ page 50903 "Final Calculation Card"
         TenancyContractSub.SetRange("Payment Type", 1);
         if TenancyContractSub.FindSet() then
             repeat
-                RevenueCalculate.Init();
-                RevenueCalculate."Contract ID" := TenancyContractSub."ContractID";
-                RevenueCalculate."Tenant ID" := TenancyContractSub."TenantId";
-                RevenueCalculate."Secondary Item Type" := TenancyContractSub."Secondary Item Type";
-                RevenueCalculate.Amount := TenancyContractSub.Amount;
-                RevenueCalculate."VAT Amount" := TenancyContractSub."VAT Amount";
-                RevenueCalculate."Amount Including VAT" := TenancyContractSub."Amount Including VAT";
-                RevenueCalculate."Installment Start Date" := TenancyContractSub."Start Date";
-                RevenueCalculate."Installment End Date" := TenancyContractSub."End Date";
-                RevenueCalculate.Insert();
-                Clear(RevenueCalculate);
+                lRevenueCalculate.Init();
+                lRevenueCalculate."Contract ID" := TenancyContractSub."ContractID";
+                lRevenueCalculate."Tenant ID" := TenancyContractSub."TenantId";
+                lRevenueCalculate."Secondary Item Type" := TenancyContractSub."Secondary Item Type";
+                lRevenueCalculate.Amount := TenancyContractSub.Amount;
+                lRevenueCalculate."VAT Amount" := TenancyContractSub."VAT Amount";
+                lRevenueCalculate."Amount Including VAT" := TenancyContractSub."Amount Including VAT";
+                lRevenueCalculate."Installment Start Date" := TenancyContractSub."Start Date";
+                lRevenueCalculate."Installment End Date" := TenancyContractSub."End Date";
+                lRevenueCalculate.Insert();
+                Clear(lRevenueCalculate);
             until TenancyContractSub.Next() = 0;
     end;
 
@@ -888,7 +873,7 @@ page 50903 "Final Calculation Card"
                 BillinCalcGrid."Contract ID" := RentCalc1."Contract ID";
                 BillinCalcGrid."RevenueDescription" := RentCalc1."Secondary Item Type";
                 BillinCalcGrid."Termination Date" := Rec."Termination Date";
-                BillinCalcGrid."Property Classification" := Rec."Unit Type";
+                BillinCalcGrid."Property Classification" := CopyStr(Rec."Unit Type", 1, StrLen(Rec."Unit Type"));
                 BillinCalcGrid."Tenant ID" := Rec."Tenant ID";
                 // BillinCalcGrid."VAT %" := RentCalc1."VAT %";
                 if RentCalc1."VAT %" = RentCalc1."VAT %"::"5" then
@@ -919,7 +904,7 @@ page 50903 "Final Calculation Card"
                 BillingCalc1."RevenueDescription" := TenancyContractLine2."Secondary Item Type";
                 BillingCalc1."Termination Date" := Rec."Termination Date";
                 BillingCalc1."Payment Type" := Format(TenancyContractLine2."Payment Type");
-                BillingCalc1."Property Classification" := Rec."Unit Type";
+                BillingCalc1."Property Classification" := CopyStr(Rec."Unit Type", 1, StrLen(Rec."Unit Type"));
                 BillingCalc1."Tenant ID" := Rec."Tenant ID";
                 // BillingCalc1."VAT %" := TenancyContractLine2."VAT %";
                 if TenancyContractLine2."VAT %" = TenancyContractLine2."VAT %"::"5%" then
@@ -957,7 +942,7 @@ page 50903 "Final Calculation Card"
                 RecvieableCalcGrid."RevenueDescription" := RentCalc2."Secondary Item Type";
                 RecvieableCalcGrid."Termination Date" := Rec."Termination Date";
                 RecvieableCalcGrid."Tenant ID" := Rec."Tenant ID";
-                RecvieableCalcGrid."Unit Type" := Rec."Unit Type";
+                RecvieableCalcGrid."Unit Type" := CopyStr(Rec."Unit Type", 1, StrLen(Rec."Unit Type"));
                 RecvieableCalcGrid.Insert();
                 Clear(RecvieableCalcGrid);
             until RentCalc2.Next() = 0;
@@ -997,26 +982,26 @@ page 50903 "Final Calculation Card"
     procedure PaymentDetailsFromPaymentSchedule2()
     var
         paymentschedule2Card: Record "Payment Schedule2";
-        paymentdetails: Record "Payment Details";
+        lPaymentdetails: Record "Payment Details";
     begin
-        paymentdetails.SetRange("Contract ID", Rec."Contract ID");
-        if paymentdetails.FindSet() then
-            paymentdetails.DeleteAll();
+        lPaymentdetails.SetRange("Contract ID", Rec."Contract ID");
+        if lPaymentdetails.FindSet() then
+            lPaymentdetails.DeleteAll();
 
         paymentschedule2Card.SetRange("Contract ID", Rec."Contract ID");
         if paymentschedule2Card.FindSet() then
             repeat
-                paymentdetails.Init();
-                paymentdetails."Contract ID" := paymentschedule2Card."Contract ID";
-                paymentdetails."Item Description" := paymentschedule2Card."Secondary Item Type";
-                paymentdetails.Amount := paymentschedule2Card.Amount;
-                paymentdetails."VAT Amount" := paymentschedule2Card."VAT Amount";
-                paymentdetails."Amount Including VAT" := paymentschedule2Card."Amount Including VAT";
-                paymentdetails."Payment Status" := paymentschedule2Card."Payment Status";
-                paymentdetails."Payment Date" := paymentschedule2Card."Due Date";
-                paymentdetails."Termination Date" := Rec."Termination Date";
-                paymentdetails.Insert();
-                Clear(paymentdetails);
+                lPaymentdetails.Init();
+                lPaymentdetails."Contract ID" := paymentschedule2Card."Contract ID";
+                lPaymentdetails."Item Description" := paymentschedule2Card."Secondary Item Type";
+                lPaymentdetails.Amount := paymentschedule2Card.Amount;
+                lPaymentdetails."VAT Amount" := paymentschedule2Card."VAT Amount";
+                lPaymentdetails."Amount Including VAT" := paymentschedule2Card."Amount Including VAT";
+                lPaymentdetails."Payment Status" := paymentschedule2Card."Payment Status";
+                lPaymentdetails."Payment Date" := paymentschedule2Card."Due Date";
+                lPaymentdetails."Termination Date" := Rec."Termination Date";
+                lPaymentdetails.Insert();
+                Clear(lPaymentdetails);
             until paymentschedule2Card.Next() = 0;
 
     end;

@@ -43,7 +43,7 @@ page 50337 "Security Deposit Card"
                         TenancyContractRec.SetRange("Customer Name", Rec."Tenant Full Name");
                         if PAGE.RunModal(PAGE::"Tenancy Contract List", TenancyContractRec) = ACTION::LookupOK then
                             Rec."Contract ID" := TenancyContractRec."Contract ID";
-                        Rec."Property Classification" := TenancyContractRec."Property Classification";
+                        Rec."Property Classification" := CopyStr(TenancyContractRec."Property Classification", 1, StrLen(TenancyContractRec."Property Classification"));
                         FetchContractDetails(Rec."Contract ID", false);
                     end;
                     // Trasfer from Table End
