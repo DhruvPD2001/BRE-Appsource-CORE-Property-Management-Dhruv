@@ -49,6 +49,7 @@ page 50979 "Request Credit Note List"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Indicates whether the credit note should be adjusted with an invoice.';
+                    Caption = 'Adjust with Invoice';
                 }
 
             }

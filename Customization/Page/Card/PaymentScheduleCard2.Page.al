@@ -118,12 +118,15 @@ page 50922 "Payment Schedule Card2"
                     ApplicationArea = All;
                     Caption = 'Invoice ID';
                     ToolTip = 'The ID of the invoice associated with this payment schedule.';
+                    Editable = InvoicedField;
                 }
                 field("Contract Status"; Rec."Contract Status")
                 {
                     ApplicationArea = All;
                     Caption = 'Contract Status';
                     ToolTip = 'The status of the contract associated with this payment schedule.';
+                    Editable = false;
+                    Visible = false;
 
                 }
                 field("Overdue Invoice"; Rec."Overdue Invoice")
@@ -131,30 +134,36 @@ page 50922 "Payment Schedule Card2"
                     ApplicationArea = All;
                     Caption = 'Overdue Invoice';
                     ToolTip = 'Indicates whether the invoice is overdue.';
+                    Editable = false;
+                    Visible = false;
                 }
                 field("Property ID"; Rec."Property ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'The ID of the property associated with this payment schedule.';
+                    Visible = false;
                 }
                 field("No of Days"; Rec."No of Days")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'The number of days for the payment schedule.';
+                    Visible = false;
                 }
                 field("Workflow frequency date"; Rec."Workflow frequency date")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'The date for the workflow frequency associated with this payment schedule.';
+                    Visible = false;
                 }
                 field("Contract start date"; Rec."Contract start date")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'The start date of the contract associated with this payment schedule.';
+                    Visible = false;
                 }
                 field("VAT%"; Rec."VAT%")
                 {
@@ -162,6 +171,7 @@ page 50922 "Payment Schedule Card2"
                     Caption = 'VAT%';
                     Editable = false;
                     ToolTip = 'The VAT percentage for the payment schedule.';
+                    Visible = false;
                 }
                 field("Payment Status"; Rec."Payment Status")
                 {
@@ -175,6 +185,7 @@ page 50922 "Payment Schedule Card2"
                     Caption = 'Payment Received Date';
                     Editable = false;
                     ToolTip = 'The date when the payment was received for this payment schedule.';
+                    Visible = false;
                 }
                 field("Property Classification"; Rec."Property Classification")
                 {
@@ -191,6 +202,7 @@ page 50922 "Payment Schedule Card2"
                     Caption = 'Payment Mode';
                     Editable = false;
                     ToolTip = 'The mode of payment for this payment schedule.';
+                    Visible = false;
                 }
                 field("Cheque Number"; Rec."Cheque Number")
                 {
@@ -198,6 +210,7 @@ page 50922 "Payment Schedule Card2"
                     Caption = 'Cheque Number';
                     Editable = false;
                     ToolTip = 'The cheque number for this payment schedule.';
+                    Visible = false;
                 }
                 field("Credit Note No."; Rec."Credit Note No.")
                 {
@@ -205,6 +218,7 @@ page 50922 "Payment Schedule Card2"
                     Caption = '"Credit Note No."';
                     Editable = false;
                     ToolTip = 'The credit note number associated with this payment schedule.';
+                    Visible = false;
                 }
 
                 field("Credit Note Amount"; Rec."Credit Note Amount")
@@ -213,6 +227,7 @@ page 50922 "Payment Schedule Card2"
                     Caption = '"Credit Note Amount"';
                     Editable = false;
                     ToolTip = 'The amount of the credit note associated with this payment schedule.';
+                    Visible = false;
                 }
 
                 field("Final Rent Amount"; Rec."Final Rent Amount")
@@ -221,6 +236,7 @@ page 50922 "Payment Schedule Card2"
                     Caption = '"Final Rent Amount"';
                     Editable = false;
                     ToolTip = 'The final rent amount after adjustments for this payment schedule.';
+                    Visible = false;
                 }
                 field("Final RentAmountIncludingVAT"; Rec."Final RentAmountIncludingVAT")
                 {
@@ -228,6 +244,7 @@ page 50922 "Payment Schedule Card2"
                     Caption = '"Final Rent Amount Including VAT"';
                     Editable = false;
                     ToolTip = 'The final rent amount including VAT for this payment schedule.';
+                    Visible = false;
                 }
             }
         }
@@ -254,8 +271,8 @@ page 50922 "Payment Schedule Card2"
     var
         PaymentSchedule: Record "Payment Schedule";
         workflowfrequency: Record "Workflow Frequency PR";
-
         TempDueDate: Date;
+        Requestcreditnotegrid: Record "Request Credit Note Grid";
 
     begin
         InvoicedField := NotAccessInvoicedFieldFinanceManager();
@@ -278,8 +295,13 @@ page 50922 "Payment Schedule Card2"
         end else
             Rec."Workflow frequency date" := 0D; // or skip, or raise a warning
 
+        // Rec."Final Rent Amount" := Rec."Amount" - Rec."Credit Note Amount";
+        // Rec."Final RentAmountIncludingVAT" := Rec."Final Rent Amount" + (Rec."Final Rent Amount" * Rec."VAT%") / 100;
+
+
         Rec."Final Rent Amount" := Rec."Amount" - Rec."Credit Note Amount";
         Rec."Final RentAmountIncludingVAT" := Rec."Final Rent Amount" + (Rec."Final Rent Amount" * Rec."VAT%") / 100;
+        //    Round("Final Rent Amount" + ("Final Rent Amount" * "VAT%") / 100, 0.01);
 
         Rec.Modify();
     end;

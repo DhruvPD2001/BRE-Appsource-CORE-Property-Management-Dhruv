@@ -22,12 +22,31 @@ page 50923 "Payment Schedule List"
                     ToolTip = 'The ID of the contract associated with the payment schedule.';
                 }
 
+                field("Contract Start Date"; Rec."Contract Start date")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Contract Start Date';
+                    ToolTip = 'The start date of the contract associated with the payment schedule.';
+                }
+
+                field("Contract End Date"; Rec."Contract End date")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Contract End Date';
+                    ToolTip = 'The end date of the contract associated with the payment schedule.';
+                }
 
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Tenant ID';
                     ToolTip = 'The ID of the tenant associated with the payment schedule.';
+                }
+                field("Tenant Name"; Rec."Tenant Name")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Tenant Name';
+                    ToolTip = 'The name of the tenant associated with the payment schedule.';
                 }
 
             }

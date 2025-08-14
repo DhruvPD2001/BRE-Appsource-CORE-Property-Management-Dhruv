@@ -16,6 +16,7 @@ page 50952 "Pending Recevieable Grid"
                     ApplicationArea = All;
                     Caption = 'Contract ID';
                     Editable = false;
+                    Visible = false;
                 }
                 field("Entry No"; Rec."Entry No")
                 {
@@ -23,6 +24,7 @@ page 50952 "Pending Recevieable Grid"
                     Caption = 'Entry No.';
                     ApplicationArea = All;
                     Editable = false;
+                    Visible = false;
                 }
                 field(RevenueDescription; Rec.RevenueDescription)
                 {
@@ -100,6 +102,7 @@ page 50952 "Pending Recevieable Grid"
                     ApplicationArea = All;
                     Caption = 'Termination Date';
                     Editable = false;
+                    Visible = false;
                 }
                 field("Payment Type"; Rec."Payment Type")
                 {
@@ -107,6 +110,7 @@ page 50952 "Pending Recevieable Grid"
                     ApplicationArea = All;
                     Caption = 'Payment Type';
                     Editable = false;
+                    Visible = false;
                 }
             }
             group(" ")

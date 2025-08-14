@@ -223,6 +223,18 @@ page 50335 "Contract Renewal Card"
                     Editable = false;
                     ToolTip = 'Specifies the unique identifier for the unit.';
                 }
+                field("Usage Type"; Rec."Usage Type")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the usage type of the unit.';
+                }
+                field("Unit Type"; Rec."Unit Type")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the type of the unit.';
+                }
 
                 field("Single Unit Name"; Rec."Single Unit Name")
                 {
@@ -473,7 +485,7 @@ page 50335 "Contract Renewal Card"
                 field("Renewal Contract Status"; rec."Renewal Contract Status")
                 {
                     ApplicationArea = All;
-                    Editable = true; // The ID is not editable since it's auto-incrementing
+                    Editable = false; // The ID is not editable since it's auto-incrementing
                     ToolTip = 'Renewal Contract Status';
                 }
 
@@ -509,6 +521,7 @@ page 50335 "Contract Renewal Card"
                     ApplicationArea = All;
                     Editable = true; // The ID is not editable since it's auto-incrementing
                     ToolTip = 'Final Status';
+                    Caption = 'Contract Renewal Proposal Status';
                 }
 
                 field("Contract Status"; rec."Contract Status")

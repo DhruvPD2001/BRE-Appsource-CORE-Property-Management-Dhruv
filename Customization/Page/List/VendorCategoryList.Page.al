@@ -5,7 +5,6 @@ page 50956 "Vendor Category List"
     ApplicationArea = All;
     Caption = 'Vendor Category List';
     UsageCategory = Lists;
-    CardPageId = 50955;
 
     layout
     {

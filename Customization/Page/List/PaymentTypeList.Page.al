@@ -5,7 +5,6 @@ page 50937 "Payment Type List"
     ApplicationArea = All;
     Caption = 'Payment Type List';
     UsageCategory = Lists;
-    CardPageId = 50936;
 
     layout
     {

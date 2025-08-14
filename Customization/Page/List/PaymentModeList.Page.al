@@ -21,7 +21,16 @@ page 50926 "Payment Mode List"
                     Caption = 'Contract_ID';
                     ToolTip = 'The ID of the contract associated with the payment mode.';
                 }
-
+                field("Contract Start date"; Rec."Contract Start date")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'The start date of the contract associated with the payment mode.';
+                }
+                field("Contract End date"; Rec."Contract End date")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'The end date of the contract associated with the payment mode.';
+                }
                 field("Tenant ID"; Rec."Tenant ID")
                 {
                     ApplicationArea = All;
@@ -29,7 +38,12 @@ page 50926 "Payment Mode List"
                     ToolTip = 'The ID of the tenant associated with the payment mode.';
                 }
 
-
+                field("Tenant Name"; Rec."Tenant Name")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Tenant Name';
+                    ToolTip = 'The name of the tenant associated with the payment mode.';
+                }
 
             }
         }

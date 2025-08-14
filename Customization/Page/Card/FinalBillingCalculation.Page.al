@@ -23,6 +23,7 @@ page 50951 "Final Billing Calculation"
                     ApplicationArea = All;
                     ToolTip = 'The unique identifier for the contract associated with this billing calculation.';
                     Editable = false;
+                    Visible = false;
                 }
                 field("Entry No"; Rec."Entry No")
                 {
@@ -30,6 +31,7 @@ page 50951 "Final Billing Calculation"
                     ApplicationArea = All;
                     ToolTip = 'The unique entry number for this billing calculation.';
                     Editable = false;
+                    Visible = false;
                 }
                 field(InvoicedAmount; Rec.InvoicedAmount)
                 {
@@ -100,6 +102,7 @@ page 50951 "Final Billing Calculation"
                     Caption = 'Termination Date';
                     ApplicationArea = All;
                     Editable = false;
+                    Visible = false;
                 }
                 field("Payment Type"; Rec."Payment Type")
                 {
@@ -107,6 +110,7 @@ page 50951 "Final Billing Calculation"
                     ApplicationArea = All;
                     Caption = 'Payment Type';
                     Editable = false;
+                    Visible = false;
                 }
                 field("Property Classification"; Rec."Property Classification")
                 {
@@ -114,6 +118,7 @@ page 50951 "Final Billing Calculation"
                     ApplicationArea = All;
                     Caption = 'Property Classification';
                     Editable = false;
+                    Visible = false;
                 }
                 field("Invoiced"; Rec.Invoiced)
                 {
@@ -260,6 +265,8 @@ page 50951 "Final Billing Calculation"
                             ToolTip = 'The URL of the document associated with the invoice for this billing calculation.';
                             ApplicationArea = All;
                             Caption = 'Invoice Document URL';
+                            Editable = false;
+                            Visible = false;
                         }
                     }
                     group("Credit Note Details")
@@ -311,6 +318,8 @@ page 50951 "Final Billing Calculation"
                             ToolTip = 'The URL of the document associated with the credit note for this billing calculation.';
                             ApplicationArea = All;
                             Caption = 'Credit Note Document URL';
+                            Editable = false;
+                            Visible = false;
                         }
                     }
                 }

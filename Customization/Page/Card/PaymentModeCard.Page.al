@@ -19,6 +19,18 @@ page 50927 "Payment Mode Card"
                     Editable = IsFieldEditable;
                     ToolTip = 'Enter the Contract ID.';
                 }
+                field("Contract Start date"; Rec."Contract Start date")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Enter the Contract Start date.';
+                }
+                field("Contract End date"; Rec."Contract End date")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Enter the Contract End date.';
+                }
 
                 field("Tenant ID"; Rec."Tenant ID")
                 {
