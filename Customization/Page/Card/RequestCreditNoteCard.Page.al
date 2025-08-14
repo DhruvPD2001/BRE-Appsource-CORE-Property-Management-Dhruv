@@ -99,6 +99,11 @@ page 50980 "Request Credit Note Card"
                     MultiLine = true;
                     Editable = false;
                 }
+                field("Adjust with Invoice"; Rec."Adjust with Invoice")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Adjust with Invoice';
+                }
             }
             part("Request Credit Note Lines"; "Request CreditNote Grid")
             {

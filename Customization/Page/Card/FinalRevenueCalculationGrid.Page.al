@@ -16,6 +16,7 @@ page 50950 "Final Revenue Calculation Grid"
                     ApplicationArea = All;
                     Caption = 'Revenue Description';
                     ToolTip = 'Specifies the description of the revenue item';
+                    Editable = false;
                 }
                 field("Contract ID"; Rec."Contract ID")
                 {
@@ -23,6 +24,7 @@ page 50950 "Final Revenue Calculation Grid"
                     Caption = 'Contract ID';
                     Editable = false;
                     ToolTip = 'The Contract ID is auto-generated and not editable.';
+                    Visible = false;
                 }
                 field("Entry No."; Rec."Entry No.")
                 {
@@ -30,6 +32,7 @@ page 50950 "Final Revenue Calculation Grid"
                     Caption = 'Entry No.';
                     Editable = false;
                     ToolTip = 'The unique entry number for the final revenue calculation entry.';
+                    Visible = false;
                 }
                 field("Original Amount"; Rec."Original Amount")
                 {
@@ -100,6 +103,7 @@ page 50950 "Final Revenue Calculation Grid"
                     Caption = 'Actual Contract Tenure';
                     Editable = false;
                     ToolTip = 'Actual Contract Tenure';
+                    Visible = false;
                 }
                 field("Per Day Rent"; Rec."Per Day Rent")
                 {
@@ -107,6 +111,7 @@ page 50950 "Final Revenue Calculation Grid"
                     Caption = 'Per Day Rent';
                     Editable = false;
                     ToolTip = 'Per Day Rent';
+                    Visible = false;
                 }
                 field("Revised VAT %"; Rec."Revised VAT %")
                 {
@@ -114,12 +119,15 @@ page 50950 "Final Revenue Calculation Grid"
                     Caption = 'Reviseed VAT %';
                     Editable = false;
                     ToolTip = 'Revised VAT %';
+                    Visible = false;
                 }
                 field("ContractYear(Termination Date)"; Rec."ContractYear(Termination Date)")
                 {
                     ApplicationArea = All;
                     Caption = 'Contract Year On Termination Date';
                     ToolTip = 'Enter the ContractYear(Termination Date).';
+                    Editable = false;
+                    Visible = false;
                 }
                 field("Annual Rent Amount TermiYear"; Rec."Annual Rent Amount TermiYear")
                 {
@@ -127,6 +135,7 @@ page 50950 "Final Revenue Calculation Grid"
                     Caption = 'Annual Rent Amount of Termination Year';
                     Editable = false;
                     ToolTip = 'Annual Rent Amount of Termination Year';
+                    Visible = false;
                 }
                 field("Total No. Of Days"; Rec."Total No. Of Days")
                 {
@@ -134,6 +143,7 @@ page 50950 "Final Revenue Calculation Grid"
                     Caption = 'Total No. Of Days(Termination Year)';
                     ToolTip = 'Enter the Total No. Of Days.';
                     Editable = false;
+                    Visible = false;
                 }
                 field("Payment Type"; Rec."Payment Type")
                 {
@@ -141,6 +151,7 @@ page 50950 "Final Revenue Calculation Grid"
                     Caption = 'Payment Type';
                     Editable = false;
                     ToolTip = 'Payment Type';
+                    Visible = false;
                 }
 
             }

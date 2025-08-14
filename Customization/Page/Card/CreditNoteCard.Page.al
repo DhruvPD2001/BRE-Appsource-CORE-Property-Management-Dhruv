@@ -257,6 +257,7 @@ page 50966 "Credit Note Card"
                     FinalCalculation: Record "Final Calculation";
                     Billingcalculationgrid: Record "Final Billing Calculation Grid";
                     creditmemo: Record "Credit Note";
+
                     azureBlobUploader: Codeunit "Azure AD Blob Storage";
                     TempBlob: Codeunit "Temp Blob";
                     RecRef: RecordRef;
@@ -266,6 +267,7 @@ page 50966 "Credit Note Card"
                     inStream: InStream;
                     ReportID: Integer;
                     OutStream: OutStream;
+
                 begin
                     ReportID := 50117;
                     creditmemo.Reset();

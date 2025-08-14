@@ -37,14 +37,14 @@ page 50928 "Payment Mode Card2"
                 field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = All;
-                    Editable = IsApproved; // The ID is not editable since it's auto-incrementing
+                    Editable = IsApproved and false; // The ID is not editable since it's auto-incrementing
                     ToolTip = 'The Amount Including VAT is the total amount after adding VAT.';
                 }
 
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = All;
-                    Editable = IsApproved;  // The ID is not editable since it's auto-incrementing
+                    Editable = IsApproved and false;  // The ID is not editable since it's auto-incrementing
                     ToolTip = 'The Due Date is the date by which the payment should be made.';
                 }
 
@@ -303,6 +303,7 @@ page 50928 "Payment Mode Card2"
                     Caption = 'Payment Received Date';
                     Editable = false;
                     ToolTip = 'The Payment Received Date indicates the date when the payment was received.';
+                    Visible = false;
                 }
 
                 field("View Invoice"; Rec."View Invoice")
@@ -311,6 +312,7 @@ page 50928 "Payment Mode Card2"
                     Caption = 'View Receipt Document';
                     ToolTip = 'The View Receipt Document field allows you to view the receipt document associated with the payment mode.';
                     DrillDown = true;
+                    Editable = false;
                     trigger OnDrillDown()
                     var
                         FileURL: Text;
@@ -330,6 +332,7 @@ page 50928 "Payment Mode Card2"
                     ApplicationArea = All;
                     Caption = 'View Reciept document URL';
                     ToolTip = 'The View Receipt Document URL field contains the URL of the receipt document associated with the payment mode.';
+                    Visible = false;
                 }
                 field("Payment Reminder"; rec."Payment Reminder")
                 {
@@ -344,6 +347,7 @@ page 50928 "Payment Mode Card2"
                     ApplicationArea = All;
                     Caption = '"Credit Note Amount"';
                     ToolTip = 'The Credit Note Amount is the amount of credit note applied to the payment mode.';
+                    Editable = false;
                 }
 
                 field("Final Rent Amount"; Rec."Final Rent Amount")
@@ -551,6 +555,7 @@ page 50928 "Payment Mode Card2"
         paymentschedul2grid: Record "Payment Schedule2";
         paymentTypeRec: Record "Payment Type";
         paymentschedulegrid1: Record "Payment Schedule2"; // Record variable for Payment Type
+        PaymentStatus: Enum "Payment Status";
     begin
         IsApproved := (Rec."Approval Status" <> Rec."Approval Status"::Approved);
         // If the field is blank, assign '-'
@@ -571,6 +576,25 @@ page 50928 "Payment Mode Card2"
             if paymentTypeRec.FindFirst() then
                 Rec."Payment mode" := paymentTypeRec."Payment Method"; // Set the first Payment Method as default
 
+        if Rec."Payment Status" = PaymentStatus::Received then
+            exit;
+
+        if Rec."Due Date" = Today() then
+            Rec."Payment Status" := PaymentStatus::Due
+
+        else
+            if Rec."Due Date" > Today() then
+                Rec."Payment Status" := PaymentStatus::Scheduled
+
+            else
+                if Rec."Due Date" = 0D then
+                    Rec."Payment Status" := PaymentStatus::Scheduled
+
+                else
+                    if Rec."Due Date" < Today() then
+                        Rec."Payment Status" := PaymentStatus::Overdue;
+
+        Rec.Modify();
 
         paymentschedul2grid.SetRange("Contract ID", Rec."Contract ID");
         paymentschedul2grid.SetRange("Payment Series", Rec."Payment Series");

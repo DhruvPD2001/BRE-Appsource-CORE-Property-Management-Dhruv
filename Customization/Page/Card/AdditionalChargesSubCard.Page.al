@@ -78,6 +78,7 @@ page 50906 "Additional Charges Sub Card"
                     Lookup = true;
                     Visible = false;
                     ToolTip = 'Enter the Contract ID associated with the additional charge.';
+                    Editable = false;
                 }
 
                 field("Tenant ID"; Rec."Tenant ID")
@@ -86,6 +87,7 @@ page 50906 "Additional Charges Sub Card"
                     Lookup = true;
                     Visible = false;
                     ToolTip = 'Enter the Tenant ID associated with the additional charge.';
+                    Editable = false;
                 }
                 field(Invoiced; Rec.Invoiced)
                 {
@@ -96,11 +98,14 @@ page 50906 "Additional Charges Sub Card"
                 {
                     ApplicationArea = All;
                     ToolTip = 'The ID of the invoice to which this additional charge is linked.';
+                    Editable = false;
                 }
                 field("Unit Type"; Rec."Unit Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Enter the Unit Type associated with the additional charge.';
+                    Editable = false;
+                    Visible = false;
                 }
             }
 
@@ -161,6 +166,8 @@ page 50906 "Additional Charges Sub Card"
                     ApplicationArea = All;
                     Caption = 'Invoice Document URL';
                     ToolTip = 'Click to view the invoice document.';
+                    Editable = false;
+                    Visible = false;
                 }
 
             }

@@ -17,12 +17,14 @@ page 50910 "Rent Calculate Sub Card"
                     ApplicationArea = All;
                     Caption = 'Year';
                     ToolTip = 'Enter the Year.';
+                    Editable = false;
                 }
                 field("Period Start Date"; Rec."Period Start Date")
                 {
                     ApplicationArea = All;
                     Caption = 'Start Date';
                     ToolTip = 'Enter the Period Start Date.';
+                    Editable = false;
                 }
 
                 field("Period End Date"; Rec."Period End Date")
@@ -30,6 +32,7 @@ page 50910 "Rent Calculate Sub Card"
                     ApplicationArea = All;
                     Caption = 'End Date';
                     ToolTip = 'Enter the Period End Date.';
+                    Editable = false;
                 }
 
                 field("Number of Days"; Rec."Number of Days")
@@ -37,13 +40,14 @@ page 50910 "Rent Calculate Sub Card"
                     ApplicationArea = All;
                     Caption = 'Number of Days';
                     ToolTip = 'Enter the Number of Days.';
+                    Editable = false;
                 }
 
                 field("Final Annual Amount"; Rec."Final Annual Amount")
                 {
                     ApplicationArea = All;
                     Caption = 'Final Annual Amount';
-                    Editable = true;
+                    Editable = false;
                     ShowMandatory = true;
                     NotBlank = true;
                     ToolTip = 'Enter the Final Annual Amount.';
@@ -70,6 +74,7 @@ page 50910 "Rent Calculate Sub Card"
                     ApplicationArea = All;
                     Caption = 'Per Day Rent';
                     ToolTip = 'Enter the Per Day Rent.';
+                    Editable = false;
                 }
 
             }

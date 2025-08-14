@@ -15,6 +15,7 @@ page 50970 "Billing Calculation CN Card"
                     ToolTip = 'The unique identifier for the credit note associated with the billing calculation.';
                     ApplicationArea = all;
                     Caption = 'Credit Note ID';
+                    Editable = false;
                 }
                 field("Contract ID"; Rec."Contract ID")
                 {

@@ -113,7 +113,7 @@ page 50305 "Property Registration Card"
             {
                 Caption = 'Additional Information';
 
-                field("Emirate"; rec.Emirate)
+                field("Emirate"; rec."Emirate Name")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the emirate where the property is located.';

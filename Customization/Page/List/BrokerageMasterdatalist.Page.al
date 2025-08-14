@@ -153,12 +153,12 @@ page 50961 "Brokerage Master Data List"
                     Editable = false;
                     ToolTip = 'Specifies the name of the owner associated with the brokerage master data.';
                 }
-                field("Unit ID"; Rec."Unit ID")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                    ToolTip = 'Specifies the unique identifier for the unit associated with the brokerage master data.';
-                }
+                // field("Unit ID"; Rec."Unit ID")
+                // {
+                //     ApplicationArea = All;
+                //     Editable = false;
+                //     ToolTip = 'Specifies the unique identifier for the unit associated with the brokerage master data.';
+                // }
                 field("Unit Number"; Rec."Unit Number")
                 {
                     ApplicationArea = All;

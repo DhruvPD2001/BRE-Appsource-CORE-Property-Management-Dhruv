@@ -129,11 +129,11 @@ pageextension 50103 ItemListExtension extends "Item List"
         exit(SelectedUnits);
     end;
 
-    trigger OnOpenPage()
-    var
+    // trigger OnOpenPage()
+    // var
 
-    begin
-        Rec.SetRange(Type, Rec.Type::Service);
-    end;
+    // begin
+    //     Rec.SetRange(Type, Rec.Type::Service);
+    // end;
 
 }

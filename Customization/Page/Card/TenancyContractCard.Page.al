@@ -354,7 +354,7 @@ page 50313 "Tenancy Contract Card"
                 field("Contract End Date"; Rec."Contract End Date")
                 {
                     ApplicationArea = All;
-                    Editable = true;
+                    Editable = false;
                     ToolTip = 'Enter the end date of the tenancy contract.';
                 }
                 field("Contract Tenor"; Rec."Contract Tenor")
@@ -429,7 +429,7 @@ page 50313 "Tenancy Contract Card"
                     ToolTip = 'Enter the security deposit amount for the tenancy contract.';
                 }
 
-                field("Balance Amount"; Rec."Balance Amount")
+                field("Balance Amount"; Rec."Security Deposit Amt. Received")
                 {
                     ApplicationArea = All;
                     Editable = true;
@@ -441,7 +441,7 @@ page 50313 "Tenancy Contract Card"
                         UpdateSecurityAmountReceived();
                     end;
                 }
-                field("Security Amount Received"; Rec."Security Amount Received")
+                field("Security Amount Received"; Rec."Security Amount Pending")
                 {
                     ApplicationArea = All;
                     Editable = true;
@@ -1340,6 +1340,11 @@ page 50313 "Tenancy Contract Card"
                     ToolTip = 'The status of the tenancy contract.';
                 }
             }
+            field(IsCarryForwarded; Rec.IsCarryForwarded)
+            {
+                ApplicationArea = All;
+                ToolTip = 'Carry Forward';
+            }
         }
     }
     actions
@@ -1357,23 +1362,25 @@ page 50313 "Tenancy Contract Card"
                     ReportDubai: Report "Tenancy Contract";
                     ReportAbuDhabi: Report UmmAlQuwainContract;
                     Emirate: Enum Emirates;
+                    CurrentEmirateValue: Enum Emirates;
                 begin
                     TenancyContract.SetRange("Contract ID", Rec."Contract ID");
 
-                    case Rec.Emirate of
-                        Emirate::"Umm Al Quwain":
-                            begin
-                                ReportAbuDhabi.SetTableView(TenancyContract);
-                                ReportAbuDhabi.UseRequestPage(false);
-                                ReportAbuDhabi.RunModal();
-                            end;
-                        Emirate::Dubai, Emirate::"Abu Dhabi", Emirate::Sharjah, Emirate::Ajman, Emirate::Fujairah, Emirate::"Ras Al Khaimah":
-                            begin
-                                ReportDubai.SetTableView(TenancyContract);
-                                ReportDubai.UseRequestPage(false);
-                                ReportDubai.RunModal();
-                            end;
-                    end;
+                    if Evaluate(CurrentEmirateValue, Rec.Emirate) then
+                        case CurrentEmirateValue of
+                            Emirate::"Umm Al Quwain":
+                                begin
+                                    ReportAbuDhabi.SetTableView(TenancyContract);
+                                    ReportAbuDhabi.UseRequestPage(false);
+                                    ReportAbuDhabi.RunModal();
+                                end;
+                            Emirate::Dubai, Emirate::"Abu Dhabi", Emirate::Sharjah, Emirate::Ajman, Emirate::Fujairah, Emirate::"Ras Al Khaimah":
+                                begin
+                                    ReportDubai.SetTableView(TenancyContract);
+                                    ReportDubai.UseRequestPage(false);
+                                    ReportDubai.RunModal();
+                                end;
+                        end;
                 end;
             }
         }
@@ -1530,10 +1537,10 @@ page 50313 "Tenancy Contract Card"
     local procedure UpdateSecurityAmountReceived()
     begin
         // Update Security Amount Received
-        if Rec."Security Deposit Amount" = Rec."Balance Amount" then
-            Rec."Security Amount Received" := 0
+        if Rec."Security Deposit Amount" = Rec."Security Deposit Amt. Received" then
+            Rec."Security Amount Pending" := 0
         else
-            Rec."Security Amount Received" := Rec."Security Deposit Amount" - Rec."Balance Amount";
+            Rec."Security Amount Pending" := Rec."Security Deposit Amount" - Rec."Security Deposit Amt. Received";
 
     end;
 

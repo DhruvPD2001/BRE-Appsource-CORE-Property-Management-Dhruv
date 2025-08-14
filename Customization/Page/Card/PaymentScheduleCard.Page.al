@@ -47,6 +47,12 @@ page 50921 "Payment Schedule Card"
                     Editable = false;
                     ToolTip = 'The start date of the contract associated with this payment schedule.';
                 }
+                field("Contract End date"; Rec."Contract End date")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'The end date of the contract associated with this payment schedule.';
+                }
                 field("Property ID"; Rec."Property ID")
                 {
                     ApplicationArea = All;

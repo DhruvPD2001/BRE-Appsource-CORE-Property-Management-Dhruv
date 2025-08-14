@@ -5,7 +5,6 @@ page 50901 "Primary Item List"
     ApplicationArea = All;
     Caption = 'Primary Item List';
     UsageCategory = Lists;
-    CardPageId = 50902;
 
     layout
     {

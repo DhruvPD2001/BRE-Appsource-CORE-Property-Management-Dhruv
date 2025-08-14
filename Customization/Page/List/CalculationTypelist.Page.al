@@ -5,7 +5,6 @@ page 50960 "Calculation Type List"
     ApplicationArea = All;
     Caption = 'Calculation Type List';
     UsageCategory = Lists;
-    CardPageId = 50959;
 
     layout
     {

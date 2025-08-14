@@ -73,13 +73,13 @@ page 50338 "Security Deposit List"
                     ToolTip = 'End date of the new contract associated with the security deposit.';
                 }
 
-                field("New_Security Deposit Amount"; Rec."New_Security Deposit Amount")
+                field("New_Security Deposit Amount"; Rec."Carry Forward Amount")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Amount of the new security deposit.';
                 }
 
-                field("Adjusted amount"; Rec."Adjusted amount")
+                field("Adjusted amount"; Rec."Security Deposit Amt. Pending")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Amount adjusted for the security deposit.';

@@ -7,7 +7,7 @@ page 50710 "Approval Payment Request"
     UsageCategory = Lists;
     InsertAllowed = false;
     ModifyAllowed = true;
-    DeleteAllowed = false;
+    DeleteAllowed = true;
 
     layout
     {
@@ -311,6 +311,7 @@ page 50710 "Approval Payment Request"
                             PaymentModeTable."Payment Series" := CopyStr(NewPaymentCode, 1, StrLen(NewPaymentCode));
                             PaymentModeTable."Payment Status" := PaymentModeTable."Payment Status"::Scheduled;
                             PaymentModeTable.Insert(true);
+                            // PaymentModeRec.ModifyAll("Payment Mode", ApprovalRec."Payment Mode");
                             Clear(PaymentModeTable);
 
                             // Update Payment Schedule for matching `Items` and `Payment Series`
@@ -401,6 +402,7 @@ page 50710 "Approval Payment Request"
                                 PaymentModeTable."Payment Series" := CopyStr(NewPaymentCode, 1, StrLen(NewPaymentCode));
                                 PaymentModeTable."Payment Status" := PaymentModeTable."Payment Status"::Scheduled;
                                 PaymentModeTable.Insert(true);
+                                // PaymentModeRec.ModifyAll("Payment Mode", ApprovalRec."Payment Mode");
                                 Clear(PaymentModeTable);
                             end else begin
                                 // Modify existing record
