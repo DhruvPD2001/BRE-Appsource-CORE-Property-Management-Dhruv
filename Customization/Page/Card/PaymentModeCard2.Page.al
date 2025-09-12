@@ -371,6 +371,12 @@ page 50928 "Payment Mode Card2"
                     Editable = false;
                     ToolTip = 'The Final Rent Amount Including VAT is the total rent amount after applying any credit notes and adding VAT.';
                 }
+                field(PortalSidePaymentProcessing; Rec.PortalSidePaymentProcessing)
+                {
+                    ApplicationArea = All;
+                    Caption = '"PortalSidePaymentProcessing"';
+                    Editable = true;
+                }
             }
 
             group(TotalAmountCalculation)
@@ -573,8 +579,13 @@ page 50928 "Payment Mode Card2"
 
 
         if Rec."Payment mode" = '' then
+            // Retrieve the first available Payment Method from the Payment Type table
             if paymentTypeRec.FindFirst() then
                 Rec."Payment mode" := paymentTypeRec."Payment Method"; // Set the first Payment Method as default
+
+
+        if Rec."Payment Status" = PaymentStatus::Cancelled then
+            exit; // Do nothing if already cancelled
 
         if Rec."Payment Status" = PaymentStatus::Received then
             exit;
@@ -595,6 +606,16 @@ page 50928 "Payment Mode Card2"
                         Rec."Payment Status" := PaymentStatus::Overdue;
 
         Rec.Modify();
+        // if Rec."Due Date" <> xRec."Due Date" then begin
+        //         if Rec."Due Date" = Today() then
+        //             Rec."Payment Status" := Rec."Payment Status"::"Due"
+        //         else if Rec."Due Date" < Today() then
+        //             Rec."Payment Status" := Rec."Payment Status"::"Overdue"
+        //         else
+        //             Rec."Payment Status" := Rec."Payment Status";
+
+        //      //   Modify();
+        //     end;
 
         paymentschedul2grid.SetRange("Contract ID", Rec."Contract ID");
         paymentschedul2grid.SetRange("Payment Series", Rec."Payment Series");
