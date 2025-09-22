@@ -72,6 +72,7 @@ page 50927 "Payment Mode Card"
                 {
                     ApplicationArea = All;
                     Editable = IsFieldEditable;
+                    Visible = false;
                     ToolTip = 'Enter the On-hold status.';
                 }
                 field(Isupdated; Rec.Isupdated)
