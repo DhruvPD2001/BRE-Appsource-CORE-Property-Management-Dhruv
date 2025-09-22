@@ -34,6 +34,10 @@ page 50127 "Payment Mode2 List"
                     ApplicationArea = All;
                     ToolTip = 'The total amount including VAT for the payment mode.';
                 }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = All;
+                }
             }
         }
     }

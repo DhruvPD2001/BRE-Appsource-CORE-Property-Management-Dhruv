@@ -1,13 +1,11 @@
-#pragma warning disable AW0006
 page 50925 "Payment Schedule Grid"
-#pragma warning restore AW0006
 {
     PageType = List;
     SourceTable = "Payment Schedule2";
     ApplicationArea = All;
     Caption = 'Payment Schedule Grid List';
+    UsageCategory = None;
     CardPageId = 50922;
-
 
     layout
     {
@@ -39,6 +37,11 @@ page 50925 "Payment Schedule Grid"
                 {
                     ApplicationArea = All;
                     ToolTip = 'The total amount including VAT for the payment schedule.';
+                }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the Due Date.';
                 }
             }
         }

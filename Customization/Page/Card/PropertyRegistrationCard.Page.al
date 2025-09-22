@@ -113,6 +113,11 @@ page 50305 "Property Registration Card"
             {
                 Caption = 'Additional Information';
 
+                field(Country; rec."Country")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the country where the property is located.';
+                }
                 field("Emirate"; rec."Emirate Name")
                 {
                     ApplicationArea = All;

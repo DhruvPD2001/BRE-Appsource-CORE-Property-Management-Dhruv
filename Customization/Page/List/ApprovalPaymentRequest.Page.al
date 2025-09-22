@@ -46,6 +46,18 @@ page 50710 "Approval Payment Request"
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies the unique identifier for the tenant associated with this payment change request.';
+                    DrillDown = true;
+
+                    trigger OnDrillDown()
+                    var
+                        Tenantprofile: Record Customer;
+                    begin
+                        Tenantprofile.SetRange("No.", Rec."Tenant ID");
+                        if Tenantprofile.FindSet() then
+                            PAGE.RunModal(PAGE::"Customer Card", Tenantprofile)
+                        else
+                            Message('No Customer found using FindFirst either.');
+                    end;
                 }
                 field("Proposal ID"; Rec."Proposal ID")
                 {
@@ -59,8 +71,18 @@ page 50710 "Approval Payment Request"
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies the unique identifier for the contract associated with this payment change request.';
+                    DrillDown = true;
 
-
+                    trigger OnDrillDown()
+                    var
+                        tenancycontact: Record "Tenancy Contract";
+                    begin
+                        tenancycontact.SetRange("Contract ID", Rec."Contract ID");
+                        if tenancycontact.FindSet() then
+                            PAGE.RunModal(PAGE::"Tenancy Contract Card", tenancycontact)
+                        else
+                            Message('No Tenancy Contract found using FindFirst either.');
+                    end;
                 }
                 field("Payment Series"; Rec."Payment Series")
                 {
@@ -218,7 +240,6 @@ page 50710 "Approval Payment Request"
         }
     }
 
-
     procedure ProcessApprovalAndSplitRequest()
     var
         PaymentChangeReqTable: Record "Approval Payment Request";
@@ -233,11 +254,7 @@ page 50710 "Approval Payment Request"
         SequenceNo, increment : Integer;
         ItemSeries: Text;
         paymentSeriesNos: List of [Text];
-
     begin
-
-
-        // Fetch Approval Record for Current Contract, Tenant, and ID
         ApprovalRec.Reset();
         ApprovalRec.SetRange("Contract ID", Rec."Contract ID");
         ApprovalRec.SetRange("Tenant ID", Rec."Tenant ID");
@@ -272,8 +289,8 @@ page 50710 "Approval Payment Request"
 
                             // Extract and store `Items` in a list
                             Clear(itemList);
-                            if PaymentChangeReqTable."Items".Contains(',') then
-                                foreach ItemSeries in PaymentChangeReqTable."Items".Split(',') do
+                            if PaymentChangeReqTable."Items".Contains(', ') then
+                                foreach ItemSeries in PaymentChangeReqTable."Items".Split(', ') do
                                     itemList.Add(DelChr(ItemSeries, '>', ' '))
                             else
                                 itemList.Add(PaymentChangeReqTable."Items");
@@ -360,8 +377,8 @@ page 50710 "Approval Payment Request"
                                 PaymentChangeReqTable."Tenant ID", PaymentChangeReqTable."ID");
 
                             Clear(paymentSeriesNos);
-                            if PaymentChangeReqTable."Payment Series".Contains(',') then
-                                foreach paymentSeries in PaymentChangeReqTable."Payment Series".Split(',') do
+                            if PaymentChangeReqTable."Payment Series".Contains(', ') then
+                                foreach paymentSeries in PaymentChangeReqTable."Payment Series".Split(', ') do
                                     paymentSeriesNos.Add(DelChr(paymentSeries, '=', ' '))
                             else
                                 paymentSeriesNos.Add(PaymentChangeReqTable."Payment Series");
