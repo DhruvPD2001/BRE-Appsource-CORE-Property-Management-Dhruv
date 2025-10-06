@@ -303,7 +303,7 @@ page 50313 "Tenancy Contract Card"
                 field("Base Unit of Measure"; rec."Base Unit of Measure")
                 {
                     ApplicationArea = All;
-                    Lookup = true;
+                    Editable = false;
                     ToolTip = 'Select the base unit of measure for the property associated with this tenancy contract.';
                 }
 
@@ -337,6 +337,7 @@ page 50313 "Tenancy Contract Card"
                 field("Facilities/Amenities"; rec."Facilities/Amenities")
                 {
                     ApplicationArea = All;
+                    Editable = false;
                     ToolTip = 'Enter the facilities or amenities associated with this tenancy contract.';
                 }
             }
@@ -510,7 +511,7 @@ page 50313 "Tenancy Contract Card"
                 field("Single Rent Calculation"; Rec."Single Rent Calculation")
                 {
                     ApplicationArea = All;
-                    Editable = Rec."Praposal Type Selected" = Rec."Praposal Type Selected"::"Single Unit";
+                    Editable = false;
                     ToolTip = 'Select the type of rent calculation for single units, either with lumpsum square feet rate or with square feet rate.';
                     trigger OnValidate()
                     begin
@@ -521,7 +522,7 @@ page 50313 "Tenancy Contract Card"
                 field("Merge Rent Calculation"; Rec."Merge Rent Calculation")
                 {
                     ApplicationArea = All;
-                    Editable = Rec."Praposal Type Selected" = Rec."Praposal Type Selected"::"Merge Unit";
+                    Editable = false;
                     ToolTip = 'Select the type of rent calculation for merged units, either with differential square feet rate, lumpsum annual amount, or same square feet.';
                     trigger OnValidate()
                     begin

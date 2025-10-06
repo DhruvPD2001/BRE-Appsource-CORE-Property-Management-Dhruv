@@ -80,13 +80,6 @@ page 50912 "Revenue Structure Card"
                     Visible = false;
                     ToolTip = 'The Tenant ID is auto-generated and not editable.';
                 }
-                field("Rent Calculation Type"; Rec."Rent Calculation Type")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Rent Calculation Type';
-                    ToolTip = 'Enter the Rent Calculation Type.';
-                }
-
                 field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = All;

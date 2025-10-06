@@ -469,22 +469,22 @@ page 50315 "Lease Proposal Card"
                             TargetRecord."Amount Including VAT" := LeaseProposal."Rent Amount Including VAT";
 
                             // Handle rent calculation type assignment
-                            if LeaseProposal."Single Rent Calculation" = LeaseProposal."Single Rent Calculation"::"Single Unit with lumpsum square feet rate" then
-                                TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Single Rent Calculation")
-                            else
-                                if LeaseProposal."Single Rent Calculation" = LeaseProposal."Single Rent Calculation"::"Single Unit with square feet rate" then
-                                    TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Single Rent Calculation")
-                                else
-                                    if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with differential square feet rate" then
-                                        TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Merge Rent Calculation")
-                                    else
-                                        if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with lumpsum annual amount" then
-                                            TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Merge Rent Calculation")
-                                        else
-                                            if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with same square feet" then
-                                                TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Merge Rent Calculation")
-                                            else
-                                                Error('No valid Rent Calculation Type found in Lease Proposal.');
+                            // if LeaseProposal."Single Rent Calculation" = LeaseProposal."Single Rent Calculation"::"Single Unit with lumpsum square feet rate" then
+                            //     TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Single Rent Calculation")
+                            // else
+                            //     if LeaseProposal."Single Rent Calculation" = LeaseProposal."Single Rent Calculation"::"Single Unit with square feet rate" then
+                            //         TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Single Rent Calculation")
+                            //     else
+                            //         if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with differential square feet rate" then
+                            //             TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Merge Rent Calculation")
+                            //         else
+                            //             if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with lumpsum annual amount" then
+                            //                 TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Merge Rent Calculation")
+                            //             else
+                            //                 if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with same square feet" then
+                            //                     TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Merge Rent Calculation")
+                            //                 else
+                            //                     Error('No valid Rent Calculation Type found in Lease Proposal.');
 
                             TargetRecord.Insert();
 
@@ -705,6 +705,7 @@ page 50315 "Lease Proposal Card"
 
             group("Other Payments")
             {
+                Editable = Rec."Proposal Status" <> Rec."Proposal Status"::Approved;
                 part("Revenue"; "Revenue Item SubPage Card")
                 {
                     SubPageLink = ProposalID = FIELD("Proposal ID"); // Link to filter attachments for this owner only
@@ -942,10 +943,62 @@ page 50315 "Lease Proposal Card"
 
         CurrPage."Merge Lum_AnnualAmount Rent".Page.Update();
         CurrPage."Single Unit lumpsum Rent".Page.Update();
+        UpdateUnitEnableState();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        CurrPage."Revenue".Page.SetProposalId(Rec."Proposal ID");
+        CurrPage."Revenue".Page.SetStartEndDate(Rec."Lease Start Date", Rec."Lease End Date", Rec."Unit Name", Rec."Property Name", Rec."Unit Size", Rec."Tenant Full Name");
+        CurrPage."Revenue".Page.SetTenantID(Rec."Tenant ID");
 
     end;
 
-    // Function to update enabled state of Unit fields
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        docAttach: Page "Revenue Item Subpage Card";
+    begin
+        CurrPage."Revenue".Page.SetProposalId(Rec."Proposal ID");
+        CurrPage."Revenue".Page.SetStartEndDate(Rec."Lease Start Date", Rec."Lease End Date", Rec."Unit Name", Rec."Property Name", Rec."Unit Size", Rec."Tenant Full Name");
+        CurrPage."Revenue".Page.SetTenantID(Rec."Tenant ID");
+
+        docAttach.SetProposalID(Rec."Proposal ID");
+    end;
+
+    trigger OnOpenPage()
+    begin
+        UpdateVisibility();
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        RecRef: RecordRef;
+        xRecRef: RecordRef;
+        IsNewUnmodified: Boolean;
+    begin
+        RecRef.GetTable(Rec);
+        xRecRef.GetTable(xRec);
+
+        IsNewUnmodified := (RecRef.Count = 0) or (Format(Rec) = Format(xRec));
+
+        if IsNewUnmodified and (CloseAction = ACTION::Cancel) then
+            exit(true);
+
+        if CloseAction = ACTION::OK then
+            if not IsNewUnmodified then
+                Rec.TestField("Property ID");
+
+        exit(true);
+    end;
+
+    var
+        ShowLegalReasonFields: Boolean;
+        ShowBusinessReasonFields: Boolean;
+        ShowLegalReasonFields1: Boolean;
+        ShowBusinessReasonFields2: Boolean;
+        ShowLegalReasonFields3: Boolean;
+        ShowLegalReasonFields4: Boolean;
+
     local procedure UpdateUnitEnableState()
     begin
         case Rec."Praposal Type Selected" of
@@ -960,52 +1013,11 @@ page 50315 "Lease Proposal Card"
                     EnableMergeUnit := true;
                 end;
             else
-                EnableSingleUnit := false; // Keep Single Unit enabled by default
+                EnableSingleUnit := false;
                 EnableMergeUnit := false;
         end;
-        CurrPage.Update(); // Refresh the page to apply changes
     end;
 
-    var
-
-    trigger OnModifyRecord(): Boolean
-    begin
-        CurrPage."Revenue".Page.SetProposalId(Rec."Proposal ID");
-        CurrPage."Revenue".Page.SetStartEndDate(Rec."Lease Start Date", Rec."Lease End Date", Rec."Unit Name", Rec."Property Name", Rec."Unit Size", Rec."Tenant Full Name");
-        CurrPage."Revenue".Page.SetTenantID(Rec."Tenant ID");
-
-    end;
-
-    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
-    // Trasfer from Table Start
-    var
-        docAttach: Page "Revenue Item Subpage Card";
-    // Trasfer from Table End
-    begin
-        CurrPage."Revenue".Page.SetProposalId(Rec."Proposal ID");
-        CurrPage."Revenue".Page.SetStartEndDate(Rec."Lease Start Date", Rec."Lease End Date", Rec."Unit Name", Rec."Property Name", Rec."Unit Size", Rec."Tenant Full Name");
-        CurrPage."Revenue".Page.SetTenantID(Rec."Tenant ID");
-
-        // Trasfer from Table Start
-        docAttach.SetProposalID(Rec."Proposal ID");
-        // Trasfer from Table End
-    end;
-
-
-    var
-        ShowLegalReasonFields: Boolean;
-        ShowBusinessReasonFields: Boolean;
-        ShowLegalReasonFields1: Boolean;
-        ShowBusinessReasonFields2: Boolean;
-        ShowLegalReasonFields3: Boolean;
-        ShowLegalReasonFields4: Boolean;
-
-    trigger OnOpenPage()
-    begin
-        UpdateVisibility();
-    end;
-
-    // Procedure to update visibility dynamically
     procedure UpdateVisibility()
     begin
         ShowLegalReasonFields := (Rec."Single Rent Calculation" = Rec."Single Rent Calculation"::"Single Unit with square feet rate");
@@ -1014,34 +1026,6 @@ page 50315 "Lease Proposal Card"
         ShowBusinessReasonFields2 := (Rec."Merge Rent Calculation" = Rec."Merge Rent Calculation"::"Merged Unit with lumpsum annual amount");
         ShowLegalReasonFields3 := (Rec."Single Rent Calculation" = Rec."Single Rent Calculation"::"Single Unit with lumpsum square feet rate");
         ShowLegalReasonFields4 := (Rec."Praposal Type Selected" = Rec."Praposal Type Selected"::"Merge Unit");
-    end;
-
-    var
-
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    var
-
-        RecRef: RecordRef;
-        xRecRef: RecordRef;
-        IsNewUnmodified: Boolean;
-    begin
-        // Get record references
-        RecRef.GetTable(Rec);
-        xRecRef.GetTable(xRec);
-
-        // Check if this is a new unmodified record by comparing current and previous state
-        IsNewUnmodified := (RecRef.Count = 0) or (Format(Rec) = Format(xRec));
-
-        // If it's a new unmodified record and user is trying to close/cancel
-        if IsNewUnmodified and (CloseAction = ACTION::Cancel) then
-            exit(true); // Allow closing without validation
-
-        // For all other cases (modified records or OK action)
-        if CloseAction = ACTION::OK then
-            if not IsNewUnmodified then  // Only validate if the record has been modified
-                Rec.TestField("Property ID");
-
-        exit(true);
     end;
 
     local procedure GetTotalMonths(Duration: Text): Integer
@@ -1054,17 +1038,12 @@ page 50315 "Lease Proposal Card"
 
         if YearPos > 0 then begin
             YearStr := CopyStr(Duration, 1, YearPos - 1);
-            Evaluate(Years, DelChr(YearStr, '<>')); // Remove spaces
+            Evaluate(Years, DelChr(YearStr, '<>'));
         end;
 
-        // Convert years to months
         exit(Years * 12);
     end;
 
-
-
-    // Trasfer from Table Start
-    //-------------Calculate Lease Duration--------------//
     procedure EvaluateLeaseDuration()
     var
         FetchMonth: Codeunit "Fetch Month";
@@ -1152,5 +1131,4 @@ page 50315 "Lease Proposal Card"
         end else
             Rec."Lease Duration" := '';
     end;
-
 }

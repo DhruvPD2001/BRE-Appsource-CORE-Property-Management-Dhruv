@@ -195,6 +195,7 @@ page 50946 "Rent Calculation SubCard"
                                     InstallmentStructure.SetRange("RC ID", TargetPageID);
                                     InstallmentStructure.SetRange("Year", TotalYears);
                                     InstallmentStructure.SetRange("Installment No.", InstallmentNumber);
+                                    InstallmentStructure.SetRange("Revenue Str. Subpage Entry No.", RevenueStructure."Entry No.");
 
                                     if InstallmentStructure.FindFirst() then begin
 
@@ -210,11 +211,11 @@ page 50946 "Rent Calculation SubCard"
                                         end;
 
                                         InstallmentStructure.Modify();
-                                        Message('Date Update Successfully!');
                                     end else begin
                                         // Insert new record
                                         InstallmentStructure.Init();
                                         InstallmentStructure."RC ID" := TargetPageID;
+                                        InstallmentStructure."Revenue Str. Subpage Entry No." := RevenueStructure."Entry No.";
                                         InstallmentStructure."Tenant ID" := RevenueStructure."Tenant ID";
                                         InstallmentStructure."Contract ID" := RevenueStructure."Contract ID";
                                         InstallmentStructure."Primary Classification" := RevenueStructure."Propety Classification";
@@ -284,7 +285,7 @@ page 50946 "Rent Calculation SubCard"
                                 end;
 
                             until RevenueStructure.Next() = 0;
-                            Message('Date Create Successfully!');
+                            Message('Data Create Successfully!');
                         end else
                             Error('No records found in the Revenue Structure.');
                     end;

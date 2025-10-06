@@ -4,6 +4,8 @@ page 50922 "Payment Schedule Card2"
     SourceTable = "Payment Schedule2";
     ApplicationArea = All;
     Caption = 'Payment Schedule Details';
+    DeleteAllowed = false;
+    InsertAllowed = false;
 
     layout
     {
