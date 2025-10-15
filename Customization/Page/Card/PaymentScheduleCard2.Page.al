@@ -251,11 +251,127 @@ page 50922 "Payment Schedule Card2"
             }
         }
     }
+
+    actions
+    {
+
+        area(Processing)
+        {
+            action(FirstInvoice)
+            {
+                ApplicationArea = All;
+                Caption = 'Initiate Contract Invoice';
+                Image = Calculate;
+                ToolTip = 'Create the first invoice of the contract based on the payment schedule.';
+                trigger OnAction()
+                var
+                    newsalesheader: Record "Sales Header";
+                    PaymentScheduleGrid: Record "Payment Schedule2";
+                    PaymentscheduleGridRec: Record "Payment Schedule2";
+                    customercard: Record Customer;
+                    userConfirmed: Boolean;
+                begin
+                    PaymentScheduleGrid.SetRange("Contract ID", Rec."Contract ID");
+                    PaymentScheduleGrid.SetRange("Tenant ID", Rec."Tenant ID");
+                    PaymentScheduleGrid.SetFilter(Invoiced, '=false');
+                    PaymentScheduleGrid.SetRange("Installment No.", 1);
+                    if not PaymentScheduleGrid.FindFirst() then begin
+                        Message('No uninvoiced first installment records found.');
+                        exit;
+                    end else begin
+                        userConfirmed := Confirm('Do you want to create the invoice?', false);
+                        if not userConfirmed then
+                            exit;
+                        newsalesheader := CreateSalesHeader(PaymentScheduleGrid."Contract ID", PaymentScheduleGrid."Tenant ID", PaymentScheduleGrid."Property Classification");
+                        customercard.SetRange("No.", newsalesheader."Sell-to Customer No.");
+                        if customercard.FindSet() then
+                            if newsalesheader."Property Classification" <> '' then begin
+                                customercard.Validate("Gen. Bus. Posting Group", newsalesheader."Property Classification");
+                                customercard.Validate("Customer Posting Group", newsalesheader."Property Classification");
+                                customercard.Modify();
+                            end;
+                        if newsalesheader."Property Classification" <> '' then begin
+                            newsalesheader."Gen. Bus. Posting Group" := CopyStr(newsalesheader."Property Classification", 1, StrLen(newsalesheader."Property Classification"));
+                            newsalesheader."Customer Posting Group" := CopyStr(newsalesheader."Property Classification", 1, StrLen(newsalesheader."Property Classification"));
+                            newsalesheader.Modify();
+                        end;
+
+                        PaymentscheduleGridRec.SetRange("Contract ID", Rec."Contract ID");
+                        PaymentscheduleGridRec.SetRange("Tenant ID", Rec."Tenant ID");
+                        PaymentscheduleGridRec.SetFilter(Invoiced, '=false');
+                        PaymentscheduleGridRec.SetRange("Installment No.", 1);
+                        if PaymentscheduleGridRec.FindSet() then
+                            repeat
+                                Saleslinecreate(newsalesheader, PaymentscheduleGridRec);
+                                PaymentscheduleGridRec.Invoiced := true;
+                                PaymentscheduleGridRec."Invoice ID" := newsalesheader."No.";
+                                PaymentscheduleGridRec.Modify();
+                            until PaymentscheduleGridRec.Next() = 0;
+                        Message('Invoice %1 created successfully for first installment.', newsalesheader."No.");
+                    end;
+                end;
+            }
+        }
+    }
+
+    procedure CreateSalesHeader(pcontractid: Integer; pTenantID: Code[20]; pUnitType: Text[100]): Record "Sales Header"
+    var
+        salesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Header";
+        salesReciveable: Record "Sales & Receivables Setup";
+        noseries: Codeunit "No. Series";
+    begin
+        salesHeader.Init();
+        if salesReciveable.FindFirst() then
+            salesHeader."No." := noseries.GetNextNo(salesReciveable."Invoice Nos.", Today, true);
+        salesHeader."Document Type" := SalesInvoiceHeader."Document Type"::Invoice;
+        salesHeader.Validate("Sell-to Customer No.", pTenantID);
+        salesHeader."Document Date" := Today;
+        salesHeader.Validate("Contract ID", pcontractid);
+        salesHeader."Posting Date" := Today;
+        salesHeader."Due Date" := Today;
+        salesHeader."Property Classification" := pUnitType;
+        salesHeader.Insert();
+        exit(salesHeader);
+    end;
+
+    procedure Saleslinecreate(var salesheader1: Record "Sales Header"; var PaymentscheduleGridLine: Record "Payment Schedule2")
+    var
+        saleline: Record "Sales Line";
+        newSaleslines: Record "Sales Line";
+        item: Record Item;
+    begin
+        saleline.Init();
+        saleline."Document Type" := saleline."Document Type"::Invoice;
+
+        newSaleslines.SetRange("Document No.", salesheader1."No.");
+        newSaleslines.SetRange("Document Type", Enum::"Sales Document Type"::Invoice);
+        newSaleslines.SetCurrentKey("Line No.");
+        if newSaleslines.FindLast() then
+            saleline."Line No." := newSaleslines."Line No." + 1000
+        else
+            saleline."Line No." := 1000;
+        saleline."Document No." := salesheader1."No.";
+        saleline."Contract ID" := salesheader1."Contract ID";
+        saleline.Type := saleline.Type::Item;
+        saleline."Sell-to Customer No." := salesheader1."Sell-to Customer No.";
+        item.SetRange(Description, PaymentscheduleGridLine."Secondary Item Type");
+        if item.FindFirst() then
+            saleline.Validate("No.", item."No.");
+
+        saleline.Validate("Quantity (Base)", 1);
+        saleline.Validate(Quantity, 1);
+        saleline.Validate("Unit Price", Abs(PaymentscheduleGridLine.Amount));
+        saleline."Contract ID" := PaymentscheduleGridLine."Contract ID";
+        saleline."FC ID" := salesheader1."FC ID";
+        saleline.Insert();
+        Clear(saleline);
+    end;
+
     procedure NotAccessInvoicedFieldFinanceManager(): Boolean
     var
         UserPersonalization1: Record "User Personalization";
     begin
-
         if UserPersonalization1.Get(UserSecurityId()) then
             case UserPersonalization1."Profile ID" of
                 'PROPERTY MANAGER':
@@ -265,7 +381,6 @@ page 50922 "Payment Schedule Card2"
                 'finance manager':
                     exit(true);
             end;
-
         exit(false);
     end;
 
@@ -274,8 +389,6 @@ page 50922 "Payment Schedule Card2"
         PaymentSchedule: Record "Payment Schedule";
         workflowfrequency: Record "Workflow Frequency PR";
         TempDueDate: Date;
-        Requestcreditnotegrid: Record "Request Credit Note Grid";
-
     begin
         InvoicedField := NotAccessInvoicedFieldFinanceManager();
 
@@ -295,16 +408,10 @@ page 50922 "Payment Schedule Card2"
             else
                 Rec."Workflow frequency date" := CalcDate('-' + Format(Rec."No of Days") + 'D', TempDueDate);
         end else
-            Rec."Workflow frequency date" := 0D; // or skip, or raise a warning
-
-        // Rec."Final Rent Amount" := Rec."Amount" - Rec."Credit Note Amount";
-        // Rec."Final RentAmountIncludingVAT" := Rec."Final Rent Amount" + (Rec."Final Rent Amount" * Rec."VAT%") / 100;
-
+            Rec."Workflow frequency date" := 0D;
 
         Rec."Final Rent Amount" := Rec."Amount" - Rec."Credit Note Amount";
         Rec."Final RentAmountIncludingVAT" := Rec."Final Rent Amount" + (Rec."Final Rent Amount" * Rec."VAT%") / 100;
-        //    Round("Final Rent Amount" + ("Final Rent Amount" * "VAT%") / 100, 0.01);
-
         Rec.Modify();
     end;
 
