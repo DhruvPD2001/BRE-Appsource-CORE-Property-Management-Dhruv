@@ -77,87 +77,6 @@ page 50125 "Adjustment Security Deposit"
                     end;
                 }
             }
-            // group(Adjust_Installment)
-            // {
-            //     Visible = ShowAdjustInstallment;
-            //     field("Payment Series"; Rec."Payment Series")
-            //     {
-            //         ApplicationArea = All;
-            //         ToolTip = 'Specifies the payment series for the adjustment security deposit. This field allows you to select multiple payment series associated with the contract.';
-
-            //         // Trasfer from Table Start  
-            //         trigger OnLookup(var Text: Text): Boolean
-            //         var
-            //             PaymentMode2Rec: Record "Payment Mode2";
-            //             Selection: Page "Payment Mode2 List";
-            //             SelectedPaymentSeries: Text;
-            //             TotalAmount: Decimal;
-            //             TotalVATAmount: Decimal;
-            //             TotalAmountInclVAT: Decimal;
-            //         begin
-            //             // First check if Contract ID is selected
-            //             if Rec."Contract ID" = 0 then
-            //                 Error('Please select a Contract ID first');
-
-            //             // Filter Payment Mode2 records based on Contract ID
-            //             PaymentMode2Rec.Reset();
-            //             PaymentMode2Rec.SetRange("Contract ID", Rec."Contract ID");
-
-            //             Selection.LookupMode(true);
-            //             Selection.SetTableView(PaymentMode2Rec);
-
-            //             if Selection.RunModal() = ACTION::LookupOK then begin
-            //                 // Clear totals
-            //                 Clear(TotalAmount);
-            //                 Clear(TotalVATAmount);
-            //                 Clear(TotalAmountInclVAT);
-            //                 Clear(SelectedPaymentSeries);
-
-            //                 Selection.SetSelectionFilter(PaymentMode2Rec);
-            //                 if PaymentMode2Rec.FindSet() then begin
-            //                     repeat
-            //                         // Add to payment series string
-            //                         if SelectedPaymentSeries <> '' then
-            //                             SelectedPaymentSeries := SelectedPaymentSeries + ',';
-            //                         SelectedPaymentSeries := SelectedPaymentSeries + PaymentMode2Rec."Payment Series";
-
-            //                         // Sum up amounts
-            //                         TotalAmount += PaymentMode2Rec.Amount;
-            //                         TotalVATAmount += PaymentMode2Rec."VAT Amount";
-            //                         TotalAmountInclVAT += PaymentMode2Rec."Amount Including VAT";
-            //                     until PaymentMode2Rec.Next() = 0;
-
-            //                     // Set all values to the record
-            //                     Rec."Payment Series" := CopyStr(SelectedPaymentSeries, 1, StrLen(SelectedPaymentSeries));
-            //                     Rec.Amount := TotalAmount;
-            //                     Rec."VAT Amount" := TotalVATAmount;
-            //                     Rec."Amount Including VAT" := TotalAmountInclVAT;
-            //                 end;
-            //             end;
-            //         end;
-            //         // Trasfer from Table End
-            //     }
-            //     field(Amount; Rec.Amount)
-            //     {
-            //         ApplicationArea = All;
-            //         ToolTip = 'Specifies the total amount for the adjustment security deposit. This field is calculated based on the selected payment series and includes all relevant charges.';
-            //     }
-            //     field("VAT Amount"; Rec."VAT Amount")
-            //     {
-            //         ApplicationArea = All;
-            //         ToolTip = 'Specifies the VAT amount applicable to the adjustment security deposit. This field is calculated based on the selected payment series and includes all relevant charges.';
-            //     }
-            //     field("Amount Including VAT"; Rec."Amount Including VAT")
-            //     {
-            //         ApplicationArea = All;
-            //         ToolTip = 'Specifies the total amount including VAT for the adjustment security deposit. This field is calculated based on the selected payment series and includes all relevant charges.';
-            //     }
-            //     field("Due Date"; Rec."Due Date")
-            //     {
-            //         ApplicationArea = All;
-            //         ToolTip = 'Specifies the due date for the payment of the adjustment security deposit. This field is calculated based on the selected payment series and includes all relevant charges.';
-            //     }
-            // }
             group(Termination_Charges)
             {
                 Visible = ShowTerminationCharges;
@@ -181,42 +100,81 @@ page 50125 "Adjustment Security Deposit"
                 ApplicationArea = All;
                 Caption = 'Post Entry';
                 Image = PostDocument;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 var
                     SecurityDepositEntry: Record "Security Deposit Entry";
-
+                    terminationcharges: Record "Termination Charges Sub";
+                    ExistingEntry: Record "Security Deposit Entry";
+                    terminationamount: Decimal;
                 begin
                     // Validate required fields
                     if Rec."Contract ID" = 0 then
                         Error('Contract ID must be specified');
 
-                    // if (Rec."Security Amount Status" = Rec."Security Amount Status"::" ") then
-                    //     Error('Please select Security Amount Status');
+                    // Check if entry already exists for this Security Deposit ID
+                    ExistingEntry.SetRange("Security Deposit ID", Rec.ID);
 
+                    if ExistingEntry.FindFirst() then begin
+                        // Entry already exists - ask for confirmation
+                        if Confirm('Entry already posted for this Security Deposit. Do you want to update the existing entry?', false) then begin
+                            // Update existing entry
+                            SecurityDepositEntry := ExistingEntry;
+                            SecurityDepositEntry."Contract ID" := Rec."Contract ID";
+                            SecurityDepositEntry."Main Security Deposit" := Rec."Main Security Deposit";
+                            SecurityDepositEntry."Security Deposit" := Rec."Security Deposit";
+                            SecurityDepositEntry."Start Date" := Rec."Contract Start Date";
+                            SecurityDepositEntry."End Date" := Rec."Contract End Date";
+                            SecurityDepositEntry.Status := Rec.Status;
 
-                    // Create new entry
-                    SecurityDepositEntry.Init();
-                    SecurityDepositEntry."Security Deposit ID" := Rec.ID;
-                    SecurityDepositEntry."Contract ID" := Rec."Contract ID";
-                    SecurityDepositEntry."Main Security Deposit" := Rec."Main Security Deposit";
-                    SecurityDepositEntry."Security Deposit" := Rec."Security Deposit";
-                    SecurityDepositEntry."Start Date" := Rec."Contract Start Date";
-                    SecurityDepositEntry."End Date" := Rec."Contract End Date";
-                    SecurityDepositEntry.Status := Rec.Status; // Set initial status as Open
-                    SecurityDepositEntry.Insert(true);
-                    Message('Entry posted successfully!');
+                            // Clear and recalculate termination charges
+                            terminationcharges.SetRange("Contract ID", Rec."Contract ID");
+                            Clear(terminationamount);
 
+                            if terminationcharges.FindSet() then begin
+                                repeat
+                                    terminationamount += terminationcharges."Amount Including VAT";
+                                until terminationcharges.Next() = 0;
 
+                                SecurityDepositEntry."Total Amount" := terminationamount;
+                            end;
+
+                            SecurityDepositEntry.Modify();
+                            Message('Entry updated successfully!');
+                        end else
+                            exit;
+                    end else begin
+                        // Create new entry
+                        SecurityDepositEntry.Init();
+                        SecurityDepositEntry."Security Deposit ID" := Rec.ID;
+                        SecurityDepositEntry."Contract ID" := Rec."Contract ID";
+                        SecurityDepositEntry."Main Security Deposit" := Rec."Main Security Deposit";
+                        SecurityDepositEntry."Security Deposit" := Rec."Security Deposit";
+                        SecurityDepositEntry."Start Date" := Rec."Contract Start Date";
+                        SecurityDepositEntry."End Date" := Rec."Contract End Date";
+                        SecurityDepositEntry.Status := Rec.Status;
+                        SecurityDepositEntry.Insert(true);
+
+                        terminationcharges.SetRange("Contract ID", Rec."Contract ID");
+                        if terminationcharges.FindSet() then begin
+                            repeat
+                                terminationamount += terminationcharges."Amount Including VAT";
+                            until terminationcharges.Next() = 0;
+
+                            SecurityDepositEntry."Total Amount" := terminationamount;
+                            SecurityDepositEntry.Modify();
+                        end;
+                        Message('Entry posted successfully!');
+                    end;
                 end;
             }
         }
+        area(Promoted)
+        {
+            actionref(Post_; Post) { }
+        }
     }
     var
-
         ShowTerminationCharges: Boolean;
 
     trigger OnAfterGetRecord()
@@ -275,14 +233,8 @@ page 50125 "Adjustment Security Deposit"
     local procedure SetControlVisibility()
     begin
         case Rec."Security Amount Status" of
-            // Rec."Security Amount Status"::"Adjust Installment":
-            //     begin
-            //         ShowAdjustInstallment := true;
-            //         ShowTerminationCharges := false;
-            //     end;
             Rec."Security Amount Status"::"Termination Charges":
                 begin
-                    // ShowAdjustInstallment := false;
                     ShowTerminationCharges := true;
 
                     // Clear Adjust Installment fields
@@ -293,23 +245,8 @@ page 50125 "Adjustment Security Deposit"
                     Rec."Due Date" := 0D;
                     Rec.Modify(false);
                 end;
-            // Rec."Security Amount Status"::"All Charges":  // NEW CASE for "All Charges"
-            //     begin
-            //         ShowAdjustInstallment := true;
-            //         ShowTerminationCharges := true;
-            //     end;
             else
-                // ShowAdjustInstallment := false;
                 ShowTerminationCharges := false;
-
-        // Clear Adjust Installment fields
-        // Rec."Payment Series" := '';
-        // Rec.Amount := 0;
-        // Rec."VAT Amount" := 0;
-        // Rec."Amount Including VAT" := 0;
-        // Rec."Due Date" := 0D;
-        // Rec.Modify(false);
-
         end;
     end;
 
