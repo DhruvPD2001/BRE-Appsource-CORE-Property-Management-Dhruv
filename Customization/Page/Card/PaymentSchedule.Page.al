@@ -179,7 +179,7 @@ page 50915 "Payment Schedule"
                                                     InstallmentStructure."Installment End Date" := RevenueStructure."Period Start Date" + InstallmentNumber * ROUND(RevenueStructure."Number of Days" / RevenueStructure."Yearly No. of Installment", 1, '<');
                                                 end;
                                                 InstallmentStructure.Modify();
-                                                Message('Date Update Successfully!');
+                                                Message('Data Update Successfully!');
                                             end else begin
                                                 InstallmentStructure.Init();
                                                 InstallmentStructure."RS ID" := TargetPageID;
@@ -239,7 +239,7 @@ page 50915 "Payment Schedule"
                                             Clear(InstallmentStructure);
                                         end;
                                     until RevenueStructure.Next() = 0;
-                                    Message('Date Create Successfully!');
+                                    Message('Data Create Successfully!');
                                 end else
                                     Error('No records found in the Revenue Structure.');
                             end

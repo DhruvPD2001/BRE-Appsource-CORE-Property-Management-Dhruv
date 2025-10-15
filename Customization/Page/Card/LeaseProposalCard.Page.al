@@ -4,6 +4,7 @@ page 50315 "Lease Proposal Card"
     SourceTable = "Lease Proposal Details";
     ApplicationArea = All;
     Caption = 'Lease Proposal';
+    UsageCategory = None;
     Editable = true;
 
     layout
@@ -254,15 +255,16 @@ page 50315 "Lease Proposal Card"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Select the end date of the lease. This field is mandatory.';
-                    // Trasfer from Table Start  
+
                     trigger OnValidate()
                     var
                         docAttach: Page "Revenue Item Subpage Card";
                     begin
                         EvaluateLeaseDuration();
                         docAttach.SetStartEndDate(Rec."Lease Start Date", Rec."Lease End Date", Rec."Unit Name", Rec."Property Name", Rec."Unit Size", Rec."Tenant Full Name");
+                        Rec."Payment Frequency" := Rec."Payment Frequency"::" ";
+                        Rec."No of Installments" := 0;
                     end;
-                    // Trasfer from Table End
                 }
                 field("Lease Duration"; rec."Lease Duration")
                 {
@@ -308,29 +310,8 @@ page 50315 "Lease Proposal Card"
                     ToolTip = 'Select the frequency of payment for the lease proposal. This field determines how often the rent is paid, such as monthly, quarterly, half-yearly, or yearly.';
 
                     trigger OnValidate()
-                    var
-                        NoOfInstallments: Integer;
-                        TotalMonths: Integer;
                     begin
-                        // Calculate total months based on duration
-                        if rec."Lease Duration" <> '' then
-                            TotalMonths := GetTotalMonths(rec."Lease Duration")
-                        else
-                            TotalMonths := 0;
-
-                        case rec."Payment Frequency" of
-                            rec."Payment Frequency"::Monthly:
-                                NoOfInstallments := TotalMonths;
-                            rec."Payment Frequency"::Quarterly:
-                                NoOfInstallments := Round(TotalMonths / 3, 1, '>');
-                            rec."Payment Frequency"::"Half-Yearly":
-                                NoOfInstallments := Round(TotalMonths / 6, 1, '>');
-                            rec."Payment Frequency"::Yearly:
-                                NoOfInstallments := Round(TotalMonths / 12, 1, '>');
-                            else
-                                NoOfInstallments := 0;
-                        end;
-                        rec."No of Installments" := NoOfInstallments;
+                        Rec."No of Installments" := CalculateInstallments(Rec."Lease Duration", Format(Rec."Payment Frequency"));
                     end;
                 }
                 field("No of Installments"; rec."No of Installments")
@@ -467,28 +448,8 @@ page 50315 "Lease Proposal Card"
                             TargetRecord."Secondary Item Type" := 'Rent';
                             TargetRecord."VAT Amount" := LeaseProposal."Rent VAT Amount";
                             TargetRecord."Amount Including VAT" := LeaseProposal."Rent Amount Including VAT";
-
-                            // Handle rent calculation type assignment
-                            if LeaseProposal."Single Rent Calculation" = LeaseProposal."Single Rent Calculation"::"Single Unit with lumpsum square feet rate" then
-                                TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Single Rent Calculation")
-                            else
-                                if LeaseProposal."Single Rent Calculation" = LeaseProposal."Single Rent Calculation"::"Single Unit with square feet rate" then
-                                    TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Single Rent Calculation")
-                                else
-                                    if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with differential square feet rate" then
-                                        TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Merge Rent Calculation")
-                                    else
-                                        if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with lumpsum annual amount" then
-                                            TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Merge Rent Calculation")
-                                        else
-                                            if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with same square feet" then
-                                                TargetRecord."Rent Calculation Type" := Format(LeaseProposal."Merge Rent Calculation")
-                                            else
-                                                Error('No valid Rent Calculation Type found in Lease Proposal.');
-
                             TargetRecord.Insert();
 
-                            // Update data in Revenue Structure Subpage for Single Rent Calculation
                             if LeaseProposal."Single Rent Calculation" = LeaseProposal."Single Rent Calculation"::"Single Unit with lumpsum square feet rate" then begin
                                 SU_lumpsum.SetRange("Proposal ID", LeaseProposal."Proposal ID");
                                 if SU_lumpsum.FindSet() then
@@ -500,10 +461,8 @@ page 50315 "Lease Proposal Card"
                                             RevenueSubpage."Period Start Date" := SU_lumpsum."SL_Start Date";
                                             RevenueSubpage."Period End Date" := SU_lumpsum."SL_End Date";
                                             RevenueSubpage."Number of Days" := SU_lumpsum."SL_Number of Days";
-
                                             RevenueSubpage.Insert();
                                             Clear(RevenueSubpage);
-
                                         end else
                                             Message('Skipping duplicate record for RS ID=%1, Year=%2.',
                                                     TargetRecord."RS ID", SU_lumpsum.SL_Year);
@@ -533,7 +492,6 @@ page 50315 "Lease Proposal Card"
                                     else
                                         Error('No data found in Single Unit with square feet rate subpage for Proposal ID %1.', LeaseProposal."Proposal ID");
                                 end
-
                                 else
                                     if LeaseProposal."Merge Rent Calculation" = LeaseProposal."Merge Rent Calculation"::"Merged Unit with differential square feet rate" then begin
                                         // Find the lease proposal record
@@ -705,6 +663,7 @@ page 50315 "Lease Proposal Card"
 
             group("Other Payments")
             {
+                Editable = Rec."Proposal Status" <> Rec."Proposal Status"::Approved;
                 part("Revenue"; "Revenue Item SubPage Card")
                 {
                     SubPageLink = ProposalID = FIELD("Proposal ID"); // Link to filter attachments for this owner only
@@ -772,26 +731,18 @@ page 50315 "Lease Proposal Card"
 
                             case UpperCase(Rec."Calculation Method") of
                                 'FIXED AMOUNT':
-                                    // Do nothing – amount is manually entered
                                     Rec."Amount" := VendorProfileRec."Amount";
-
                                 'STANDARD RATE':
                                     if Rec."Base Amount Type" = Rec."Base Amount Type"::"Monthly Rent" then begin
                                         MonthlyRent := Rec."Rent Amount";
                                         Rec."Amount" := Round(MonthlyRent / 12, 0.01); // 2 decimal rounding
                                     end;
-
-
                                 'PERCENTAGE BASED':
                                     if Rec."Base Amount Type" = Rec."Base Amount Type"::"Annual Rent" then begin
                                         MonthlyRent := Rec."Rent Amount";
-                                        // Percentage := "Percentage";
                                         Rec."Amount" := Round((MonthlyRent * Percentageamt) / 100, 0.01);
                                     end;
-
                             end;
-
-
                         end else begin
                             Rec."Vendor ID" := '';
                             Rec."Vendor Name" := '';
@@ -806,7 +757,6 @@ page 50315 "Lease Proposal Card"
                             Rec."Frequency Of Payment" := Rec."Frequency Of Payment"::" ";
                         end;
                     end;
-                    // Trasfer from Table End
                 }
 
                 field("Vendor Name"; Rec."Vendor Name")
@@ -889,8 +839,6 @@ page 50315 "Lease Proposal Card"
                 Caption = 'Save';
                 ApplicationArea = All;
                 Image = Save;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Save';
                 trigger OnAction()
                 begin
@@ -901,27 +849,44 @@ page 50315 "Lease Proposal Card"
 
         area(Reporting)
         {
-            group(Report)
+            action("Lease Proposal Document")
             {
-                Caption = 'Report';
-                action("Run Report")
-                {
-                    ToolTip = 'Run the proposal report for the selected lease proposal.';
-                    ApplicationArea = All;
-                    trigger OnAction()
-                    var
-                        LeasePrposal: Record "Lease Proposal Details";
-                        ReportRequest: Report "Proposal Report";
-                    begin
-                        Commit();
+                ApplicationArea = All;
+                ToolTip = 'Generate Lease Proposal Document';
+                Image = Document;
 
-                        LeasePrposal.SetRange("Proposal ID", Rec."Proposal ID");
-
-                        ReportRequest.SetTableView(LeasePrposal);
-                        ReportRequest.Run();
-                    end;
-                }
+                trigger OnAction()
+                var
+                    LeasePrposal: Record "Lease Proposal Details";
+                    ReportRequest: Report "Proposal Report";
+                begin
+                    Commit();
+                    LeasePrposal.SetRange("Proposal ID", Rec."Proposal ID");
+                    ReportRequest.SetTableView(LeasePrposal);
+                    ReportRequest.Run();
+                end;
             }
+            action("Other Payment Document")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Generate Other Payment Document';
+                Image = Document;
+                trigger OnAction()
+                var
+                    RevenueItemSubpage: Record "Revenue Item Subpage";
+                    ReportRequest: Report "Other Payment Details";
+                begin
+                    Commit();
+                    RevenueItemSubpage.Reset();
+                    RevenueItemSubpage.SetRange(ProposalID, Rec."Proposal ID");
+                    ReportRequest.SetTableView(RevenueItemSubpage);
+                    ReportRequest.Run();
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref(Save_; Save) { }
         }
     }
 
@@ -930,7 +895,6 @@ page 50315 "Lease Proposal Card"
         EnableSingleUnit: Boolean;
         EnableMergeUnit: Boolean;
 
-    // Update the enable logic based on "Proposal Type Selected"
     trigger OnAfterGetRecord()
     begin
         CurrPage."Revenue".Page.SetProposalId(Rec."Proposal ID");
@@ -942,10 +906,62 @@ page 50315 "Lease Proposal Card"
 
         CurrPage."Merge Lum_AnnualAmount Rent".Page.Update();
         CurrPage."Single Unit lumpsum Rent".Page.Update();
+        UpdateUnitEnableState();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        CurrPage."Revenue".Page.SetProposalId(Rec."Proposal ID");
+        CurrPage."Revenue".Page.SetStartEndDate(Rec."Lease Start Date", Rec."Lease End Date", Rec."Unit Name", Rec."Property Name", Rec."Unit Size", Rec."Tenant Full Name");
+        CurrPage."Revenue".Page.SetTenantID(Rec."Tenant ID");
 
     end;
 
-    // Function to update enabled state of Unit fields
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        docAttach: Page "Revenue Item Subpage Card";
+    begin
+        CurrPage."Revenue".Page.SetProposalId(Rec."Proposal ID");
+        CurrPage."Revenue".Page.SetStartEndDate(Rec."Lease Start Date", Rec."Lease End Date", Rec."Unit Name", Rec."Property Name", Rec."Unit Size", Rec."Tenant Full Name");
+        CurrPage."Revenue".Page.SetTenantID(Rec."Tenant ID");
+
+        docAttach.SetProposalID(Rec."Proposal ID");
+    end;
+
+    trigger OnOpenPage()
+    begin
+        UpdateVisibility();
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        RecRef: RecordRef;
+        xRecRef: RecordRef;
+        IsNewUnmodified: Boolean;
+    begin
+        RecRef.GetTable(Rec);
+        xRecRef.GetTable(xRec);
+
+        IsNewUnmodified := (RecRef.Count = 0) or (Format(Rec) = Format(xRec));
+
+        if IsNewUnmodified and (CloseAction = ACTION::Cancel) then
+            exit(true);
+
+        if CloseAction = ACTION::OK then
+            if not IsNewUnmodified then
+                Rec.TestField("Property ID");
+
+        exit(true);
+    end;
+
+    var
+        ShowLegalReasonFields: Boolean;
+        ShowBusinessReasonFields: Boolean;
+        ShowLegalReasonFields1: Boolean;
+        ShowBusinessReasonFields2: Boolean;
+        ShowLegalReasonFields3: Boolean;
+        ShowLegalReasonFields4: Boolean;
+
     local procedure UpdateUnitEnableState()
     begin
         case Rec."Praposal Type Selected" of
@@ -960,52 +976,11 @@ page 50315 "Lease Proposal Card"
                     EnableMergeUnit := true;
                 end;
             else
-                EnableSingleUnit := false; // Keep Single Unit enabled by default
+                EnableSingleUnit := false;
                 EnableMergeUnit := false;
         end;
-        CurrPage.Update(); // Refresh the page to apply changes
     end;
 
-    var
-
-    trigger OnModifyRecord(): Boolean
-    begin
-        CurrPage."Revenue".Page.SetProposalId(Rec."Proposal ID");
-        CurrPage."Revenue".Page.SetStartEndDate(Rec."Lease Start Date", Rec."Lease End Date", Rec."Unit Name", Rec."Property Name", Rec."Unit Size", Rec."Tenant Full Name");
-        CurrPage."Revenue".Page.SetTenantID(Rec."Tenant ID");
-
-    end;
-
-    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
-    // Trasfer from Table Start
-    var
-        docAttach: Page "Revenue Item Subpage Card";
-    // Trasfer from Table End
-    begin
-        CurrPage."Revenue".Page.SetProposalId(Rec."Proposal ID");
-        CurrPage."Revenue".Page.SetStartEndDate(Rec."Lease Start Date", Rec."Lease End Date", Rec."Unit Name", Rec."Property Name", Rec."Unit Size", Rec."Tenant Full Name");
-        CurrPage."Revenue".Page.SetTenantID(Rec."Tenant ID");
-
-        // Trasfer from Table Start
-        docAttach.SetProposalID(Rec."Proposal ID");
-        // Trasfer from Table End
-    end;
-
-
-    var
-        ShowLegalReasonFields: Boolean;
-        ShowBusinessReasonFields: Boolean;
-        ShowLegalReasonFields1: Boolean;
-        ShowBusinessReasonFields2: Boolean;
-        ShowLegalReasonFields3: Boolean;
-        ShowLegalReasonFields4: Boolean;
-
-    trigger OnOpenPage()
-    begin
-        UpdateVisibility();
-    end;
-
-    // Procedure to update visibility dynamically
     procedure UpdateVisibility()
     begin
         ShowLegalReasonFields := (Rec."Single Rent Calculation" = Rec."Single Rent Calculation"::"Single Unit with square feet rate");
@@ -1016,55 +991,6 @@ page 50315 "Lease Proposal Card"
         ShowLegalReasonFields4 := (Rec."Praposal Type Selected" = Rec."Praposal Type Selected"::"Merge Unit");
     end;
 
-    var
-
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    var
-
-        RecRef: RecordRef;
-        xRecRef: RecordRef;
-        IsNewUnmodified: Boolean;
-    begin
-        // Get record references
-        RecRef.GetTable(Rec);
-        xRecRef.GetTable(xRec);
-
-        // Check if this is a new unmodified record by comparing current and previous state
-        IsNewUnmodified := (RecRef.Count = 0) or (Format(Rec) = Format(xRec));
-
-        // If it's a new unmodified record and user is trying to close/cancel
-        if IsNewUnmodified and (CloseAction = ACTION::Cancel) then
-            exit(true); // Allow closing without validation
-
-        // For all other cases (modified records or OK action)
-        if CloseAction = ACTION::OK then
-            if not IsNewUnmodified then  // Only validate if the record has been modified
-                Rec.TestField("Property ID");
-
-        exit(true);
-    end;
-
-    local procedure GetTotalMonths(Duration: Text): Integer
-    var
-        Years: Integer;
-        YearPos: Integer;
-        YearStr: Text;
-    begin
-        YearPos := StrPos(Duration, 'year');
-
-        if YearPos > 0 then begin
-            YearStr := CopyStr(Duration, 1, YearPos - 1);
-            Evaluate(Years, DelChr(YearStr, '<>')); // Remove spaces
-        end;
-
-        // Convert years to months
-        exit(Years * 12);
-    end;
-
-
-
-    // Trasfer from Table Start
-    //-------------Calculate Lease Duration--------------//
     procedure EvaluateLeaseDuration()
     var
         FetchMonth: Codeunit "Fetch Month";
@@ -1075,7 +1001,6 @@ page 50315 "Lease Proposal Card"
         Days: Integer;
         DurationText: Text[50];
         TempStartDate: Date;
-        DaysDifference: Integer;
         daysInMonth: Integer;
     begin
         LeaseStartDate := Rec."Lease Start Date";
@@ -1083,58 +1008,48 @@ page 50315 "Lease Proposal Card"
 
         if (LeaseStartDate <> 0D) and (LeaseEndDate <> 0D) then begin
             if LeaseEndDate >= LeaseStartDate then begin
-                // Calculate total days difference
-                DaysDifference := LeaseEndDate - LeaseStartDate + 1;
 
-                // If the difference is exactly 365 or 366 days (accounting for leap year)
-                if (DaysDifference = 365) or (DaysDifference = 366) then begin
-                    Years := 1;
-                    Months := 0;
-                    Days := 0;
-                end else begin
-                    TempStartDate := LeaseStartDate;
+                TempStartDate := LeaseStartDate;
 
-                    // Calculate the years
-                    Years := 0;
-                    while (CALCDATE('<+1Y>', TempStartDate) <= LeaseEndDate) or
-                          (CALCDATE('<+1Y-1D>', TempStartDate) = LeaseEndDate) do begin
-                        TempStartDate := CALCDATE('<+1Y>', TempStartDate);
-                        Years := Years + 1;
-                    end;
+                Years := 0;
+                while (CALCDATE('<+1Y>', TempStartDate) <= LeaseEndDate) or
+                      (CALCDATE('<+1Y-1D>', TempStartDate) = LeaseEndDate) do begin
+                    TempStartDate := CALCDATE('<+1Y>', TempStartDate);
+                    Years := Years + 1;
+                end;
 
-                    // Calculate the months
-                    Months := 0;
-                    while CALCDATE('<+1M>', TempStartDate) <= LeaseEndDate do begin
-                        TempStartDate := CALCDATE('<+1M>', TempStartDate);
+                // Calculate the months
+                Months := 0;
+                while CALCDATE('<+1M>', TempStartDate) <= LeaseEndDate do begin
+                    TempStartDate := CALCDATE('<+1M>', TempStartDate);
+                    Months := Months + 1;
+                end;
+
+                // Calculate the remaining days
+                Days := LeaseEndDate - TempStartDate + 1;
+
+                if Days >= 28 then begin
+                    daysInMonth := FetchMonth.GetNoofDaysInMonth(Date2DMY(TempStartDate, 2), Date2DMY(TempStartDate, 3));
+                    if Days = daysInMonth then begin
                         Months := Months + 1;
-                    end;
-
-                    // Calculate the remaining days
-                    Days := LeaseEndDate - TempStartDate + 1;
-
-                    if Days >= 28 then begin
-                        daysInMonth := FetchMonth.GetNoofDaysInMonth(Date2DMY(TempStartDate, 2), Date2DMY(TempStartDate, 3));
-                        if Days = daysInMonth then begin
-                            Months := Months + 1;
-                            Days := 0;
-                        end
-                        else
-                            if Days > daysInMonth then begin
-                                Months := Months + 1;
-                                Days := Days - daysInMonth;
-                            end;
-                    end;
-
-                    if Months = 12 then begin
-                        Years := Years + 1;
-                        Months := 0;
+                        Days := 0;
                     end
                     else
-                        if Months > 12 then begin
-                            Years := Years + (Months div 12);
-                            Months := Months mod 12;
+                        if Days > daysInMonth then begin
+                            Months := Months + 1;
+                            Days := Days - daysInMonth;
                         end;
                 end;
+
+                if Months = 12 then begin
+                    Years := Years + 1;
+                    Months := 0;
+                end
+                else
+                    if Months > 12 then begin
+                        Years := Years + (Months div 12);
+                        Months := Months mod 12;
+                    end;
 
                 DurationText := '';
                 if Years > 0 then
@@ -1153,4 +1068,22 @@ page 50315 "Lease Proposal Card"
             Rec."Lease Duration" := '';
     end;
 
+    procedure CalculateInstallments(DurationText: Text; Frequency: Text): Integer
+    var
+        fetchMonth: Codeunit "Fetch Month";
+        Years, Months, Days : Integer;
+        TotalMonths, MonthsPerInstallment, Installments : Integer;
+    begin
+        fetchMonth.ParseDuration(DurationText, Years, Months, Days);
+
+        TotalMonths := (Years * 12) + Months;
+
+        MonthsPerInstallment := fetchMonth.GetNoofMonthsFromFrequency(Frequency);
+
+        Installments := TotalMonths DIV MonthsPerInstallment;
+        if (TotalMonths MOD MonthsPerInstallment > 0) or (Days > 0) then
+            Installments += 1;
+
+        exit(Installments);
+    end;
 }

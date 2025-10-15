@@ -254,47 +254,49 @@ page 50966 "Credit Note Card"
                 PromotedIsBig = true;
                 trigger OnAction()
                 var
-                    FinalCalculation: Record "Final Calculation";
+                    CreditNotetable: Record "Credit Note";
                     Billingcalculationgrid: Record "Final Billing Calculation Grid";
-                    creditmemo: Record "Credit Note";
-
+                    CreditNoteReport: Report "Terminated Credit Note";
                     azureBlobUploader: Codeunit "Azure AD Blob Storage";
                     TempBlob: Codeunit "Temp Blob";
-                    RecRef: RecordRef;
                     fileName: Text;
                     uploadResult: Text;
                     folderName: Text;
                     inStream: InStream;
-                    ReportID: Integer;
                     OutStream: OutStream;
-
                 begin
-                    ReportID := 50117;
-                    creditmemo.Reset();
-                    creditmemo.SetRange("Contract ID", Rec."Contract ID");
-                    creditmemo.SetRange("FC ID", Rec."FC ID");
-                    RecRef.GetTable(creditmemo);
-                    RecRef.GetTable(Rec);
+                    CreditNotetable.Reset();
+                    CreditNotetable.SetRange(ID, Rec.ID);
+
+                    if not CreditNotetable.FindFirst() then
+                        Error('Credit Note record not found for ID: %1', Rec.ID);
+
+                    CreditNoteReport.SetTableView(CreditNotetable);
+                    CreditNoteReport.UseRequestPage(false);
+
                     TempBlob.CreateOutStream(OutStream);
-                    Report.SaveAs(ReportID, '', ReportFormat::Pdf, OutStream, RecRef);
+                    CreditNoteReport.SaveAs('', ReportFormat::Pdf, OutStream);
                     TempBlob.CreateInStream(InStream);
-                    FileName := 'CreditNote' + Format(Rec."ID") + '.pdf';
+
+                    FileName := 'CreditNote_' + Format(Rec.ID) + '.pdf';
+
                     folderName := 'Payment Receipt';
                     uploadResult := azureBlobUploader.UploadDocumentToBlob(inStream, fileName, folderName);
-                    if fileName <> '' then begin
+
+                    if uploadResult <> '' then begin
                         Rec."Credit Note Document" := CopyStr(fileName, 1, StrLen(fileName));
                         Rec."Credit Note URL" := CopyStr(uploadResult, 1, StrLen(uploadResult));
                         Rec.Modify();
                         Message('File uploaded successfully: %1', fileName);
-                    end;
-                    Rec.Modify();
+                    end else
+                        Error('File upload failed');
+
                     Billingcalculationgrid.SetRange("Contract ID", Rec."Contract ID");
                     if Billingcalculationgrid.FindSet() then begin
                         Billingcalculationgrid."Credit Note Document" := CopyStr(Rec."Credit Note Document", 1, StrLen(Rec."Credit Note Document"));
                         Billingcalculationgrid."Credit Note Document URL" := CopyStr(Rec."Credit Note URL", 1, StrLen(Rec."Credit Note URL"));
                         Billingcalculationgrid.Modify(true);
-                    end else
-                        Error('No Final Calculation record found for Contract ID %1', FinalCalculation."Contract ID");
+                    end;
                 end;
             }
         }

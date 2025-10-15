@@ -303,7 +303,7 @@ page 50313 "Tenancy Contract Card"
                 field("Base Unit of Measure"; rec."Base Unit of Measure")
                 {
                     ApplicationArea = All;
-                    Lookup = true;
+                    Editable = false;
                     ToolTip = 'Select the base unit of measure for the property associated with this tenancy contract.';
                 }
 
@@ -337,6 +337,7 @@ page 50313 "Tenancy Contract Card"
                 field("Facilities/Amenities"; rec."Facilities/Amenities")
                 {
                     ApplicationArea = All;
+                    Editable = false;
                     ToolTip = 'Enter the facilities or amenities associated with this tenancy contract.';
                 }
             }
@@ -425,14 +426,14 @@ page 50313 "Tenancy Contract Card"
                 field("Security Deposit Amount"; Rec."Security Deposit Amount")
                 {
                     ApplicationArea = All;
-                    Editable = true;
+                    Editable = false;
                     ToolTip = 'Enter the security deposit amount for the tenancy contract.';
                 }
 
                 field("Balance Amount"; Rec."Security Deposit Amt. Received")
                 {
                     ApplicationArea = All;
-                    Editable = true;
+                    Editable = false;
                     Caption = 'Security Deposit Amount Received';
                     ToolTip = 'Enter the balance amount of the security deposit for the tenancy contract.';
 
@@ -444,7 +445,7 @@ page 50313 "Tenancy Contract Card"
                 field("Security Amount Received"; Rec."Security Amount Pending")
                 {
                     ApplicationArea = All;
-                    Editable = true;
+                    Editable = false;
                     Caption = 'Security Deposit Amount Pending';
                     ToolTip = 'Enter the amount received for the security deposit for the tenancy contract.';
 
@@ -457,7 +458,7 @@ page 50313 "Tenancy Contract Card"
                 field("Security Balanced Amount"; Rec."Security Balanced Amount")
                 {
                     ApplicationArea = All;
-                    Editable = true;
+                    Editable = false;
                     Caption = 'Security Deposit Amount Balance';
                     ToolTip = 'Enter the balanced amount of the security deposit for the tenancy contract.';
                 }
@@ -510,7 +511,7 @@ page 50313 "Tenancy Contract Card"
                 field("Single Rent Calculation"; Rec."Single Rent Calculation")
                 {
                     ApplicationArea = All;
-                    Editable = Rec."Praposal Type Selected" = Rec."Praposal Type Selected"::"Single Unit";
+                    Editable = false;
                     ToolTip = 'Select the type of rent calculation for single units, either with lumpsum square feet rate or with square feet rate.';
                     trigger OnValidate()
                     begin
@@ -521,7 +522,7 @@ page 50313 "Tenancy Contract Card"
                 field("Merge Rent Calculation"; Rec."Merge Rent Calculation")
                 {
                     ApplicationArea = All;
-                    Editable = Rec."Praposal Type Selected" = Rec."Praposal Type Selected"::"Merge Unit";
+                    Editable = false;
                     ToolTip = 'Select the type of rent calculation for merged units, either with differential square feet rate, lumpsum annual amount, or same square feet.';
                     trigger OnValidate()
                     begin
@@ -754,7 +755,6 @@ page 50313 "Tenancy Contract Card"
 
                     trigger OnDrillDown()
                     var
-
                         RentRecord: Record "Rent Calculation";
                         Tenancycontract: Record "Tenancy Contract";
                         SU_samesquare: Record "TC Single Unit Rent SubPage";
@@ -763,12 +763,12 @@ page 50313 "Tenancy Contract Card"
                         MU_differentsquare: Record "TC Merge DifferentSq SubPage";
                         MU_lumpsum: Record "TC Merge LumAnnualAmount SP";
                         RentSubpage: Record "Rent Calculation Subpage";
+                        fetchMonth: Codeunit "Fetch Month";
+                        yearlyInstallment: Integer;
                         Lastyear: Integer;
-
                         RentRecordid: Integer;
                         SingleUnitName: Text;
                         CommaPos: Integer;
-
                     begin
                         // Find the Tenancy Contract record
                         Tenancycontract.SetRange("Contract ID", Rec."Contract ID");
@@ -791,7 +791,17 @@ page 50313 "Tenancy Contract Card"
                             RentRecord.SetRange("Contract ID", Rec."Contract ID"); // Ensure you're looking for the correct Contract ID
 
                             if RentRecord.FindFirst() then begin
-                                // If Rent Calculation exists, modify it
+                                RentRecord."Contract ID" := Tenancycontract."Contract ID";
+                                RentRecord."Property Classification" := Tenancycontract."Property Classification";
+                                RentRecord."Contract Start Date" := Tenancycontract."Contract Start Date";
+                                RentRecord."Contract End Date" := Tenancycontract."Contract End Date";
+                                RentRecord."Amount" := Round(Tenancycontract."Annual Rent Amount");
+                                RentRecord."Tenant ID" := Tenancycontract."Tenant ID";
+                                RentRecord."Secondary Item Type" := 'Rent';
+                                RentRecord."VAT Amount" := Round(Tenancycontract."Contract VAT Amount");
+                                RentRecord."Amount Including VAT" := Round(Tenancycontract."Contract Amount Including VAT");
+                                RentRecord."Number of Installments" := Tenancycontract."No of Installments";
+                                RentRecord."VAT %" := Tenancycontract."Contract VAT %";
                                 RentRecord.Modify();
                                 Message('Record Modified Successfully');
                                 exit;
@@ -901,7 +911,6 @@ page 50313 "Tenancy Contract Card"
 
                                             // Find the first unit's details in Merge DifferentSquare table
                                             MU_differentsquare.SetRange("Contract ID", Tenancycontract."Contract ID");
-                                            MU_differentsquare.SetRange("MD_Unit ID", SingleUnitName); // Filter by the first unit name
                                             if MU_differentsquare.FindSet() then
                                                 repeat
                                                     // Update Revenue Structure Subpage
@@ -998,8 +1007,19 @@ page 50313 "Tenancy Contract Card"
                                 RentSubpage.SetRange("Contract ID", RentRecord."Contract ID");
                                 if RentSubpage.FindSet() then
                                     repeat
+                                        yearlyInstallment := 12 / fetchMonth.GetNoofMonthsFromFrequency(Format(Rec."Payment Frequency"));
 
-                                        RentSubpage."Yearly No. of Installment" := RentRecord."Number of Installments" / Lastyear;
+                                        if Rec."No of Installments" > yearlyInstallment then begin
+                                            if RentSubpage.Year = Lastyear then
+                                                RentSubpage."Yearly No. of Installment" := Rec."No of Installments" - (yearlyInstallment * (Lastyear - 1))
+                                            else
+                                                RentSubpage."Yearly No. of Installment" := yearlyInstallment;
+                                        end
+                                        else
+                                            if Rec."No of Installments" < yearlyInstallment then
+                                                RentSubpage."Yearly No. of Installment" := Rec."No of Installments"
+                                            else
+                                                RentSubpage."Yearly No. of Installment" := yearlyInstallment;
 
                                         RentSubpage.Modify(true);
                                     until RentSubpage.Next() = 0;

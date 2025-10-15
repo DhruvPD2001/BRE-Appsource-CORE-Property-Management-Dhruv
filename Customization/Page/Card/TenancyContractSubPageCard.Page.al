@@ -4,6 +4,7 @@ page 50939 "Tenancy Contract SubPage Card"
     ApplicationArea = All;
     SourceTable = "Tenancy Contract Subpage";
     Caption = 'Other Payments';
+    DeleteAllowed = false;
 
     layout
     {
@@ -79,8 +80,7 @@ page 50939 "Tenancy Contract SubPage Card"
 
                     trigger OnDrillDown()
                     var
-
-                        TargetRecord: Record "Revenue Structure"; // Replace with the actual table name
+                        TargetRecord: Record "Revenue Structure";
                         RevenueStructure: Record "Revenue Structure Subpage";
                         StartDate: Date;
                         EndDate: Date;
@@ -98,7 +98,6 @@ page 50939 "Tenancy Contract SubPage Card"
                     begin
 
                         if Rec."Payment Type" = Rec."Payment Type"::Installment then begin
-
                             TargetRecord.SetRange("Contract ID", Rec."ContractID");
                             TargetRecord.SetRange("Secondary Item Type", Rec."Secondary Item Type");
                             TargetRecord.SetRange("Tenant ID", Rec."TenantID");

@@ -37,6 +37,9 @@ report 50104 InvoiceTemplate
             column(CompanyEmail; CompanyInfo."E-Mail")
             {
             }
+            column(CompanyTRN; CompanyInfo."VAT Registration No.")
+            {
+            }
             column(No_; "No.")
             {
             }

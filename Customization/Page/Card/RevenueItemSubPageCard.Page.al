@@ -30,6 +30,9 @@ page 50909 "Revenue Item SubPage Card"
                     ToolTip = 'Enter the Amount.';
                     trigger OnValidate()
                     begin
+                        if Rec."Secondary Item Type" = '' then
+                            Error('Please select the Secondary Item Type before entering an Amount.');
+
                         UpdateLeaseProposalAmount();
                     end;
                 }

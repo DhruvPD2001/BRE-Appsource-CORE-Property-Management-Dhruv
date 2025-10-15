@@ -126,8 +126,6 @@ permissionset 50101 PagePermissionSet
         page "Revenue Structure Card" = X,
         page "Revenue Structure List" = X,
         page "RevenueRecognition Othercharge" = X,
-        page "Secondary Item Card" = X,
-        page "Secondary Item List" = X,
         page "Security Deposit Card" = X,
         page "Security Deposit Entries" = X,
         page "Security Deposit Ledger List" = X,
@@ -157,5 +155,6 @@ permissionset 50101 PagePermissionSet
         page "Vendor Profile List" = X,
         page "Workflow Frequency PR Card" = X,
         codeunit SendListPendingCreditNoteInv = X,
-        page "Vendor Profile Card" = X;
+        page "Vendor Profile Card" = X,
+        page OverduePaymentmodelist = X;
 }

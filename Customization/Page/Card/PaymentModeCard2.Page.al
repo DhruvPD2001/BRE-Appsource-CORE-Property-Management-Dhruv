@@ -4,6 +4,7 @@ page 50928 "Payment Mode Card2"
     SourceTable = "Payment Mode2";
     ApplicationArea = All;
     Caption = 'Payment Details';
+    DeleteAllowed = false;
 
     layout
     {
@@ -60,10 +61,7 @@ page 50928 "Payment Mode Card2"
                 {
                     ApplicationArea = All;
                     Editable = IsApproved AND (Rec."Payment Mode" = 'Cheque') and (Rec."Payment Status" <> Rec."Payment Status"::Cancelled);  // The ID is not editable since it's auto-incrementing
-                                                                                                                                              //Editable = (Rec."Payment Mode" = 'Cheque'); // Editable only if Payment Mode is 'Cheque'
-                                                                                                                                              //Editable = not ((Rec."Payment Mode" = 'Cheque') and (Rec."Payment Status" = Rec."Payment Status"::Cancelled));
                     ToolTip = 'The Cheque Number is the unique identifier for the cheque payment.';
-
                 }
 
                 field("Deposit Bank"; Rec."Deposit Bank")
@@ -77,7 +75,6 @@ page 50928 "Payment Mode Card2"
                 field("Deposit Status"; Rec."Deposit Status")
                 {
                     ApplicationArea = All;
-                    Editable = false;
                     ToolTip = 'The Deposit Status indicates the status of the deposit.';
                 }
 
@@ -92,7 +89,7 @@ page 50928 "Payment Mode Card2"
                 field("Cheque Status"; Rec."Cheque Status")
                 {
                     ApplicationArea = All;
-                    Editable = IsApproved;
+                    Editable = IsApproved and (Rec."Payment Mode" = 'Cheque');
                     ToolTip = 'The Cheque Status indicates the status of the cheque payment, such as Cheque Received or Cheque Cleared.';
                 }
 
@@ -602,20 +599,12 @@ page 50928 "Payment Mode Card2"
                     Rec."Payment Status" := PaymentStatus::Scheduled
 
                 else
-                    if Rec."Due Date" < Today() then
+                    if Rec."Due Date" < Today() then begin
                         Rec."Payment Status" := PaymentStatus::Overdue;
+                        OverduePaymentSendRequest();
+                    end;
 
         Rec.Modify();
-        // if Rec."Due Date" <> xRec."Due Date" then begin
-        //         if Rec."Due Date" = Today() then
-        //             Rec."Payment Status" := Rec."Payment Status"::"Due"
-        //         else if Rec."Due Date" < Today() then
-        //             Rec."Payment Status" := Rec."Payment Status"::"Overdue"
-        //         else
-        //             Rec."Payment Status" := Rec."Payment Status";
-
-        //      //   Modify();
-        //     end;
 
         paymentschedul2grid.SetRange("Contract ID", Rec."Contract ID");
         paymentschedul2grid.SetRange("Payment Series", Rec."Payment Series");
@@ -796,4 +785,30 @@ page 50928 "Payment Mode Card2"
         CurrPage.Update(false);
     end;
 
+    procedure OverduePaymentSendRequest()
+    var
+        OverduePaymentList: Record "OverDuePaymentmode";
+        approvalstatus: Enum "Approval Status Enum";
+    begin
+        if Rec."Due Date" < Today() then begin
+            Rec."Payment Status" := Rec."Payment Status"::Overdue;
+            Rec.Modify();
+
+            OverduePaymentList.Reset();
+            OverduePaymentList.SetRange("Tenant Id", Rec."Tenant Id");
+            OverduePaymentList.SetRange("Contract ID", Rec."Contract ID");
+            OverduePaymentList.SetRange("Payment Series", Rec."Payment Series");
+            if not OverduePaymentList.FindFirst() then begin
+                OverduePaymentList.Init();
+                OverduePaymentList."Status" := approvalstatus::Pending;
+                OverduePaymentList."Tenant Id" := Rec."Tenant Id";
+                OverduePaymentList."Contract ID" := Rec."Contract ID";
+                OverduePaymentList."Payment Series" := Rec."Payment Series";
+                OverduePaymentList."Due Date" := Rec."Due Date";
+                OverduePaymentList."Payment Status" := Rec."Payment Status";
+                OverduePaymentList."Tenant Name" := Rec."Tenant Name";
+                OverduePaymentList.Insert(true);
+            end;
+        end;
+    end;
 }

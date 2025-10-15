@@ -72,14 +72,6 @@ page 50941 "Contract Renewal SubPage Card"
                     Lookup = true;
                     ToolTip = 'Enter the End Date.';
                 }
-
-                field("Payment Type"; Rec."Payment Type")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Payment Type';
-                    ToolTip = 'Enter the Payment Type.';
-                }
-
                 field("Generate Payment Schedule"; Rec."Generate Payment Schedule")
                 {
                     ApplicationArea = All;
